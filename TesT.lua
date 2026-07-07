@@ -1,52 +1,39 @@
-local ReaperHub = loadstring(game:HttpGet("https://raw.githubusercontent.com/QuantumHubGui/ReaperX/main/.lua"))()
+local Library
 
-local Window = ReaperHub:CreateWindow({
-    Title = "Reaper Hub"
-})
+local success, result = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/QuantumHubGui/ReaperX/main/.lua"))()
+end)
 
-local MainTab = Window:CreateTab({
-    Name = "Main",
-    Icon = "home"
-})
+if success and result then
+    Library = result
+else
+    warn("[ReaperHub] Failed to load from URL, trying local...")
+    local localSuccess, localResult = pcall(function()
+        return require(game.ReplicatedStorage:WaitForChild("ReaperHub", 2))
+    end)
+    if localSuccess and localResult then
+        Library = localResult
+    else
+        warn("[ReaperHub] Could not load library. Ensure the URL is correct or module is in ReplicatedStorage.")
+        return
+    end
+end
 
-local CombatTab = Window:CreateTab({
-    Name = "Combat",
-    Icon = "sword"
-})
+local Window = Library:CreateWindow({Title = "Reaper Hub"})
 
-local PlayerTab = Window:CreateTab({
-    Name = "Player",
-    Icon = "user"
-})
-
-local VisualTab = Window:CreateTab({
-    Name = "Visual",
-    Icon = "eye"
-})
-
-local TeleportTab = Window:CreateTab({
-    Name = "Teleport",
-    Icon = "map-pin"
-})
-
-local MiscTab = Window:CreateTab({
-    Name = "Misc",
-    Icon = "sliders"
-})
-
-local SettingsTab = Window:CreateTab({
-    Name = "Settings",
-    Icon = "settings"
-})
+local MainTab = Window:CreateTab({Name = "Main", Icon = "home"})
+local CombatTab = Window:CreateTab({Name = "Combat", Icon = "sword"})
+local PlayerTab = Window:CreateTab({Name = "Player", Icon = "user"})
+local VisualTab = Window:CreateTab({Name = "Visual", Icon = "eye"})
+local TeleportTab = Window:CreateTab({Name = "Teleport", Icon = "map-pin"})
+local MiscTab = Window:CreateTab({Name = "Misc", Icon = "sliders"})
+local SettingsTab = Window:CreateTab({Name = "Settings", Icon = "settings"})
 
 
-local MainSection = Window:CreateSection(MainTab, {
-    Name = "Welcome",
-    Collapsed = false
-})
+local MainSection = Window:CreateSection(MainTab, {Name = "Welcome", Collapsed = false})
 
 Window:CreateParagraph(MainTab, {
-    Text = "Reaper Hub Loaded Successfully. Use the tabs below to access features. Press RightShift to toggle UI.",
+    Text = "Reaper Hub Loaded. Use tabs below to access features. Press RightShift to toggle UI.",
     Parent = MainSection.Content
 })
 
@@ -55,9 +42,9 @@ Window:CreateDivider(MainTab, {Parent = MainSection.Content})
 Window:CreateButton(MainTab, {
     Text = "Rejoin Server",
     Callback = function()
-        local ts = game:GetService("TeleportService")
-        local p = game:GetService("Players").LocalPlayer
-        ts:Teleport(game.PlaceId, p)
+        pcall(function()
+            game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
+        end)
     end,
     Parent = MainSection.Content
 })
@@ -65,26 +52,25 @@ Window:CreateButton(MainTab, {
 Window:CreateButton(MainTab, {
     Text = "Server Hop",
     Callback = function()
-        local ts = game:GetService("TeleportService")
-        local hs = game:GetService("HttpService")
-        local p = game:GetService("Players").LocalPlayer
-        local req = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
-        local data = hs:JSONDecode(req)
-        for _, server in ipairs(data.data) do
-            if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                ts:TeleportToPlaceInstance(game.PlaceId, server.id, p)
-                break
+        pcall(function()
+            local ts = game:GetService("TeleportService")
+            local hs = game:GetService("HttpService")
+            local p = game:GetService("Players").LocalPlayer
+            local req = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
+            local data = hs:JSONDecode(req)
+            for _, server in ipairs(data.data) do
+                if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                    ts:TeleportToPlaceInstance(game.PlaceId, server.id, p)
+                    break
+                end
             end
-        end
+        end)
     end,
     Parent = MainSection.Content
 })
 
 
-local CombatSection = Window:CreateSection(CombatTab, {
-    Name = "Combat",
-    Collapsed = false
-})
+local CombatSection = Window:CreateSection(CombatTab, {Name = "Combat", Collapsed = false})
 
 local AutoClick = false
 Window:CreateToggle(CombatTab, {
@@ -95,10 +81,12 @@ Window:CreateToggle(CombatTab, {
         if state then
             task.spawn(function()
                 while AutoClick do
-                    local vim = game:GetService("VirtualInputManager")
-                    vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-                    task.wait(0.05)
-                    vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                    pcall(function()
+                        local vim = game:GetService("VirtualInputManager")
+                        vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                        task.wait(0.05)
+                        vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                    end)
                     task.wait(0.05)
                 end
             end)
@@ -116,23 +104,24 @@ Window:CreateToggle(CombatTab, {
         if state then
             task.spawn(function()
                 while KillAura do
-                    local lp = game:GetService("Players").LocalPlayer
-                    local char = lp.Character
-                    if char and char:FindFirstChild("HumanoidRootPart") then
-                        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-                            if player ~= lp and player.Character then
-                                local targetHRP = player.Character:FindFirstChild("HumanoidRootPart")
-                                local targetHum = player.Character:FindFirstChild("Humanoid")
-                                local myHRP = char:FindFirstChild("HumanoidRootPart")
-                                if targetHRP and targetHum and myHRP then
-                                    local dist = (targetHRP.Position - myHRP.Position).Magnitude
-                                    if dist <= 20 then
-                                        targetHum.Health = 0
+                    pcall(function()
+                        local lp = game:GetService("Players").LocalPlayer
+                        local char = lp.Character
+                        if char and char:FindFirstChild("HumanoidRootPart") then
+                            for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                                if player ~= lp and player.Character then
+                                    local targetHRP = player.Character:FindFirstChild("HumanoidRootPart")
+                                    local targetHum = player.Character:FindFirstChild("Humanoid")
+                                    local myHRP = char:FindFirstChild("HumanoidRootPart")
+                                    if targetHRP and targetHum and myHRP then
+                                        if (targetHRP.Position - myHRP.Position).Magnitude <= 20 then
+                                            targetHum.Health = 0
+                                        end
                                     end
                                 end
                             end
                         end
-                    end
+                    end)
                     task.wait(0.3)
                 end
             end)
@@ -155,23 +144,20 @@ Window:CreateKeybind(CombatTab, {
     Text = "Kill All Key",
     Default = Enum.KeyCode.K,
     Callback = function(key)
-        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-            if player ~= game:GetService("Players").LocalPlayer and player.Character then
-                local hum = player.Character:FindFirstChild("Humanoid")
-                if hum then
-                    hum.Health = 0
+        pcall(function()
+            for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                if player ~= game:GetService("Players").LocalPlayer and player.Character then
+                    local hum = player.Character:FindFirstChild("Humanoid")
+                    if hum then hum.Health = 0 end
                 end
             end
-        end
+        end)
     end,
     Parent = CombatSection.Content
 })
 
 
-local PlayerSection = Window:CreateSection(PlayerTab, {
-    Name = "Character",
-    Collapsed = false
-})
+local PlayerSection = Window:CreateSection(PlayerTab, {Name = "Character", Collapsed = false})
 
 Window:CreateSlider(PlayerTab, {
     Text = "WalkSpeed",
@@ -179,10 +165,10 @@ Window:CreateSlider(PlayerTab, {
     Max = 500,
     Default = 16,
     Callback = function(value)
-        local char = game:GetService("Players").LocalPlayer.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.WalkSpeed = value
-        end
+        pcall(function()
+            local hum = game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid")
+            if hum then hum.WalkSpeed = value end
+        end)
     end,
     Parent = PlayerSection.Content
 })
@@ -193,10 +179,10 @@ Window:CreateSlider(PlayerTab, {
     Max = 500,
     Default = 50,
     Callback = function(value)
-        local char = game:GetService("Players").LocalPlayer.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.JumpPower = value
-        end
+        pcall(function()
+            local hum = game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid")
+            if hum then hum.JumpPower = value end
+        end)
     end,
     Parent = PlayerSection.Content
 })
@@ -207,10 +193,10 @@ Window:CreateSlider(PlayerTab, {
     Max = 50,
     Default = 0,
     Callback = function(value)
-        local char = game:GetService("Players").LocalPlayer.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.HipHeight = value
-        end
+        pcall(function()
+            local hum = game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid")
+            if hum then hum.HipHeight = value end
+        end)
     end,
     Parent = PlayerSection.Content
 })
@@ -227,10 +213,12 @@ Window:CreateToggle(PlayerTab, {
 
 game:GetService("UserInputService").JumpRequest:Connect(function()
     if InfJump then
-        local lp = game:GetService("Players").LocalPlayer
-        if lp.Character and lp.Character:FindFirstChild("Humanoid") then
-            lp.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        end
+        pcall(function()
+            local lp = game:GetService("Players").LocalPlayer
+            if lp.Character and lp.Character:FindFirstChild("Humanoid") then
+                lp.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
     end
 end)
 
@@ -243,24 +231,28 @@ Window:CreateToggle(PlayerTab, {
         if state then
             task.spawn(function()
                 while Noclip do
+                    pcall(function()
+                        local char = game:GetService("Players").LocalPlayer.Character
+                        if char then
+                            for _, part in ipairs(char:GetDescendants()) do
+                                if part:IsA("BasePart") then
+                                    part.CanCollide = false
+                                end
+                            end
+                        end
+                    end)
+                    task.wait()
+                end
+                pcall(function()
                     local char = game:GetService("Players").LocalPlayer.Character
                     if char then
                         for _, part in ipairs(char:GetDescendants()) do
                             if part:IsA("BasePart") then
-                                part.CanCollide = false
+                                part.CanCollide = true
                             end
                         end
                     end
-                    task.wait()
-                end
-                local char = game:GetService("Players").LocalPlayer.Character
-                if char then
-                    for _, part in ipairs(char:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            part.CanCollide = true
-                        end
-                    end
-                end
+                end)
             end)
         end
     end,
@@ -276,67 +268,48 @@ Window:CreateToggle(PlayerTab, {
     Default = false,
     Callback = function(state)
         FlyEnabled = state
-        local lp = game:GetService("Players").LocalPlayer
-        local char = lp.Character
-        if not char then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-
-        if state then
-            local bv = Instance.new("BodyVelocity")
-            bv.Name = "FlyVelocity"
-            bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-            bv.Velocity = Vector3.zero
-            bv.Parent = hrp
-
-            local bg = Instance.new("BodyGyro")
-            bg.Name = "FlyGyro"
-            bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
-            bg.CFrame = hrp.CFrame
-            bg.Parent = hrp
-
-            FlyConnection = game:GetService("RunService").RenderStepped:Connect(function()
-                if not FlyEnabled then return end
-                local cam = workspace.CurrentCamera
-                local direction = Vector3.zero
-                local uis = game:GetService("UserInputService")
-
-                if uis:IsKeyDown(Enum.KeyCode.W) then
-                    direction = direction + cam.CFrame.LookVector
-                end
-                if uis:IsKeyDown(Enum.KeyCode.S) then
-                    direction = direction - cam.CFrame.LookVector
-                end
-                if uis:IsKeyDown(Enum.KeyCode.A) then
-                    direction = direction - cam.CFrame.RightVector
-                end
-                if uis:IsKeyDown(Enum.KeyCode.D) then
-                    direction = direction + cam.CFrame.RightVector
-                end
-                if uis:IsKeyDown(Enum.KeyCode.Space) then
-                    direction = direction + Vector3.new(0, 1, 0)
-                end
-                if uis:IsKeyDown(Enum.KeyCode.LeftShift) then
-                    direction = direction - Vector3.new(0, 1, 0)
-                end
-
-                if bv then
-                    bv.Velocity = direction * FlySpeed
-                end
-                if bg then
+        pcall(function()
+            local lp = game:GetService("Players").LocalPlayer
+            local char = lp.Character
+            if not char then return end
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if not hrp then return end
+            if state then
+                local bv = Instance.new("BodyVelocity")
+                bv.Name = "FlyVelocity"
+                bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+                bv.Velocity = Vector3.zero
+                bv.Parent = hrp
+                local bg = Instance.new("BodyGyro")
+                bg.Name = "FlyGyro"
+                bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+                bg.CFrame = hrp.CFrame
+                bg.Parent = hrp
+                FlyConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                    if not FlyEnabled then return end
+                    local cam = workspace.CurrentCamera
+                    local dir = Vector3.zero
+                    local uis = game:GetService("UserInputService")
+                    if uis:IsKeyDown(Enum.KeyCode.W) then dir = dir + cam.CFrame.LookVector end
+                    if uis:IsKeyDown(Enum.KeyCode.S) then dir = dir - cam.CFrame.LookVector end
+                    if uis:IsKeyDown(Enum.KeyCode.A) then dir = dir - cam.CFrame.RightVector end
+                    if uis:IsKeyDown(Enum.KeyCode.D) then dir = dir + cam.CFrame.RightVector end
+                    if uis:IsKeyDown(Enum.KeyCode.Space) then dir = dir + Vector3.new(0, 1, 0) end
+                    if uis:IsKeyDown(Enum.KeyCode.LeftShift) then dir = dir - Vector3.new(0, 1, 0) end
+                    bv.Velocity = dir * FlySpeed
                     bg.CFrame = cam.CFrame
+                end)
+            else
+                if FlyConnection then
+                    FlyConnection:Disconnect()
+                    FlyConnection = nil
                 end
-            end)
-        else
-            if FlyConnection then
-                FlyConnection:Disconnect()
-                FlyConnection = nil
+                local bv = hrp:FindFirstChild("FlyVelocity")
+                local bg = hrp:FindFirstChild("FlyGyro")
+                if bv then bv:Destroy() end
+                if bg then bg:Destroy() end
             end
-            local bv = hrp:FindFirstChild("FlyVelocity")
-            local bg = hrp:FindFirstChild("FlyGyro")
-            if bv then bv:Destroy() end
-            if bg then bg:Destroy() end
-        end
+        end)
     end,
     Parent = PlayerSection.Content
 })
@@ -355,10 +328,10 @@ Window:CreateSlider(PlayerTab, {
 Window:CreateButton(PlayerTab, {
     Text = "Reset Character",
     Callback = function()
-        local lp = game:GetService("Players").LocalPlayer
-        if lp.Character and lp.Character:FindFirstChild("Humanoid") then
-            lp.Character.Humanoid.Health = 0
-        end
+        pcall(function()
+            local hum = game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid")
+            if hum then hum.Health = 0 end
+        end)
     end,
     Parent = PlayerSection.Content
 })
@@ -366,162 +339,149 @@ Window:CreateButton(PlayerTab, {
 Window:CreateButton(PlayerTab, {
     Text = "Full Bright",
     Callback = function()
-        local lighting = game:GetService("Lighting")
-        lighting.Brightness = 2
-        lighting.ClockTime = 14
-        lighting.FogEnd = 100000
-        lighting.GlobalShadows = false
-        lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+        pcall(function()
+            local lighting = game:GetService("Lighting")
+            lighting.Brightness = 2
+            lighting.ClockTime = 14
+            lighting.FogEnd = 100000
+            lighting.GlobalShadows = false
+            lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+        end)
     end,
     Parent = PlayerSection.Content
 })
 
 
-local VisualSection = Window:CreateSection(VisualTab, {
-    Name = "ESP",
-    Collapsed = false
-})
+local VisualSection = Window:CreateSection(VisualTab, {Name = "ESP", Collapsed = false})
 
 local ESP_Enabled = false
 local ESP_Boxes = false
 local ESP_Names = false
 local ESP_Distance = false
 local ESP_Tracers = false
-local ESP_Highlight = false
 local ESPObjects = {}
 
-local function CreateESP(player)
-    if player == game:GetService("Players").LocalPlayer then return end
+local HasDrawing = pcall(function() local d = Drawing.new("Square") d:Remove() end)
 
-    local box = Drawing.new("Square")
-    box.Visible = false
-    box.Thickness = 1
-    box.Color = Color3.fromRGB(255, 255, 255)
-    box.Filled = false
-    box.Transparency = 1
-
-    local name = Drawing.new("Text")
-    name.Visible = false
-    name.Size = 14
-    name.Color = Color3.fromRGB(255, 255, 255)
-    name.Outline = true
-    name.Center = true
-
-    local tracer = Drawing.new("Line")
-    tracer.Visible = false
-    tracer.Thickness = 1
-    tracer.Color = Color3.fromRGB(255, 255, 255)
-
-    local dist = Drawing.new("Text")
-    dist.Visible = false
-    dist.Size = 12
-    dist.Color = Color3.fromRGB(200, 200, 200)
-    dist.Outline = true
-    dist.Center = true
-
-    ESPObjects[player] = {
-        Box = box,
-        Name = name,
-        Tracer = tracer,
-        Distance = dist
-    }
-end
-
-for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-    CreateESP(player)
-end
-
-game:GetService("Players").PlayerAdded:Connect(function(player)
-    CreateESP(player)
-end)
-
-game:GetService("Players").PlayerRemoving:Connect(function(player)
-    if ESPObjects[player] then
-        for _, obj in pairs(ESPObjects[player]) do
-            obj:Remove()
-        end
-        ESPObjects[player] = nil
-    end
-end)
-
-game:GetService("RunService").RenderStepped:Connect(function()
-    if not ESP_Enabled then
-        for _, data in pairs(ESPObjects) do
-            data.Box.Visible = false
-            data.Name.Visible = false
-            data.Tracer.Visible = false
-            data.Distance.Visible = false
-        end
-        return
+if HasDrawing then
+    local function CreateESP(player)
+        if player == game:GetService("Players").LocalPlayer then return end
+        local box = Drawing.new("Square")
+        box.Visible = false
+        box.Thickness = 1
+        box.Color = Color3.fromRGB(255, 255, 255)
+        box.Filled = false
+        box.Transparency = 1
+        local name = Drawing.new("Text")
+        name.Visible = false
+        name.Size = 14
+        name.Color = Color3.fromRGB(255, 255, 255)
+        name.Outline = true
+        name.Center = true
+        local tracer = Drawing.new("Line")
+        tracer.Visible = false
+        tracer.Thickness = 1
+        tracer.Color = Color3.fromRGB(255, 255, 255)
+        local dist = Drawing.new("Text")
+        dist.Visible = false
+        dist.Size = 12
+        dist.Color = Color3.fromRGB(200, 200, 200)
+        dist.Outline = true
+        dist.Center = true
+        ESPObjects[player] = {Box = box, Name = name, Tracer = tracer, Distance = dist}
     end
 
-    local cam = workspace.CurrentCamera
-    local lp = game:GetService("Players").LocalPlayer
+    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+        CreateESP(player)
+    end
 
-    for player, data in pairs(ESPObjects) do
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Head") then
-            local hrp = player.Character.HumanoidRootPart
-            local head = player.Character.Head
-            local pos, onScreen = cam:WorldToViewportPoint(hrp.Position)
+    game:GetService("Players").PlayerAdded:Connect(CreateESP)
+    game:GetService("Players").PlayerRemoving:Connect(function(player)
+        if ESPObjects[player] then
+            for _, obj in pairs(ESPObjects[player]) do
+                pcall(function() obj:Remove() end)
+            end
+            ESPObjects[player] = nil
+        end
+    end)
 
-            if onScreen then
-                local headPos = cam:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
-                local legPos = cam:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
-                local boxHeight = math.abs(headPos.Y - legPos.Y)
-                local boxWidth = boxHeight * 0.6
-
-                if ESP_Boxes then
-                    data.Box.Size = Vector2.new(boxWidth, boxHeight)
-                    data.Box.Position = Vector2.new(pos.X - boxWidth / 2, pos.Y - boxHeight / 2)
-                    data.Box.Visible = true
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if not ESP_Enabled then
+            for _, data in pairs(ESPObjects) do
+                pcall(function() data.Box.Visible = false end)
+                pcall(function() data.Name.Visible = false end)
+                pcall(function() data.Tracer.Visible = false end)
+                pcall(function() data.Distance.Visible = false end)
+            end
+            return
+        end
+        local cam = workspace.CurrentCamera
+        local lp = game:GetService("Players").LocalPlayer
+        for player, data in pairs(ESPObjects) do
+            pcall(function()
+                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Head") then
+                    local hrp = player.Character.HumanoidRootPart
+                    local head = player.Character.Head
+                    local pos, onScreen = cam:WorldToViewportPoint(hrp.Position)
+                    if onScreen then
+                        local headPos = cam:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
+                        local legPos = cam:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
+                        local boxHeight = math.abs(headPos.Y - legPos.Y)
+                        local boxWidth = boxHeight * 0.6
+                        if ESP_Boxes then
+                            data.Box.Size = Vector2.new(boxWidth, boxHeight)
+                            data.Box.Position = Vector2.new(pos.X - boxWidth / 2, pos.Y - boxHeight / 2)
+                            data.Box.Visible = true
+                        else
+                            data.Box.Visible = false
+                        end
+                        if ESP_Names then
+                            data.Name.Text = player.Name
+                            data.Name.Position = Vector2.new(pos.X, pos.Y - boxHeight / 2 - 15)
+                            data.Name.Visible = true
+                        else
+                            data.Name.Visible = false
+                        end
+                        if ESP_Distance and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+                            local distance = (hrp.Position - lp.Character.HumanoidRootPart.Position).Magnitude
+                            data.Distance.Text = math.floor(distance) .. " studs"
+                            data.Distance.Position = Vector2.new(pos.X, pos.Y + boxHeight / 2 + 5)
+                            data.Distance.Visible = true
+                        else
+                            data.Distance.Visible = false
+                        end
+                        if ESP_Tracers then
+                            data.Tracer.From = Vector2.new(cam.ViewportSize.X / 2, cam.ViewportSize.Y)
+                            data.Tracer.To = Vector2.new(pos.X, pos.Y + boxHeight / 2)
+                            data.Tracer.Visible = true
+                        else
+                            data.Tracer.Visible = false
+                        end
+                    else
+                        data.Box.Visible = false
+                        data.Name.Visible = false
+                        data.Tracer.Visible = false
+                        data.Distance.Visible = false
+                    end
                 else
                     data.Box.Visible = false
-                end
-
-                if ESP_Names then
-                    data.Name.Text = player.Name
-                    data.Name.Position = Vector2.new(pos.X, pos.Y - boxHeight / 2 - 15)
-                    data.Name.Visible = true
-                else
                     data.Name.Visible = false
-                end
-
-                if ESP_Distance and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
-                    local distance = (hrp.Position - lp.Character.HumanoidRootPart.Position).Magnitude
-                    data.Distance.Text = math.floor(distance) .. " studs"
-                    data.Distance.Position = Vector2.new(pos.X, pos.Y + boxHeight / 2 + 5)
-                    data.Distance.Visible = true
-                else
+                    data.Tracer.Visible = false
                     data.Distance.Visible = false
                 end
-
-                if ESP_Tracers then
-                    data.Tracer.From = Vector2.new(cam.ViewportSize.X / 2, cam.ViewportSize.Y)
-                    data.Tracer.To = Vector2.new(pos.X, pos.Y + boxHeight / 2)
-                    data.Tracer.Visible = true
-                else
-                    data.Tracer.Visible = false
-                end
-            else
-                data.Box.Visible = false
-                data.Name.Visible = false
-                data.Tracer.Visible = false
-                data.Distance.Visible = false
-            end
-        else
-            data.Box.Visible = false
-            data.Name.Visible = false
-            data.Tracer.Visible = false
-            data.Distance.Visible = false
+            end)
         end
-    end
-end)
+    end)
+end
 
 Window:CreateToggle(VisualTab, {
     Text = "ESP Master",
     Default = false,
     Callback = function(state)
-        ESP_Enabled = state
+        ESP_Enabled = state and HasDrawing
+        if not HasDrawing and state then
+            warn("[ReaperHub] Drawing API not available")
+        end
     end,
     Parent = VisualSection.Content
 })
@@ -562,50 +522,51 @@ Window:CreateToggle(VisualTab, {
     Parent = VisualSection.Content
 })
 
-local ChamsSection = Window:CreateSection(VisualTab, {
-    Name = "Chams",
-    Collapsed = true
-})
+local ChamsSection = Window:CreateSection(VisualTab, {Name = "Chams", Collapsed = true})
 
 local ChamsEnabled = false
 local ChamsColor = Color3.fromRGB(255, 0, 0)
 local ChamsObjects = {}
 
 local function UpdateChams()
-    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-        if player ~= game:GetService("Players").LocalPlayer and player.Character then
-            for _, part in ipairs(player.Character:GetDescendants()) do
-                if part:IsA("BasePart") and not part:FindFirstChild("Chams") then
-                    local highlight = Instance.new("Highlight")
-                    highlight.Name = "Chams"
-                    highlight.FillColor = ChamsColor
-                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    highlight.FillTransparency = 0.5
-                    highlight.OutlineTransparency = 0
-                    highlight.Parent = part
-                    table.insert(ChamsObjects, highlight)
+    pcall(function()
+        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+            if player ~= game:GetService("Players").LocalPlayer and player.Character then
+                for _, part in ipairs(player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") and not part:FindFirstChild("Chams") then
+                        local highlight = Instance.new("Highlight")
+                        highlight.Name = "Chams"
+                        highlight.FillColor = ChamsColor
+                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        highlight.FillTransparency = 0.5
+                        highlight.OutlineTransparency = 0
+                        highlight.Parent = part
+                        table.insert(ChamsObjects, highlight)
+                    end
                 end
             end
         end
-    end
+    end)
 end
 
 game:GetService("Players").PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(char)
         if ChamsEnabled then
             task.wait(1)
-            for _, part in ipairs(char:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    local highlight = Instance.new("Highlight")
-                    highlight.Name = "Chams"
-                    highlight.FillColor = ChamsColor
-                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    highlight.FillTransparency = 0.5
-                    highlight.OutlineTransparency = 0
-                    highlight.Parent = part
-                    table.insert(ChamsObjects, highlight)
+            pcall(function()
+                for _, part in ipairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        local highlight = Instance.new("Highlight")
+                        highlight.Name = "Chams"
+                        highlight.FillColor = ChamsColor
+                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        highlight.FillTransparency = 0.5
+                        highlight.OutlineTransparency = 0
+                        highlight.Parent = part
+                        table.insert(ChamsObjects, highlight)
+                    end
                 end
-            end
+            end)
         end
     end)
 end)
@@ -619,17 +580,19 @@ Window:CreateToggle(VisualTab, {
             UpdateChams()
         else
             for _, obj in ipairs(ChamsObjects) do
-                if obj then obj:Destroy() end
+                pcall(function() obj:Destroy() end)
             end
             ChamsObjects = {}
-            for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-                if player.Character then
-                    for _, part in ipairs(player.Character:GetDescendants()) do
-                        local cham = part:FindFirstChild("Chams")
-                        if cham then cham:Destroy() end
+            pcall(function()
+                for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                    if player.Character then
+                        for _, part in ipairs(player.Character:GetDescendants()) do
+                            local cham = part:FindFirstChild("Chams")
+                            if cham then cham:Destroy() end
+                        end
                     end
                 end
-            end
+            end)
         end
     end,
     Parent = ChamsSection.Content
@@ -650,22 +613,18 @@ Window:CreateDropdown(VisualTab, {
         }
         ChamsColor = colors[option] or Color3.fromRGB(255, 0, 0)
         for _, obj in ipairs(ChamsObjects) do
-            if obj then obj.FillColor = ChamsColor end
+            pcall(function() obj.FillColor = ChamsColor end)
         end
     end,
     Parent = ChamsSection.Content
 })
 
 
-local TPSection = Window:CreateSection(TeleportTab, {
-    Name = "Teleport",
-    Collapsed = false
-})
+local TPSection = Window:CreateSection(TeleportTab, {Name = "Teleport", Collapsed = false})
 
 Window:CreateButton(TeleportTab, {
-    Text = "Click TP (Hold Ctrl)",
-    Callback = function()
-    end,
+    Text = "Click TP (Hold Ctrl + Click)",
+    Callback = function() end,
     Parent = TPSection.Content
 })
 
@@ -680,32 +639,38 @@ Window:CreateToggle(TeleportTab, {
 })
 
 game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
-    if ClickTP and input.UserInputType == Enum.UserInputType.MouseButton1 and game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
-        local mouse = game:GetService("Players").LocalPlayer:GetMouse()
-        local lp = game:GetService("Players").LocalPlayer
-        if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
-            lp.Character.HumanoidRootPart.CFrame = CFrame.new(mouse.Hit.Position + Vector3.new(0, 3, 0))
-        end
+    if ClickTP and input.UserInputType == Enum.UserInputType.MouseButton1 then
+        pcall(function()
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
+                local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+                local lp = game:GetService("Players").LocalPlayer
+                if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+                    lp.Character.HumanoidRootPart.CFrame = CFrame.new(mouse.Hit.Position + Vector3.new(0, 3, 0))
+                end
+            end
+        end)
     end
 end)
 
 Window:CreateButton(TeleportTab, {
     Text = "TP to Random Player",
     Callback = function()
-        local players = game:GetService("Players"):GetPlayers()
-        local lp = game:GetService("Players").LocalPlayer
-        local others = {}
-        for _, p in ipairs(players) do
-            if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                table.insert(others, p)
+        pcall(function()
+            local players = game:GetService("Players"):GetPlayers()
+            local lp = game:GetService("Players").LocalPlayer
+            local others = {}
+            for _, p in ipairs(players) do
+                if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    table.insert(others, p)
+                end
             end
-        end
-        if #others > 0 then
-            local target = others[math.random(1, #others)]
-            if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
-                lp.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
+            if #others > 0 then
+                local target = others[math.random(1, #others)]
+                if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+                    lp.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
+                end
             end
-        end
+        end)
     end,
     Parent = TPSection.Content
 })
@@ -717,16 +682,18 @@ for _, p in ipairs(game:GetService("Players"):GetPlayers()) do
     end
 end
 
-local TP_Dropdown = Window:CreateDropdown(TeleportTab, {
+Window:CreateDropdown(TeleportTab, {
     Text = "TP to Player",
     Options = PlayerList,
     Default = PlayerList[1] or "",
     Callback = function(option)
-        local target = game:GetService("Players"):FindFirstChild(option)
-        local lp = game:GetService("Players").LocalPlayer
-        if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
-            lp.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
-        end
+        pcall(function()
+            local target = game:GetService("Players"):FindFirstChild(option)
+            local lp = game:GetService("Players").LocalPlayer
+            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+                lp.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
+            end
+        end)
     end,
     Parent = TPSection.Content
 })
@@ -745,21 +712,20 @@ game:GetService("Players").PlayerRemoving:Connect(function(p)
 end)
 
 
-local MiscSection = Window:CreateSection(MiscTab, {
-    Name = "Miscellaneous",
-    Collapsed = false
-})
+local MiscSection = Window:CreateSection(MiscTab, {Name = "Miscellaneous", Collapsed = false})
 
 Window:CreateToggle(MiscTab, {
     Text = "Anti AFK",
     Default = false,
     Callback = function(state)
         if state then
-            local vu = game:GetService("VirtualUser")
-            game:GetService("Players").LocalPlayer.Idled:Connect(function()
-                vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-                task.wait(1)
-                vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+            pcall(function()
+                local vu = game:GetService("VirtualUser")
+                game:GetService("Players").LocalPlayer.Idled:Connect(function()
+                    vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+                    task.wait(1)
+                    vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+                end)
             end)
         end
     end,
@@ -769,7 +735,9 @@ Window:CreateToggle(MiscTab, {
 Window:CreateButton(MiscTab, {
     Text = "Unlock FPS",
     Callback = function()
-        setfpscap(999)
+        pcall(function()
+            setfpscap(999)
+        end)
     end,
     Parent = MiscSection.Content
 })
@@ -777,18 +745,20 @@ Window:CreateButton(MiscTab, {
 Window:CreateButton(MiscTab, {
     Text = "Low Graphics",
     Callback = function()
-        local lighting = game:GetService("Lighting")
-        lighting.GlobalShadows = false
-        lighting.FogEnd = 9e9
-        settings().Rendering.QualityLevel = 1
-        for _, v in ipairs(workspace:GetDescendants()) do
-            if v:IsA("Part") or v:IsA("Union") or v:IsA("MeshPart") then
-                v.Material = Enum.Material.Plastic
+        pcall(function()
+            local lighting = game:GetService("Lighting")
+            lighting.GlobalShadows = false
+            lighting.FogEnd = 9e9
+            settings().Rendering.QualityLevel = 1
+            for _, v in ipairs(workspace:GetDescendants()) do
+                if v:IsA("Part") or v:IsA("Union") or v:IsA("MeshPart") then
+                    v.Material = Enum.Material.Plastic
+                end
+                if v:IsA("Decal") or v:IsA("Texture") then
+                    v:Destroy()
+                end
             end
-            if v:IsA("Decal") or v:IsA("Texture") then
-                v:Destroy()
-            end
-        end
+        end)
     end,
     Parent = MiscSection.Content
 })
@@ -796,7 +766,9 @@ Window:CreateButton(MiscTab, {
 Window:CreateButton(MiscTab, {
     Text = "Copy JobId",
     Callback = function()
-        setclipboard(game.JobId)
+        pcall(function()
+            setclipboard(game.JobId)
+        end)
     end,
     Parent = MiscSection.Content
 })
@@ -804,16 +776,15 @@ Window:CreateButton(MiscTab, {
 Window:CreateButton(MiscTab, {
     Text = "Copy PlaceId",
     Callback = function()
-        setclipboard(tostring(game.PlaceId))
+        pcall(function()
+            setclipboard(tostring(game.PlaceId))
+        end)
     end,
     Parent = MiscSection.Content
 })
 
 
-local SettingsSection = Window:CreateSection(SettingsTab, {
-    Name = "UI Settings",
-    Collapsed = false
-})
+local SettingsSection = Window:CreateSection(SettingsTab, {Name = "UI Settings", Collapsed = false})
 
 Window:CreateKeybind(SettingsTab, {
     Text = "Toggle UI Key",
@@ -839,7 +810,3 @@ Window:CreateButton(SettingsTab, {
     end,
     Parent = SettingsSection.Content
 })
-
-
-print("[Reaper Hub] Loaded Successfully!")
-print("[Reaper Hub] Press RightShift to toggle UI")
