@@ -59,13 +59,22 @@ local function MakeDraggable(gui, handle)
     end)
 end
 
+local Lighting = game:GetService("Lighting")
+
 local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
+    local IntroBlur = Instance.new("BlurEffect")
+    IntroBlur.Name = "CloudyIntroBlur_" .. math.random(1000, 9999)
+    IntroBlur.Size = 0
+    IntroBlur.Parent = Lighting
+
+    TweenService:Create(IntroBlur, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = 24 }):Play()
+
     local IntroCanvas = Instance.new("Frame")
     IntroCanvas.Name = "IntroCanvas"
     IntroCanvas.Size = UDim2.new(1, 0, 1, 0)
     IntroCanvas.Position = UDim2.new(0, 0, 0, 0)
-    IntroCanvas.BackgroundColor3 = Color3.fromRGB(14, 15, 20)
-    IntroCanvas.BackgroundTransparency = 0
+    IntroCanvas.BackgroundColor3 = Color3.fromRGB(10, 11, 15)
+    IntroCanvas.BackgroundTransparency = 0.85
     IntroCanvas.ClipsDescendants = true
     IntroCanvas.ZIndex = 100
     IntroCanvas.Parent = screenGui
@@ -229,6 +238,7 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
             local fadeCanvas = TweenService:Create(IntroCanvas, infoOut, { BackgroundTransparency = 1 })
             TweenService:Create(TitleLbl, infoOut, { TextTransparency = 1 }):Play()
             TweenService:Create(SubLbl, infoOut, { TextTransparency = 1 }):Play()
+            TweenService:Create(IntroBlur, infoOut, { Size = 0 }):Play()
 
             for _, child in ipairs(CenterCloudGroup:GetDescendants()) do
                 if child:IsA("Frame") then
@@ -238,13 +248,14 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
                 end
             end
 
-            fadeCanvas:Play()
             fadeCanvas.Completed:Connect(function()
                 IntroCanvas:Destroy()
+                IntroBlur:Destroy()
                 if onComplete then
                     onComplete()
                 end
             end)
+            fadeCanvas:Play()
         end)
     end)
 end
