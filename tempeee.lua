@@ -35,41 +35,38 @@ function CloudyLib:CreateWindow(options)
 	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	ScreenGui.Parent = parentFolder
 
-	local MainFrame = Instance.new("Frame")
-	MainFrame.Name = "MainFrame"
-	MainFrame.Size = UDim2.new(0, 680, 0, 420)
-	MainFrame.Position = UDim2.new(0.5, -340, 0.5, -210)
-	MainFrame.BackgroundColor3 = Color3.fromRGB(14, 14, 18)
-	MainFrame.BorderSizePixel = 0
-	MainFrame.ClipsDescendants = true
-	MainFrame.Parent = ScreenGui
+	local Sidebar = Instance.new("Frame")
+	Sidebar.Name = "Sidebar"
+	Sidebar.Size = UDim2.new(0, 230, 1, 0)
+	Sidebar.Position = UDim2.new(0, 0, 0, 0)
+	Sidebar.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+	Sidebar.BorderSizePixel = 0
+	Sidebar.Parent = ScreenGui
 
-	local MainCorner = Instance.new("UICorner")
-	MainCorner.CornerRadius = UDim.new(0, 12)
-	MainCorner.Parent = MainFrame
-
-	local MainStroke = Instance.new("UIStroke")
-	MainStroke.Color = Color3.fromRGB(34, 34, 42)
-	MainStroke.Thickness = 1
-	MainStroke.Parent = MainFrame
+	local SidebarLine = Instance.new("Frame")
+	SidebarLine.Size = UDim2.new(0, 1, 1, 0)
+	SidebarLine.Position = UDim2.new(1, -1, 0, 0)
+	SidebarLine.BackgroundColor3 = Color3.fromRGB(26, 26, 32)
+	SidebarLine.BorderSizePixel = 0
+	SidebarLine.Parent = Sidebar
 
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
-	Topbar.Size = UDim2.new(1, 0, 0, 44)
-	Topbar.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
+	Topbar.Size = UDim2.new(1, 0, 0, 50)
+	Topbar.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
 	Topbar.BorderSizePixel = 0
-	Topbar.Parent = MainFrame
+	Topbar.Parent = Sidebar
 
 	local TopbarLine = Instance.new("Frame")
 	TopbarLine.Size = UDim2.new(1, 0, 0, 1)
 	TopbarLine.Position = UDim2.new(0, 0, 1, -1)
-	TopbarLine.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+	TopbarLine.BackgroundColor3 = Color3.fromRGB(26, 26, 32)
 	TopbarLine.BorderSizePixel = 0
 	TopbarLine.Parent = Topbar
 
 	local LeftContainer = Instance.new("Frame")
-	LeftContainer.Size = UDim2.new(0, 300, 1, 0)
-	LeftContainer.Position = UDim2.new(0, 14, 0, 0)
+	LeftContainer.Size = UDim2.new(1, -70, 1, 0)
+	LeftContainer.Position = UDim2.new(0, 12, 0, 0)
 	LeftContainer.BackgroundTransparency = 1
 	LeftContainer.Parent = Topbar
 
@@ -77,11 +74,11 @@ function CloudyLib:CreateWindow(options)
 	LeftLayout.FillDirection = Enum.FillDirection.Horizontal
 	LeftLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	LeftLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	LeftLayout.Padding = UDim.new(0, 10)
+	LeftLayout.Padding = UDim.new(0, 8)
 	LeftLayout.Parent = LeftContainer
 
 	local LogoImage = Instance.new("ImageLabel")
-	LogoImage.Size = UDim2.new(0, 24, 0, 24)
+	LogoImage.Size = UDim2.new(0, 22, 0, 22)
 	LogoImage.BackgroundTransparency = 1
 	LogoImage.Image = logoId
 	LogoImage.ImageColor3 = Color3.fromRGB(255, 255, 255)
@@ -93,13 +90,14 @@ function CloudyLib:CreateWindow(options)
 	LogoCorner.Parent = LogoImage
 
 	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(0, 200, 1, 0)
+	TitleLabel.Size = UDim2.new(1, -30, 1, 0)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Text = titleText
 	TitleLabel.Font = Enum.Font.GothamBold
-	TitleLabel.TextSize = 18
+	TitleLabel.TextSize = 17
 	TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.TextTruncate = Enum.TextTruncate.AtEnd
 	TitleLabel.LayoutOrder = 2
 	TitleLabel.Parent = LeftContainer
 
@@ -112,8 +110,8 @@ function CloudyLib:CreateWindow(options)
 	TitleGradient.Parent = TitleLabel
 
 	local RightContainer = Instance.new("Frame")
-	RightContainer.Size = UDim2.new(0, 80, 1, 0)
-	RightContainer.Position = UDim2.new(1, -94, 0, 0)
+	RightContainer.Size = UDim2.new(0, 60, 1, 0)
+	RightContainer.Position = UDim2.new(1, -66, 0, 0)
 	RightContainer.BackgroundTransparency = 1
 	RightContainer.Parent = Topbar
 
@@ -122,16 +120,16 @@ function CloudyLib:CreateWindow(options)
 	RightLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 	RightLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	RightLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	RightLayout.Padding = UDim.new(0, 8)
+	RightLayout.Padding = UDim.new(0, 6)
 	RightLayout.Parent = RightContainer
 
 	local MinimizeBtn = Instance.new("TextButton")
-	MinimizeBtn.Size = UDim2.new(0, 28, 0, 28)
-	MinimizeBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+	MinimizeBtn.Size = UDim2.new(0, 24, 0, 24)
+	MinimizeBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
 	MinimizeBtn.Text = "-"
 	MinimizeBtn.TextColor3 = Color3.fromRGB(180, 180, 195)
 	MinimizeBtn.Font = Enum.Font.GothamBold
-	MinimizeBtn.TextSize = 16
+	MinimizeBtn.TextSize = 15
 	MinimizeBtn.AutoButtonColor = false
 	MinimizeBtn.LayoutOrder = 1
 	MinimizeBtn.Parent = RightContainer
@@ -141,12 +139,12 @@ function CloudyLib:CreateWindow(options)
 	MinCorner.Parent = MinimizeBtn
 
 	local CloseBtn = Instance.new("TextButton")
-	CloseBtn.Size = UDim2.new(0, 28, 0, 28)
-	CloseBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+	CloseBtn.Size = UDim2.new(0, 24, 0, 24)
+	CloseBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
 	CloseBtn.Text = "X"
 	CloseBtn.TextColor3 = Color3.fromRGB(180, 180, 195)
 	CloseBtn.Font = Enum.Font.GothamBold
-	CloseBtn.TextSize = 14
+	CloseBtn.TextSize = 13
 	CloseBtn.AutoButtonColor = false
 	CloseBtn.LayoutOrder = 2
 	CloseBtn.Parent = RightContainer
@@ -155,12 +153,102 @@ function CloudyLib:CreateWindow(options)
 	CloseCorner.CornerRadius = UDim.new(0, 6)
 	CloseCorner.Parent = CloseBtn
 
+	local TabScroll = Instance.new("ScrollingFrame")
+	TabScroll.Size = UDim2.new(1, 0, 1, -50)
+	TabScroll.Position = UDim2.new(0, 0, 0, 50)
+	TabScroll.BackgroundTransparency = 1
+	TabScroll.BorderSizePixel = 0
+	TabScroll.ScrollBarThickness = 2
+	TabScroll.ScrollBarImageColor3 = Color3.fromRGB(40, 40, 50)
+	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+	TabScroll.Parent = Sidebar
+
+	local TabListLayout = Instance.new("UIListLayout")
+	TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	TabListLayout.Padding = UDim.new(0, 4)
+	TabListLayout.Parent = TabScroll
+
+	local TabPadding = Instance.new("UIPadding")
+	TabPadding.PaddingTop = UDim.new(0, 12)
+	TabPadding.PaddingLeft = UDim.new(0, 10)
+	TabPadding.PaddingRight = UDim.new(0, 10)
+	TabPadding.PaddingBottom = UDim.new(0, 12)
+	TabPadding.Parent = TabScroll
+
+	TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		TabScroll.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y + 24)
+	end)
+
+	local ModalFrame = Instance.new("Frame")
+	ModalFrame.Name = "ModalFrame"
+	ModalFrame.Size = UDim2.new(0, 580, 0, 420)
+	ModalFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	ModalFrame.Position = UDim2.new(0.5, 80, 0.5, 0)
+	ModalFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+	ModalFrame.BorderSizePixel = 0
+	ModalFrame.ClipsDescendants = true
+	ModalFrame.Visible = false
+	ModalFrame.Parent = ScreenGui
+
+	local ModalCorner = Instance.new("UICorner")
+	ModalCorner.CornerRadius = UDim.new(0, 12)
+	ModalCorner.Parent = ModalFrame
+
+	local ModalStroke = Instance.new("UIStroke")
+	ModalStroke.Color = Color3.fromRGB(32, 32, 40)
+	ModalStroke.Thickness = 1
+	ModalStroke.Parent = ModalFrame
+
+	local ModalTopbar = Instance.new("Frame")
+	ModalTopbar.Name = "ModalTopbar"
+	ModalTopbar.Size = UDim2.new(1, 0, 0, 48)
+	ModalTopbar.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
+	ModalTopbar.BorderSizePixel = 0
+	ModalTopbar.Parent = ModalFrame
+
+	local ModalTitle = Instance.new("TextLabel")
+	ModalTitle.Size = UDim2.new(1, -60, 1, 0)
+	ModalTitle.Position = UDim2.new(0, 16, 0, 0)
+	ModalTitle.BackgroundTransparency = 1
+	ModalTitle.Text = "Pengaturan"
+	ModalTitle.Font = Enum.Font.GothamBold
+	ModalTitle.TextSize = 18
+	ModalTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+	ModalTitle.TextXAlignment = Enum.TextXAlignment.Left
+	ModalTitle.Parent = ModalTopbar
+
+	local ModalCloseBtn = Instance.new("TextButton")
+	ModalCloseBtn.Size = UDim2.new(0, 28, 0, 28)
+	ModalCloseBtn.Position = UDim2.new(1, -38, 0.5, -14)
+	ModalCloseBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+	ModalCloseBtn.Text = "X"
+	ModalCloseBtn.TextColor3 = Color3.fromRGB(180, 180, 195)
+	ModalCloseBtn.Font = Enum.Font.GothamBold
+	ModalCloseBtn.TextSize = 14
+	ModalCloseBtn.AutoButtonColor = false
+	ModalCloseBtn.Parent = ModalTopbar
+
+	local ModalCloseCorner = Instance.new("UICorner")
+	ModalCloseCorner.CornerRadius = UDim.new(0, 6)
+	ModalCloseCorner.Parent = ModalCloseBtn
+
+	ModalCloseBtn.MouseButton1Click:Connect(function()
+		ModalFrame.Visible = false
+	end)
+
+	local ModalBody = Instance.new("Frame")
+	ModalBody.Name = "ModalBody"
+	ModalBody.Size = UDim2.new(1, 0, 1, -48)
+	ModalBody.Position = UDim2.new(0, 0, 0, 48)
+	ModalBody.BackgroundTransparency = 1
+	ModalBody.Parent = ModalFrame
+
 	local dragging, dragInput, dragStart, startPos
-	Topbar.InputBegan:Connect(function(input)
+	ModalTopbar.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 			dragStart = input.Position
-			startPos = MainFrame.Position
+			startPos = ModalFrame.Position
 			input.Changed:Connect(function()
 				if input.UserInputState == Enum.UserInputState.End then
 					dragging = false
@@ -169,7 +257,7 @@ function CloudyLib:CreateWindow(options)
 		end
 	end)
 
-	Topbar.InputChanged:Connect(function(input)
+	ModalTopbar.InputChanged:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
 			dragInput = input
 		end
@@ -178,7 +266,7 @@ function CloudyLib:CreateWindow(options)
 	UserInputService.InputChanged:Connect(function(input)
 		if input == dragInput and dragging then
 			local delta = input.Position - dragStart
-			MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+			ModalFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 		end
 	end)
 
@@ -186,7 +274,7 @@ function CloudyLib:CreateWindow(options)
 	RestoreBtn.Name = "CloudyRestoreBtn"
 	RestoreBtn.Size = UDim2.new(0, 48, 0, 48)
 	RestoreBtn.Position = UDim2.new(0, 20, 0.5, -24)
-	RestoreBtn.BackgroundColor3 = Color3.fromRGB(14, 14, 18)
+	RestoreBtn.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
 	RestoreBtn.Text = "C"
 	RestoreBtn.Font = Enum.Font.GothamBold
 	RestoreBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -206,7 +294,10 @@ function CloudyLib:CreateWindow(options)
 	local isMinimized = false
 	local function toggleMinimize()
 		isMinimized = not isMinimized
-		MainFrame.Visible = not isMinimized
+		Sidebar.Visible = not isMinimized
+		if isMinimized then
+			ModalFrame.Visible = false
+		end
 		RestoreBtn.Visible = isMinimized
 	end
 
@@ -221,68 +312,15 @@ function CloudyLib:CreateWindow(options)
 		TweenService:Create(CloseBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(220, 50, 50), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 	end)
 	CloseBtn.MouseLeave:Connect(function()
-		TweenService:Create(CloseBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(20, 20, 26), TextColor3 = Color3.fromRGB(180, 180, 195)}):Play()
+		TweenService:Create(CloseBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(18, 18, 24), TextColor3 = Color3.fromRGB(180, 180, 195)}):Play()
 	end)
 
 	MinimizeBtn.MouseEnter:Connect(function()
 		TweenService:Create(MinimizeBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(36, 36, 48), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 	end)
 	MinimizeBtn.MouseLeave:Connect(function()
-		TweenService:Create(MinimizeBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(20, 20, 26), TextColor3 = Color3.fromRGB(180, 180, 195)}):Play()
+		TweenService:Create(MinimizeBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(18, 18, 24), TextColor3 = Color3.fromRGB(180, 180, 195)}):Play()
 	end)
-
-	local Body = Instance.new("Frame")
-	Body.Name = "Body"
-	Body.Size = UDim2.new(1, 0, 1, -44)
-	Body.Position = UDim2.new(0, 0, 0, 44)
-	Body.BackgroundTransparency = 1
-	Body.Parent = MainFrame
-
-	local Sidebar = Instance.new("Frame")
-	Sidebar.Name = "Sidebar"
-	Sidebar.Size = UDim2.new(0, 200, 1, 0)
-	Sidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
-	Sidebar.BorderSizePixel = 0
-	Sidebar.Parent = Body
-
-	local SidebarLine = Instance.new("Frame")
-	SidebarLine.Size = UDim2.new(0, 1, 1, 0)
-	SidebarLine.Position = UDim2.new(1, -1, 0, 0)
-	SidebarLine.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
-	SidebarLine.BorderSizePixel = 0
-	SidebarLine.Parent = Sidebar
-
-	local TabScroll = Instance.new("ScrollingFrame")
-	TabScroll.Size = UDim2.new(1, 0, 1, 0)
-	TabScroll.BackgroundTransparency = 1
-	TabScroll.BorderSizePixel = 0
-	TabScroll.ScrollBarThickness = 2
-	TabScroll.ScrollBarImageColor3 = Color3.fromRGB(45, 45, 55)
-	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-	TabScroll.Parent = Sidebar
-
-	local TabListLayout = Instance.new("UIListLayout")
-	TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	TabListLayout.Padding = UDim.new(0, 4)
-	TabListLayout.Parent = TabScroll
-
-	local TabPadding = Instance.new("UIPadding")
-	TabPadding.PaddingTop = UDim.new(0, 10)
-	TabPadding.PaddingLeft = UDim.new(0, 10)
-	TabPadding.PaddingRight = UDim.new(0, 10)
-	TabPadding.PaddingBottom = UDim.new(0, 10)
-	TabPadding.Parent = TabScroll
-
-	TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		TabScroll.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y + 20)
-	end)
-
-	local ContentContainer = Instance.new("Frame")
-	ContentContainer.Name = "ContentContainer"
-	ContentContainer.Size = UDim2.new(1, -200, 1, 0)
-	ContentContainer.Position = UDim2.new(0, 200, 0, 0)
-	ContentContainer.BackgroundTransparency = 1
-	ContentContainer.Parent = Body
 
 	local WindowObj = {
 		Tabs = {},
@@ -345,7 +383,7 @@ function CloudyLib:CreateWindow(options)
 		TabPage.ScrollBarThickness = 3
 		TabPage.ScrollBarImageColor3 = Color3.fromRGB(50, 50, 65)
 		TabPage.Visible = false
-		TabPage.Parent = ContentContainer
+		TabPage.Parent = ModalBody
 
 		local PageLayout = Instance.new("UIListLayout")
 		PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -366,6 +404,7 @@ function CloudyLib:CreateWindow(options)
 		local TabObj = {
 			Button = TabBtn,
 			Page = TabPage,
+			Name = tabName,
 			ElementCount = 0
 		}
 
@@ -378,7 +417,11 @@ function CloudyLib:CreateWindow(options)
 				if icon then TweenService:Create(icon, TweenInfo.new(0.2), {ImageColor3 = Color3.fromRGB(130, 130, 145)}):Play() end
 				if text then TweenService:Create(text, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(130, 130, 145)}):Play() end
 			end
+
+			ModalTitle.Text = tabName
 			TabPage.Visible = true
+			ModalFrame.Visible = true
+
 			TweenService:Create(TabBtn, TweenInfo.new(0.2), {BackgroundTransparency = 0, BackgroundColor3 = Color3.fromRGB(24, 24, 32)}):Play()
 			TweenService:Create(TabIcon, TweenInfo.new(0.2), {ImageColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 			TweenService:Create(TabText, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
@@ -386,10 +429,6 @@ function CloudyLib:CreateWindow(options)
 		end
 
 		TabBtn.MouseButton1Click:Connect(selectTab)
-
-		if WindowObj.TabCount == 1 then
-			selectTab()
-		end
 
 		table.insert(WindowObj.Tabs, TabObj)
 
@@ -1002,10 +1041,16 @@ local Window = CloudyLib:CreateWindow({
 	Logo = "rbxassetid://6031075931"
 })
 
-local TabPengaturan = Window:CreateTab("Pengaturan", "rbxassetid://6031280882")
-local TabFitur = Window:CreateTab("Fitur Utama", "rbxassetid://6031097225")
+local TabUndang = Window:CreateTab("Undang Teman", "rbxassetid://6031082533")
 local TabPengguna = Window:CreateTab("Pengguna", "rbxassetid://6031082533")
-local TabLaporan = Window:CreateTab("Laporkan", "rbxassetid://6031082533")
+local TabPengaturan = Window:CreateTab("Pengaturan", "rbxassetid://6031280882")
+local TabLaporkan = Window:CreateTab("Laporkan", "rbxassetid://6031082533")
+local TabChat = Window:CreateTab("Chat teman", "rbxassetid://6031097225")
+local TabAvatar = Window:CreateTab("Beralih avatar", "rbxassetid://6031082533")
+local TabToko = Window:CreateTab("Toko", "rbxassetid://6031097225")
+local TabLeaderboard = Window:CreateTab("Papan Peringkat", "rbxassetid://6031097225")
+local TabEmote = Window:CreateTab("Emote", "rbxassetid://6031097225")
+local TabInventaris = Window:CreateTab("Inventaris", "rbxassetid://6031097225")
 
 TabPengaturan:AddSection("Audio")
 TabPengaturan:AddSlider("Volume", 0, 100, 80, function(val)
@@ -1023,23 +1068,20 @@ TabPengaturan:AddDropdown("Bahasa Pengalaman Virtual", {"Bahasa Indonesia", "Eng
 	print("Bahasa Virtual:", selected)
 end)
 
-TabFitur:AddSection("Fitur Eksklusif")
-TabFitur:AddToggle("Auto Farm", false, function(state)
-	print("Auto Farm:", state)
+TabUndang:AddSection("Undang Teman")
+TabUndang:AddTextBox("Username", "Cari nama teman...", function(text)
+	print("Mencari user:", text)
 end)
-TabFitur:AddSlider("Kecepatan Jalan (WalkSpeed)", 16, 200, 50, function(val)
-	if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-		LocalPlayer.Character.Humanoid.WalkSpeed = val
-	end
+TabUndang:AddButton("Kirim Undangan", function()
+	print("Undangan terkirim!")
 end)
-TabFitur:AddMultiDropdown("Pilih Target Mob", {"Bandit", "Boss Skeleton", "Dragon Lord", "Shadow Knight"}, {"Bandit"}, function(selectedList)
-	print("Target Mobs:", table.concat(selectedList, ", "))
+
+TabPengguna:AddSection("Pengaturan Profil")
+TabPengguna:AddToggle("Tampilkan Bio", true, function(val)
+	print("Toggle Bio:", val)
 end)
-TabFitur:AddTextBox("Custom Key", "Masukan Key Script...", function(text)
-	print("Input Key:", text)
-end)
-TabFitur:AddButton("Execute Special Command", function()
-	print("Command Executed!")
+TabPengguna:AddMultiDropdown("Peran / Rank", {"Member", "VIP", "Moderator", "Developer"}, {"Member"}, function(list)
+	print("Peran:", table.concat(list, ", "))
 end)
 
 return CloudyLib
