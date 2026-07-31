@@ -68,42 +68,86 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
         IntroBlur.Name = "CloudyIntroBlur_" .. math.random(1000, 9999)
         IntroBlur.Size = 0
         IntroBlur.Parent = Lighting
-        TweenService:Create(IntroBlur, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = 18 }):Play()
+        TweenService:Create(IntroBlur, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = 12 }):Play()
     end)
 
+    -- Fullscreen canvas with ZERO dark background (100% transparent)
     local IntroCanvas = Instance.new("Frame")
     IntroCanvas.Name = "IntroCanvas"
     IntroCanvas.Size = UDim2.new(1, 0, 1, 0)
     IntroCanvas.Position = UDim2.new(0, 0, 0, 0)
-    IntroCanvas.BackgroundColor3 = Color3.fromRGB(10, 11, 15)
-    IntroCanvas.BackgroundTransparency = 0.2
+    IntroCanvas.BackgroundTransparency = 1
     IntroCanvas.ClipsDescendants = false
-    IntroCanvas.ZIndex = 10
+    IntroCanvas.ZIndex = 100
     IntroCanvas.Parent = screenGui
+
+    -- Center Light Glow Pulse behind clouds
+    local GlowPulse = Instance.new("Frame")
+    GlowPulse.Name = "GlowPulse"
+    GlowPulse.Size = UDim2.new(0, 40, 0, 40)
+    GlowPulse.Position = UDim2.new(0.5, 0, 0.5, 0)
+    GlowPulse.AnchorPoint = Vector2.new(0.5, 0.5)
+    GlowPulse.BackgroundColor3 = Color3.fromRGB(120, 180, 255)
+    GlowPulse.BackgroundTransparency = 1
+    GlowPulse.ZIndex = 101
+    GlowPulse.Parent = IntroCanvas
+
+    local GlowCorner = Instance.new("UICorner")
+    GlowCorner.CornerRadius = UDim.new(1, 0)
+    GlowCorner.Parent = GlowPulse
 
     local function CreateRealisticCloud(parent, scale)
         scale = scale or 1
         local Container = Instance.new("Frame")
-        Container.Size = UDim2.new(0, math.floor(120 * scale), 0, math.floor(75 * scale))
+        Container.Size = UDim2.new(0, math.floor(130 * scale), 0, math.floor(80 * scale))
         Container.BackgroundTransparency = 1
         Container.AnchorPoint = Vector2.new(0.5, 0.5)
-        Container.ZIndex = 20
+        Container.ZIndex = 110
 
+        -- Outer Aura Glow Group
+        local AuraGroup = Instance.new("Frame")
+        AuraGroup.Size = UDim2.new(1, math.floor(16 * scale), 1, math.floor(16 * scale))
+        AuraGroup.Position = UDim2.new(0, math.floor(-8 * scale), 0, math.floor(-8 * scale))
+        AuraGroup.BackgroundTransparency = 1
+        AuraGroup.ZIndex = 111
+        AuraGroup.Parent = Container
+
+        local function AddAuraPuff(size, pos, isCircle)
+            local p = Instance.new("Frame")
+            p.Size = size
+            p.Position = pos
+            p.BackgroundColor3 = Color3.fromRGB(140, 200, 255)
+            p.BackgroundTransparency = 0.82
+            p.BorderSizePixel = 0
+            p.ZIndex = 111
+            p.Parent = AuraGroup
+
+            local c = Instance.new("UICorner")
+            c.CornerRadius = isCircle and UDim.new(1, 0) or UDim.new(0, math.floor(14 * scale))
+            c.Parent = p
+        end
+
+        AddAuraPuff(UDim2.new(0.92, 0, 0.48, 0), UDim2.new(0.04, 0, 0.44, 0), false)
+        AddAuraPuff(UDim2.new(0.50, 0, 0.75, 0), UDim2.new(0.05, 0, 0.12, 0), true)
+        AddAuraPuff(UDim2.new(0.60, 0, 0.90, 0), UDim2.new(0.27, 0, 0, 0), true)
+        AddAuraPuff(UDim2.new(0.48, 0, 0.68, 0), UDim2.new(0.50, 0, 0.20, 0), true)
+
+        -- Drop Shadow Group
         local ShadowGroup = Instance.new("Frame")
         ShadowGroup.Size = UDim2.new(1, 0, 1, 0)
-        ShadowGroup.Position = UDim2.new(0, math.floor(6 * scale), 0, math.floor(8 * scale))
+        ShadowGroup.Position = UDim2.new(0, math.floor(5 * scale), 0, math.floor(7 * scale))
         ShadowGroup.BackgroundTransparency = 1
-        ShadowGroup.ZIndex = 21
+        ShadowGroup.ZIndex = 112
         ShadowGroup.Parent = Container
 
         local function AddShadowPuff(size, pos, isCircle)
             local p = Instance.new("Frame")
             p.Size = size
             p.Position = pos
-            p.BackgroundColor3 = Color3.fromRGB(8, 9, 13)
+            p.BackgroundColor3 = Color3.fromRGB(10, 14, 25)
             p.BackgroundTransparency = 0.55
             p.BorderSizePixel = 0
-            p.ZIndex = 21
+            p.ZIndex = 112
             p.Parent = ShadowGroup
 
             local c = Instance.new("UICorner")
@@ -116,20 +160,21 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
         AddShadowPuff(UDim2.new(0.58, 0, 0.88, 0), UDim2.new(0.28, 0, 0, 0), true)
         AddShadowPuff(UDim2.new(0.45, 0, 0.65, 0), UDim2.new(0.52, 0, 0.22, 0), true)
 
+        -- Main Body Puff Group
         local BodyGroup = Instance.new("Frame")
         BodyGroup.Size = UDim2.new(1, 0, 1, 0)
         BodyGroup.BackgroundTransparency = 1
-        BodyGroup.ZIndex = 22
+        BodyGroup.ZIndex = 113
         BodyGroup.Parent = Container
 
         local function AddBodyPuff(size, pos, isCircle)
             local p = Instance.new("Frame")
             p.Size = size
             p.Position = pos
-            p.BackgroundColor3 = Color3.fromRGB(245, 248, 255)
+            p.BackgroundColor3 = Color3.fromRGB(250, 252, 255)
             p.BackgroundTransparency = 0
             p.BorderSizePixel = 0
-            p.ZIndex = 23
+            p.ZIndex = 114
             p.Parent = BodyGroup
 
             local c = Instance.new("UICorner")
@@ -139,15 +184,16 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
             local g = Instance.new("UIGradient")
             g.Color = ColorSequence.new({
                 ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
-                ColorSequenceKeypoint.new(0.35, Color3.fromRGB(220, 225, 240)),
-                ColorSequenceKeypoint.new(0.7, Color3.fromRGB(140, 148, 168)),
-                ColorSequenceKeypoint.new(1.0, Color3.fromRGB(65, 70, 88))
+                ColorSequenceKeypoint.new(0.4, Color3.fromRGB(215, 230, 255)),
+                ColorSequenceKeypoint.new(0.75, Color3.fromRGB(150, 175, 210)),
+                ColorSequenceKeypoint.new(1.0, Color3.fromRGB(90, 110, 140))
             })
-            g.Rotation = 60
+            g.Rotation = 65
             g.Parent = p
 
             local s = Instance.new("UIStroke")
-            s.Color = Color3.fromRGB(80, 88, 110)
+            s.Color = Color3.fromRGB(160, 195, 245)
+            s.Transparency = 0.2
             s.Thickness = 1.2
             s.Parent = p
         end
@@ -163,96 +209,132 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
 
     local CenterCloudGroup = Instance.new("Frame")
     CenterCloudGroup.Name = "CenterCloudGroup"
-    CenterCloudGroup.Size = UDim2.new(0, 240, 0, 140)
+    CenterCloudGroup.Size = UDim2.new(0, 260, 0, 150)
     CenterCloudGroup.Position = UDim2.new(0.5, 0, 0.5, 0)
     CenterCloudGroup.AnchorPoint = Vector2.new(0.5, 0.5)
     CenterCloudGroup.BackgroundTransparency = 1
-    CenterCloudGroup.ZIndex = 20
+    CenterCloudGroup.ZIndex = 110
     CenterCloudGroup.Parent = IntroCanvas
 
-    -- 3 Awan: Kiri Atas, Kanan Atas, Kiri Bawah
-    local Cloud1 = CreateRealisticCloud(CenterCloudGroup, 1.1)
-    Cloud1.Position = UDim2.new(-0.8, 0, -0.8, 0)
-    Cloud1.Rotation = -20
+    -- 3 Main Clouds
+    local Cloud1 = CreateRealisticCloud(CenterCloudGroup, 1.15)
+    Cloud1.Position = UDim2.new(-1.2, 0, -1.2, 0)
+    Cloud1.Rotation = -35
 
-    local Cloud2 = CreateRealisticCloud(CenterCloudGroup, 1.2)
-    Cloud2.Position = UDim2.new(1.8, 0, -0.8, 0)
-    Cloud2.Rotation = 25
+    local Cloud2 = CreateRealisticCloud(CenterCloudGroup, 1.25)
+    Cloud2.Position = UDim2.new(2.2, 0, -1.0, 0)
+    Cloud2.Rotation = 40
 
-    local Cloud3 = CreateRealisticCloud(CenterCloudGroup, 1.0)
-    Cloud3.Position = UDim2.new(-0.8, 0, 1.8, 0)
-    Cloud3.Rotation = -15
+    local Cloud3 = CreateRealisticCloud(CenterCloudGroup, 1.05)
+    Cloud3.Position = UDim2.new(-0.8, 0, 2.2, 0)
+    Cloud3.Rotation = -25
 
-    local Target1 = UDim2.new(0.32, 0, 0.45, 0)
-    local Target2 = UDim2.new(0.68, 0, 0.35, 0)
+    local Target1 = UDim2.new(0.30, 0, 0.45, 0)
+    local Target2 = UDim2.new(0.70, 0, 0.35, 0)
     local Target3 = UDim2.new(0.50, 0, 0.65, 0)
 
     local TextHolder = Instance.new("Frame")
     TextHolder.Name = "TextHolder"
-    TextHolder.Size = UDim2.new(0, 220, 0, 65)
-    TextHolder.Position = UDim2.new(0.5, 20, 0.5, -32)
+    TextHolder.Size = UDim2.new(0, 240, 0, 70)
+    TextHolder.Position = UDim2.new(0.5, 30, 0.5, -35)
     TextHolder.BackgroundTransparency = 1
-    TextHolder.ZIndex = 30
+    TextHolder.ZIndex = 120
     TextHolder.Parent = IntroCanvas
 
     local TitleLbl = Instance.new("TextLabel")
-    TitleLbl.Size = UDim2.new(1, 0, 0, 42)
-    TitleLbl.Position = UDim2.new(0, -30, 0, 0)
+    TitleLbl.Size = UDim2.new(1, 0, 0, 44)
+    TitleLbl.Position = UDim2.new(0, -40, 0, 0)
     TitleLbl.BackgroundTransparency = 1
     TitleLbl.Text = string.upper(titleText or "CLOUDY")
     TitleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleLbl.Font = Enum.Font.GothamBold
-    TitleLbl.TextSize = 38
+    TitleLbl.TextSize = 40
     TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
     TitleLbl.TextTransparency = 1
-    TitleLbl.ZIndex = 31
+    TitleLbl.ZIndex = 121
     TitleLbl.Parent = TextHolder
 
     local TitleGrad = Instance.new("UIGradient")
     TitleGrad.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
-        ColorSequenceKeypoint.new(0.35, Color3.fromRGB(220, 225, 240)),
-        ColorSequenceKeypoint.new(0.7, Color3.fromRGB(140, 148, 168)),
-        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(70, 75, 95))
+        ColorSequenceKeypoint.new(0.4, Color3.fromRGB(220, 235, 255)),
+        ColorSequenceKeypoint.new(0.75, Color3.fromRGB(150, 180, 230)),
+        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(90, 120, 170))
     })
     TitleGrad.Rotation = 0
     TitleGrad.Parent = TitleLbl
 
+    local TitleStroke = Instance.new("UIStroke")
+    TitleStroke.Color = Color3.fromRGB(20, 30, 50)
+    TitleStroke.Thickness = 1.5
+    TitleStroke.Transparency = 0.3
+    TitleStroke.Parent = TitleLbl
+
     local SubLbl = Instance.new("TextLabel")
-    SubLbl.Size = UDim2.new(1, 0, 0, 20)
-    SubLbl.Position = UDim2.new(0, -30, 0, 42)
+    SubLbl.Size = UDim2.new(1, 0, 0, 22)
+    SubLbl.Position = UDim2.new(0, -40, 0, 44)
     SubLbl.BackgroundTransparency = 1
     SubLbl.Text = subText or "UI Framework"
-    SubLbl.TextColor3 = Color3.fromRGB(150, 160, 180)
+    SubLbl.TextColor3 = Color3.fromRGB(170, 200, 240)
     SubLbl.Font = Enum.Font.GothamMedium
     SubLbl.TextSize = 14
     SubLbl.TextXAlignment = Enum.TextXAlignment.Left
     SubLbl.TextTransparency = 1
-    SubLbl.ZIndex = 31
+    SubLbl.ZIndex = 121
     SubLbl.Parent = TextHolder
 
-    local infoGather = TweenInfo.new(0.85, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+    local SubStroke = Instance.new("UIStroke")
+    SubStroke.Color = Color3.fromRGB(15, 22, 38)
+    SubStroke.Thickness = 1
+    SubStroke.Transparency = 0.4
+    SubStroke.Parent = SubLbl
+
+    -- Animation Sequence Timeline:
+    -- 1. Assemble clouds at center with smooth Back easing
+    local infoGather = TweenInfo.new(0.9, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
     TweenService:Create(Cloud1, infoGather, { Position = Target1, Rotation = 0 }):Play()
     TweenService:Create(Cloud2, infoGather, { Position = Target2, Rotation = 0 }):Play()
     TweenService:Create(Cloud3, infoGather, { Position = Target3, Rotation = 0 }):Play()
 
-    task.delay(0.9, function()
-        local infoShift = TweenInfo.new(0.7, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-        TweenService:Create(CenterCloudGroup, infoShift, { Position = UDim2.new(0.5, -130, 0.5, 0) }):Play()
-        TweenService:Create(TextHolder, infoShift, { Position = UDim2.new(0.5, 15, 0.5, -32) }):Play()
+    -- 2. Glow pulse expansion behind clouds
+    TweenService:Create(GlowPulse, TweenInfo.new(0.7, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 300, 0, 200),
+        BackgroundTransparency = 0.75
+    }):Play()
 
-        local infoFadeText = TweenInfo.new(0.55, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    task.delay(0.95, function()
+        -- 3. Shift clouds left & reveal glowing text right
+        local infoShift = TweenInfo.new(0.75, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+        TweenService:Create(CenterCloudGroup, infoShift, { Position = UDim2.new(0.5, -135, 0.5, 0) }):Play()
+        TweenService:Create(TextHolder, infoShift, { Position = UDim2.new(0.5, 20, 0.5, -35) }):Play()
+        TweenService:Create(GlowPulse, infoShift, { Position = UDim2.new(0.5, -135, 0.5, 0) }):Play()
+
+        local infoFadeText = TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
         TweenService:Create(TitleLbl, infoFadeText, { TextTransparency = 0, Position = UDim2.new(0, 0, 0, 0) }):Play()
-        TweenService:Create(SubLbl, infoFadeText, { TextTransparency = 0, Position = UDim2.new(0, 0, 0, 42) }):Play()
+        TweenService:Create(SubLbl, infoFadeText, { TextTransparency = 0, Position = UDim2.new(0, 0, 0, 44) }):Play()
 
-        task.delay(1.2, function()
-            local infoOut = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            local fadeCanvas = TweenService:Create(IntroCanvas, infoOut, { BackgroundTransparency = 1 })
-            TweenService:Create(TitleLbl, infoOut, { TextTransparency = 1 }):Play()
-            TweenService:Create(SubLbl, infoOut, { TextTransparency = 1 }):Play()
+        -- Subtle float bobbing effect
+        local floatTween1 = TweenService:Create(CenterCloudGroup, TweenInfo.new(1.0, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+            Position = UDim2.new(0.5, -135, 0.5, -8)
+        })
+        floatTween1:Play()
+
+        task.delay(1.4, function()
+            floatTween1:Cancel()
+            -- 4. Epic Dispersal Outro (Clouds puff outward and float away, text fades up)
+            local infoOut = TweenInfo.new(0.55, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+            
+            TweenService:Create(TitleLbl, infoOut, { TextTransparency = 1, Position = UDim2.new(0, 0, 0, -20) }):Play()
+            TweenService:Create(SubLbl, infoOut, { TextTransparency = 1, Position = UDim2.new(0, 0, 0, 24) }):Play()
+            TweenService:Create(GlowPulse, infoOut, { Size = UDim2.new(0, 450, 0, 300), BackgroundTransparency = 1 }):Play()
             if IntroBlur then
                 TweenService:Create(IntroBlur, infoOut, { Size = 0 }):Play()
             end
+
+            -- Disperse clouds outwards
+            TweenService:Create(Cloud1, infoOut, { Position = UDim2.new(-1.0, 0, -1.0, 0), Rotation = -30 }):Play()
+            TweenService:Create(Cloud2, infoOut, { Position = UDim2.new(2.0, 0, -0.8, 0), Rotation = 35 }):Play()
+            TweenService:Create(Cloud3, infoOut, { Position = UDim2.new(0.5, 0, 2.0, 0), Rotation = 20 }):Play()
 
             for _, child in ipairs(CenterCloudGroup:GetDescendants()) do
                 if child:IsA("Frame") then
@@ -262,7 +344,7 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
                 end
             end
 
-            fadeCanvas.Completed:Connect(function()
+            task.delay(0.55, function()
                 IntroCanvas:Destroy()
                 if IntroBlur then
                     pcall(function() IntroBlur:Destroy() end)
@@ -271,7 +353,6 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
                     onComplete()
                 end
             end)
-            fadeCanvas:Play()
         end)
     end)
 end
