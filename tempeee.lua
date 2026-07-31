@@ -1,5 +1,6 @@
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
 
 local SolarIcons = {}
 pcall(function()
@@ -7,11 +8,18 @@ pcall(function()
 end)
 
 local function GetIcon(name)
-    if not name or name == "" then return "" end
-    if SolarIcons and SolarIcons[name] then
-        return SolarIcons[name]
+    if not name or name == "" or name == 0 then return "" end
+    local str = tostring(name)
+    if type(name) == "number" or str:match("^%d+$") then
+        return "rbxassetid://" .. str
     end
-    return name
+    if str:find("rbxassetid://") or str:find("http://") or str:find("https://") then
+        return str
+    end
+    if SolarIcons and SolarIcons[str] then
+        return SolarIcons[str]
+    end
+    return str
 end
 
 local function MakeDraggable(gui, handle)
@@ -51,6 +59,196 @@ local function MakeDraggable(gui, handle)
     end)
 end
 
+local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
+    local IntroCanvas = Instance.new("Frame")
+    IntroCanvas.Name = "IntroCanvas"
+    IntroCanvas.Size = UDim2.new(1, 0, 1, 0)
+    IntroCanvas.Position = UDim2.new(0, 0, 0, 0)
+    IntroCanvas.BackgroundColor3 = Color3.fromRGB(14, 15, 20)
+    IntroCanvas.BackgroundTransparency = 0
+    IntroCanvas.ClipsDescendants = true
+    IntroCanvas.ZIndex = 100
+    IntroCanvas.Parent = screenGui
+
+    local function CreateRealisticCloud(parent, scale)
+        scale = scale or 1
+        local Container = Instance.new("Frame")
+        Container.Size = UDim2.new(0, math.floor(120 * scale), 0, math.floor(75 * scale))
+        Container.BackgroundTransparency = 1
+        Container.AnchorPoint = Vector2.new(0.5, 0.5)
+
+        local ShadowGroup = Instance.new("Frame")
+        ShadowGroup.Size = UDim2.new(1, 0, 1, 0)
+        ShadowGroup.Position = UDim2.new(0, math.floor(6 * scale), 0, math.floor(8 * scale))
+        ShadowGroup.BackgroundTransparency = 1
+        ShadowGroup.Parent = Container
+
+        local function AddShadowPuff(size, pos, isCircle)
+            local p = Instance.new("Frame")
+            p.Size = size
+            p.Position = pos
+            p.BackgroundColor3 = Color3.fromRGB(8, 9, 13)
+            p.BackgroundTransparency = 0.55
+            p.BorderSizePixel = 0
+            p.Parent = ShadowGroup
+
+            local c = Instance.new("UICorner")
+            c.CornerRadius = isCircle and UDim.new(1, 0) or UDim.new(0, math.floor(12 * scale))
+            c.Parent = p
+        end
+
+        AddShadowPuff(UDim2.new(0.9, 0, 0.45, 0), UDim2.new(0.05, 0, 0.45, 0), false)
+        AddShadowPuff(UDim2.new(0.48, 0, 0.72, 0), UDim2.new(0.06, 0, 0.15, 0), true)
+        AddShadowPuff(UDim2.new(0.58, 0, 0.88, 0), UDim2.new(0.28, 0, 0, 0), true)
+        AddShadowPuff(UDim2.new(0.45, 0, 0.65, 0), UDim2.new(0.52, 0, 0.22, 0), true)
+
+        local BodyGroup = Instance.new("Frame")
+        BodyGroup.Size = UDim2.new(1, 0, 1, 0)
+        BodyGroup.BackgroundTransparency = 1
+        BodyGroup.Parent = Container
+
+        local function AddBodyPuff(size, pos, isCircle)
+            local p = Instance.new("Frame")
+            p.Size = size
+            p.Position = pos
+            p.BackgroundColor3 = Color3.fromRGB(240, 243, 250)
+            p.BorderSizePixel = 0
+            p.Parent = BodyGroup
+
+            local c = Instance.new("UICorner")
+            c.CornerRadius = isCircle and UDim.new(1, 0) or UDim.new(0, math.floor(12 * scale))
+            c.Parent = p
+
+            local g = Instance.new("UIGradient")
+            g.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
+                ColorSequenceKeypoint.new(0.35, Color3.fromRGB(210, 214, 222)),
+                ColorSequenceKeypoint.new(0.7, Color3.fromRGB(115, 120, 132)),
+                ColorSequenceKeypoint.new(1.0, Color3.fromRGB(42, 45, 54))
+            })
+            g.Rotation = 60
+            g.Parent = p
+
+            local s = Instance.new("UIStroke")
+            s.Color = Color3.fromRGB(48, 52, 64)
+            s.Thickness = 1
+            s.Parent = p
+        end
+
+        AddBodyPuff(UDim2.new(0.9, 0, 0.45, 0), UDim2.new(0.05, 0, 0.45, 0), false)
+        AddBodyPuff(UDim2.new(0.48, 0, 0.72, 0), UDim2.new(0.06, 0, 0.15, 0), true)
+        AddBodyPuff(UDim2.new(0.58, 0, 0.88, 0), UDim2.new(0.28, 0, 0, 0), true)
+        AddBodyPuff(UDim2.new(0.45, 0, 0.65, 0), UDim2.new(0.52, 0, 0.22, 0), true)
+
+        Container.Parent = parent
+        return Container
+    end
+
+    local CenterCloudGroup = Instance.new("Frame")
+    CenterCloudGroup.Name = "CenterCloudGroup"
+    CenterCloudGroup.Size = UDim2.new(0, 240, 0, 140)
+    CenterCloudGroup.Position = UDim2.new(0.5, 0, 0.5, 0)
+    CenterCloudGroup.AnchorPoint = Vector2.new(0.5, 0.5)
+    CenterCloudGroup.BackgroundTransparency = 1
+    CenterCloudGroup.Parent = IntroCanvas
+
+    -- 3 Awan: Kiri Atas, Kanan Atas, Kiri Bawah
+    local Cloud1 = CreateRealisticCloud(CenterCloudGroup, 1.1)
+    Cloud1.Position = UDim2.new(-0.8, 0, -0.8, 0)
+    Cloud1.Rotation = -20
+
+    local Cloud2 = CreateRealisticCloud(CenterCloudGroup, 1.2)
+    Cloud2.Position = UDim2.new(1.8, 0, -0.8, 0)
+    Cloud2.Rotation = 25
+
+    local Cloud3 = CreateRealisticCloud(CenterCloudGroup, 1.0)
+    Cloud3.Position = UDim2.new(-0.8, 0, 1.8, 0)
+    Cloud3.Rotation = -15
+
+    local Target1 = UDim2.new(0.32, 0, 0.45, 0)
+    local Target2 = UDim2.new(0.68, 0, 0.35, 0)
+    local Target3 = UDim2.new(0.50, 0, 0.65, 0)
+
+    local TextHolder = Instance.new("Frame")
+    TextHolder.Name = "TextHolder"
+    TextHolder.Size = UDim2.new(0, 220, 0, 65)
+    TextHolder.Position = UDim2.new(0.5, 20, 0.5, -32)
+    TextHolder.BackgroundTransparency = 1
+    TextHolder.Parent = IntroCanvas
+
+    local TitleLbl = Instance.new("TextLabel")
+    TitleLbl.Size = UDim2.new(1, 0, 0, 42)
+    TitleLbl.Position = UDim2.new(0, -30, 0, 0)
+    TitleLbl.BackgroundTransparency = 1
+    TitleLbl.Text = string.upper(titleText or "CLOUDY")
+    TitleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLbl.Font = Enum.Font.GothamBold
+    TitleLbl.TextSize = 38
+    TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLbl.TextTransparency = 1
+    TitleLbl.Parent = TextHolder
+
+    local TitleGrad = Instance.new("UIGradient")
+    TitleGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
+        ColorSequenceKeypoint.new(0.35, Color3.fromRGB(210, 214, 222)),
+        ColorSequenceKeypoint.new(0.7, Color3.fromRGB(115, 120, 132)),
+        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(42, 45, 54))
+    })
+    TitleGrad.Rotation = 0
+    TitleGrad.Parent = TitleLbl
+
+    local SubLbl = Instance.new("TextLabel")
+    SubLbl.Size = UDim2.new(1, 0, 0, 20)
+    SubLbl.Position = UDim2.new(0, -30, 0, 42)
+    SubLbl.BackgroundTransparency = 1
+    SubLbl.Text = subText or "UI Framework"
+    SubLbl.TextColor3 = Color3.fromRGB(130, 135, 148)
+    SubLbl.Font = Enum.Font.GothamMedium
+    SubLbl.TextSize = 14
+    SubLbl.TextXAlignment = Enum.TextXAlignment.Left
+    SubLbl.TextTransparency = 1
+    SubLbl.Parent = TextHolder
+
+    local infoGather = TweenInfo.new(0.85, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+    TweenService:Create(Cloud1, infoGather, { Position = Target1, Rotation = 0 }):Play()
+    TweenService:Create(Cloud2, infoGather, { Position = Target2, Rotation = 0 }):Play()
+    TweenService:Create(Cloud3, infoGather, { Position = Target3, Rotation = 0 }):Play()
+
+    task.delay(0.9, function()
+        local infoShift = TweenInfo.new(0.7, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+        TweenService:Create(CenterCloudGroup, infoShift, { Position = UDim2.new(0.5, -130, 0.5, 0) }):Play()
+        TweenService:Create(TextHolder, infoShift, { Position = UDim2.new(0.5, 15, 0.5, -32) }):Play()
+
+        local infoFadeText = TweenInfo.new(0.55, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        TweenService:Create(TitleLbl, infoFadeText, { TextTransparency = 0, Position = UDim2.new(0, 0, 0, 0) }):Play()
+        TweenService:Create(SubLbl, infoFadeText, { TextTransparency = 0, Position = UDim2.new(0, 0, 0, 42) }):Play()
+
+        task.delay(1.2, function()
+            local infoOut = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+            local fadeCanvas = TweenService:Create(IntroCanvas, infoOut, { BackgroundTransparency = 1 })
+            TweenService:Create(TitleLbl, infoOut, { TextTransparency = 1 }):Play()
+            TweenService:Create(SubLbl, infoOut, { TextTransparency = 1 }):Play()
+
+            for _, child in ipairs(CenterCloudGroup:GetDescendants()) do
+                if child:IsA("Frame") then
+                    TweenService:Create(child, infoOut, { BackgroundTransparency = 1 }):Play()
+                elseif child:IsA("UIStroke") then
+                    TweenService:Create(child, infoOut, { Transparency = 1 }):Play()
+                end
+            end
+
+            fadeCanvas:Play()
+            fadeCanvas.Completed:Connect(function()
+                IntroCanvas:Destroy()
+                if onComplete then
+                    onComplete()
+                end
+            end)
+        end)
+    end)
+end
+
 local Cloudy = {}
 Cloudy.__index = Cloudy
 
@@ -59,6 +257,9 @@ function Cloudy.new(options)
     local windowTitle = options.Title or "Cloudy"
     local windowSub = options.SubTitle or "UI Framework"
     local toggleIcon = options.ToggleIcon or "cloud-bold"
+    local logoIcon = options.Logo or options.LogoIcon or options.Icon or "cloud-bold"
+    local bgImage = options.BackgroundImage or options.Background or options.Image
+    local bgTransparency = options.BackgroundTransparency or options.ImageTransparency or 0.85
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CloudyUI_" .. math.random(1000, 9999)
@@ -121,36 +322,53 @@ function Cloudy.new(options)
     MainStroke.Thickness = 1.5
     MainStroke.Parent = MainFrame
 
+    local MainBgImg = Instance.new("ImageLabel")
+    MainBgImg.Name = "MainBgImage"
+    MainBgImg.Size = UDim2.new(1, 0, 1, 0)
+    MainBgImg.Position = UDim2.new(0, 0, 0, 0)
+    MainBgImg.BackgroundTransparency = 1
+    MainBgImg.Image = GetIcon(bgImage)
+    MainBgImg.ImageTransparency = bgTransparency
+    MainBgImg.ScaleType = Enum.ScaleType.Crop
+    MainBgImg.ZIndex = 0
+    MainBgImg.Visible = (bgImage ~= nil and bgImage ~= "" and bgImage ~= 0)
+    MainBgImg.Parent = MainFrame
+
     local Sidebar = Instance.new("Frame")
     Sidebar.Name = "Sidebar"
-    Sidebar.Size = UDim2.new(0, 180, 1, 0)
-    Sidebar.BackgroundColor3 = Color3.fromRGB(22, 23, 29)
+    Sidebar.Size = UDim2.new(0, 174, 1, -16)
+    Sidebar.Position = UDim2.new(0, 8, 0, 8)
+    Sidebar.BackgroundColor3 = Color3.fromRGB(22, 23, 30)
     Sidebar.BorderSizePixel = 0
     Sidebar.Parent = MainFrame
 
-    local SidebarLine = Instance.new("Frame")
-    SidebarLine.Size = UDim2.new(0, 1, 1, 0)
-    SidebarLine.Position = UDim2.new(1, -1, 0, 0)
-    SidebarLine.BackgroundColor3 = Color3.fromRGB(35, 37, 46)
-    SidebarLine.BorderSizePixel = 0
-    SidebarLine.Parent = Sidebar
+    local SidebarCorner = Instance.new("UICorner")
+    SidebarCorner.CornerRadius = UDim.new(0, 12)
+    SidebarCorner.Parent = Sidebar
+
+    local SidebarStroke = Instance.new("UIStroke")
+    SidebarStroke.Color = Color3.fromRGB(36, 39, 48)
+    SidebarStroke.Thickness = 1
+    SidebarStroke.Parent = Sidebar
 
     local BrandContainer = Instance.new("Frame")
-    BrandContainer.Size = UDim2.new(1, 0, 0, 65)
+    BrandContainer.Size = UDim2.new(1, 0, 0, 58)
     BrandContainer.BackgroundTransparency = 1
     BrandContainer.Parent = Sidebar
 
     local LogoIcon = Instance.new("ImageLabel")
     LogoIcon.Size = UDim2.new(0, 22, 0, 22)
-    LogoIcon.Position = UDim2.new(0, 16, 0, 20)
+    LogoIcon.Position = UDim2.new(0, 16, 0, 18)
     LogoIcon.BackgroundTransparency = 1
-    LogoIcon.Image = GetIcon("cloud-bold")
-    LogoIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    LogoIcon.Image = GetIcon(logoIcon)
+    if not tostring(logoIcon):find("rbxassetid://") and not type(logoIcon) == "number" and not tostring(logoIcon):match("^%d+$") then
+        LogoIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    end
     LogoIcon.Parent = BrandContainer
 
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Size = UDim2.new(1, -50, 0, 24)
-    TitleLabel.Position = UDim2.new(0, 44, 0, 14)
+    TitleLabel.Position = UDim2.new(0, 44, 0, 12)
     TitleLabel.BackgroundTransparency = 1
     TitleLabel.Text = windowTitle
     TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -171,7 +389,7 @@ function Cloudy.new(options)
 
     local SubLabel = Instance.new("TextLabel")
     SubLabel.Size = UDim2.new(1, -50, 0, 14)
-    SubLabel.Position = UDim2.new(0, 44, 0, 36)
+    SubLabel.Position = UDim2.new(0, 44, 0, 34)
     SubLabel.BackgroundTransparency = 1
     SubLabel.Text = windowSub
     SubLabel.TextColor3 = Color3.fromRGB(120, 125, 138)
@@ -181,8 +399,8 @@ function Cloudy.new(options)
     SubLabel.Parent = BrandContainer
 
     local TabContainer = Instance.new("ScrollingFrame")
-    TabContainer.Size = UDim2.new(1, -16, 1, -80)
-    TabContainer.Position = UDim2.new(0, 8, 0, 70)
+    TabContainer.Size = UDim2.new(1, -16, 1, -74)
+    TabContainer.Position = UDim2.new(0, 8, 0, 64)
     TabContainer.BackgroundTransparency = 1
     TabContainer.ScrollBarThickness = 2
     TabContainer.ScrollBarImageColor3 = Color3.fromRGB(60, 65, 75)
@@ -199,16 +417,27 @@ function Cloudy.new(options)
     end)
 
     local TopBar = Instance.new("Frame")
-    TopBar.Size = UDim2.new(1, -180, 0, 45)
-    TopBar.Position = UDim2.new(0, 180, 0, 0)
-    TopBar.BackgroundTransparency = 1
+    TopBar.Name = "TopBar"
+    TopBar.Size = UDim2.new(1, -198, 0, 45)
+    TopBar.Position = UDim2.new(0, 190, 0, 8)
+    TopBar.BackgroundColor3 = Color3.fromRGB(22, 23, 30)
+    TopBar.BorderSizePixel = 0
     TopBar.Parent = MainFrame
+
+    local TopBarCorner = Instance.new("UICorner")
+    TopBarCorner.CornerRadius = UDim.new(0, 12)
+    TopBarCorner.Parent = TopBar
+
+    local TopBarStroke = Instance.new("UIStroke")
+    TopBarStroke.Color = Color3.fromRGB(36, 39, 48)
+    TopBarStroke.Thickness = 1
+    TopBarStroke.Parent = TopBar
 
     MakeDraggable(MainFrame, TopBar)
 
     local PageTitle = Instance.new("TextLabel")
-    PageTitle.Size = UDim2.new(1, -80, 1, 0)
-    PageTitle.Position = UDim2.new(0, 20, 0, 0)
+    PageTitle.Size = UDim2.new(1, -70, 1, 0)
+    PageTitle.Position = UDim2.new(0, 16, 0, 0)
     PageTitle.BackgroundTransparency = 1
     PageTitle.Text = "Dashboard"
     PageTitle.TextColor3 = Color3.fromRGB(235, 238, 245)
@@ -219,7 +448,7 @@ function Cloudy.new(options)
 
     local CloseBtn = Instance.new("TextButton")
     CloseBtn.Size = UDim2.new(0, 28, 0, 28)
-    CloseBtn.Position = UDim2.new(1, -38, 0.5, -14)
+    CloseBtn.Position = UDim2.new(1, -36, 0.5, -14)
     CloseBtn.BackgroundColor3 = Color3.fromRGB(28, 30, 38)
     CloseBtn.AutoButtonColor = false
     CloseBtn.Text = ""
@@ -239,8 +468,8 @@ function Cloudy.new(options)
     CloseIcon.Parent = CloseBtn
 
     local ContentArea = Instance.new("Frame")
-    ContentArea.Size = UDim2.new(1, -180, 1, -45)
-    ContentArea.Position = UDim2.new(0, 180, 0, 45)
+    ContentArea.Size = UDim2.new(1, -198, 1, -69)
+    ContentArea.Position = UDim2.new(0, 190, 0, 61)
     ContentArea.BackgroundTransparency = 1
     ContentArea.Parent = MainFrame
 
@@ -252,6 +481,21 @@ function Cloudy.new(options)
 
     ToggleBtn.MouseButton1Click:Connect(ToggleUI)
     CloseBtn.MouseButton1Click:Connect(ToggleUI)
+
+    local showIntro = options.Intro
+    if showIntro == nil then showIntro = true end
+
+    if showIntro then
+        MainFrame.Visible = false
+        ToggleBtn.Visible = false
+        PlayIntroAnimation(ScreenGui, windowTitle, windowSub, function()
+            MainFrame.Visible = true
+            ToggleBtn.Visible = true
+        end)
+    else
+        MainFrame.Visible = true
+        ToggleBtn.Visible = true
+    end
 
     local selfObj = setmetatable({
         ScreenGui = ScreenGui,
@@ -415,6 +659,207 @@ function Cloudy:CreateTab(tabName, iconName)
         end)
 
         local SecMethods = {}
+
+        function SecMethods:CreateBanner(opts)
+            if type(opts) == "string" or type(opts) == "number" then
+                opts = { Image = opts }
+            end
+            opts = opts or {}
+            local title = opts.Title or ""
+            local desc = opts.Description or opts.SubTitle or ""
+            local imageId = opts.Image or opts.AssetId or 0
+            local height = opts.Height or 95
+
+            local BanFrame = Instance.new("Frame")
+            BanFrame.Size = UDim2.new(1, 0, 0, height)
+            BanFrame.BackgroundColor3 = Color3.fromRGB(24, 25, 34)
+            BanFrame.ClipsDescendants = true
+            BanFrame.Parent = SecContent
+
+            local BanCorner = Instance.new("UICorner")
+            BanCorner.CornerRadius = UDim.new(0, 10)
+            BanCorner.Parent = BanFrame
+
+            local BanStroke = Instance.new("UIStroke")
+            BanStroke.Color = Color3.fromRGB(45, 48, 62)
+            BanStroke.Thickness = 1
+            BanStroke.Parent = BanFrame
+
+            if imageId and imageId ~= "" and imageId ~= 0 then
+                local BanImg = Instance.new("ImageLabel")
+                BanImg.Size = UDim2.new(1, 0, 1, 0)
+                BanImg.BackgroundTransparency = 1
+                BanImg.Image = GetIcon(imageId)
+                BanImg.ImageTransparency = opts.ImageTransparency or 0.4
+                BanImg.ScaleType = Enum.ScaleType.Crop
+                BanImg.Parent = BanFrame
+            end
+
+            local Overlay = Instance.new("Frame")
+            Overlay.Size = UDim2.new(1, 0, 1, 0)
+            Overlay.BackgroundColor3 = Color3.fromRGB(16, 17, 24)
+            Overlay.BackgroundTransparency = 0.35
+            Overlay.Parent = BanFrame
+
+            local Grad = Instance.new("UIGradient")
+            Grad.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(16, 17, 24)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 30, 42))
+            })
+            Grad.Rotation = 45
+            Grad.Parent = Overlay
+
+            local Holder = Instance.new("Frame")
+            Holder.Size = UDim2.new(1, -24, 1, -16)
+            Holder.Position = UDim2.new(0, 12, 0, 8)
+            Holder.BackgroundTransparency = 1
+            Holder.Parent = BanFrame
+
+            if title ~= "" then
+                local TxtTitle = Instance.new("TextLabel")
+                TxtTitle.Size = UDim2.new(1, 0, 0, 22)
+                TxtTitle.Position = UDim2.new(0, 0, 0, 4)
+                TxtTitle.BackgroundTransparency = 1
+                TxtTitle.Text = title
+                TxtTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+                TxtTitle.Font = Enum.Font.GothamBold
+                TxtTitle.TextSize = 14
+                TxtTitle.TextXAlignment = Enum.TextXAlignment.Left
+                TxtTitle.Parent = Holder
+            end
+
+            if desc ~= "" then
+                local TxtDesc = Instance.new("TextLabel")
+                TxtDesc.Size = UDim2.new(1, 0, 1, title ~= "" and -28 or 0)
+                TxtDesc.Position = UDim2.new(0, 0, 0, title ~= "" and 26 or 0)
+                TxtDesc.BackgroundTransparency = 1
+                TxtDesc.Text = desc
+                TxtDesc.TextColor3 = Color3.fromRGB(200, 205, 218)
+                TxtDesc.Font = Enum.Font.GothamMedium
+                TxtDesc.TextSize = 11
+                TxtDesc.TextXAlignment = Enum.TextXAlignment.Left
+                TxtDesc.TextYAlignment = Enum.TextYAlignment.Top
+                TxtDesc.TextWrapped = true
+                TxtDesc.Parent = Holder
+            end
+
+            return BanFrame
+        end
+
+        function SecMethods:CreateImage(opts)
+            if type(opts) == "string" or type(opts) == "number" then
+                opts = { Image = opts }
+            end
+            opts = opts or {}
+            local imageId = opts.Image or opts.AssetId or 0
+            local height = opts.Height or 130
+            local scaleType = opts.ScaleType or Enum.ScaleType.Fit
+
+            local ImgFrame = Instance.new("Frame")
+            ImgFrame.Size = UDim2.new(1, 0, 0, height)
+            ImgFrame.BackgroundColor3 = Color3.fromRGB(24, 25, 34)
+            ImgFrame.ClipsDescendants = true
+            ImgFrame.Parent = SecContent
+
+            local ImgCorner = Instance.new("UICorner")
+            ImgCorner.CornerRadius = UDim.new(0, 10)
+            ImgCorner.Parent = ImgFrame
+
+            local ImgStroke = Instance.new("UIStroke")
+            ImgStroke.Color = Color3.fromRGB(45, 48, 62)
+            ImgStroke.Thickness = 1
+            ImgStroke.Parent = ImgFrame
+
+            local DisplayImg = Instance.new("ImageLabel")
+            DisplayImg.Size = UDim2.new(1, 0, 1, 0)
+            DisplayImg.BackgroundTransparency = 1
+            DisplayImg.Image = GetIcon(imageId)
+            DisplayImg.ScaleType = scaleType
+            DisplayImg.Parent = ImgFrame
+
+            return ImgFrame
+        end
+
+        function SecMethods:CreateImageButton(opts, callback)
+            if type(opts) == "string" or type(opts) == "number" then
+                opts = { Image = opts, Title = "Click Me" }
+            end
+            opts = opts or {}
+            callback = callback or function() end
+            local title = opts.Title or "Button"
+            local desc = opts.Description or ""
+            local imageId = opts.Image or opts.AssetId or 0
+            local height = opts.Height or 80
+
+            local BtnFrame = Instance.new("TextButton")
+            BtnFrame.Size = UDim2.new(1, 0, 0, height)
+            BtnFrame.BackgroundColor3 = Color3.fromRGB(24, 25, 34)
+            BtnFrame.AutoButtonColor = false
+            BtnFrame.Text = ""
+            BtnFrame.ClipsDescendants = true
+            BtnFrame.Parent = SecContent
+
+            local BtnCorner = Instance.new("UICorner")
+            BtnCorner.CornerRadius = UDim.new(0, 10)
+            BtnCorner.Parent = BtnFrame
+
+            local BtnStroke = Instance.new("UIStroke")
+            BtnStroke.Color = Color3.fromRGB(45, 48, 62)
+            BtnStroke.Thickness = 1
+            BtnStroke.Parent = BtnFrame
+
+            if imageId and imageId ~= "" and imageId ~= 0 then
+                local BtnImg = Instance.new("ImageLabel")
+                BtnImg.Size = UDim2.new(1, 0, 1, 0)
+                BtnImg.BackgroundTransparency = 1
+                BtnImg.Image = GetIcon(imageId)
+                BtnImg.ImageTransparency = opts.ImageTransparency or 0.45
+                BtnImg.ScaleType = Enum.ScaleType.Crop
+                BtnImg.Parent = BtnFrame
+            end
+
+            local Overlay = Instance.new("Frame")
+            Overlay.Size = UDim2.new(1, 0, 1, 0)
+            Overlay.BackgroundColor3 = Color3.fromRGB(16, 17, 24)
+            Overlay.BackgroundTransparency = 0.3
+            Overlay.Parent = BtnFrame
+
+            local Holder = Instance.new("Frame")
+            Holder.Size = UDim2.new(1, -24, 1, -16)
+            Holder.Position = UDim2.new(0, 12, 0, 8)
+            Holder.BackgroundTransparency = 1
+            Holder.Parent = BtnFrame
+
+            local TxtTitle = Instance.new("TextLabel")
+            TxtTitle.Size = UDim2.new(1, 0, 0, 20)
+            TxtTitle.Position = UDim2.new(0, 0, 0, 4)
+            TxtTitle.BackgroundTransparency = 1
+            TxtTitle.Text = title
+            TxtTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+            TxtTitle.Font = Enum.Font.GothamBold
+            TxtTitle.TextSize = 13
+            TxtTitle.TextXAlignment = Enum.TextXAlignment.Left
+            TxtTitle.Parent = Holder
+
+            if desc ~= "" then
+                local TxtDesc = Instance.new("TextLabel")
+                TxtDesc.Size = UDim2.new(1, 0, 0, 18)
+                TxtDesc.Position = UDim2.new(0, 0, 0, 24)
+                TxtDesc.BackgroundTransparency = 1
+                TxtDesc.Text = desc
+                TxtDesc.TextColor3 = Color3.fromRGB(190, 195, 208)
+                TxtDesc.Font = Enum.Font.GothamMedium
+                TxtDesc.TextSize = 11
+                TxtDesc.TextXAlignment = Enum.TextXAlignment.Left
+                TxtDesc.Parent = Holder
+            end
+
+            BtnFrame.MouseButton1Click:Connect(function()
+                pcall(callback)
+            end)
+
+            return BtnFrame
+        end
 
         function SecMethods:CreateHeader(text)
             local HeaderLabel = Instance.new("TextLabel")
