@@ -1,3 +1,6 @@
+local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+
 local SolarIcons = {}
 pcall(function()
     SolarIcons = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua"))()
@@ -11,10 +14,6 @@ local function GetIcon(name)
     return name
 end
 
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui")
-
 local function MakeDraggable(gui, handle)
     handle = handle or gui
     local dragging = false
@@ -22,8 +21,7 @@ local function MakeDraggable(gui, handle)
 
     local function update(input)
         local delta = input.Position - dragStart
-        local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        TweenService:Create(gui, TweenInfo.new(0.08, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Position = newPos}):Play()
+        gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 
     handle.InputBegan:Connect(function(input)
@@ -108,8 +106,8 @@ function Cloudy.new(options)
 
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
-    MainFrame.Size = UDim2.new(0, 620, 0, 420)
-    MainFrame.Position = UDim2.new(0.5, -310, 0.5, -210)
+    MainFrame.Size = UDim2.new(0, 640, 0, 440)
+    MainFrame.Position = UDim2.new(0.5, -320, 0.5, -220)
     MainFrame.BackgroundColor3 = Color3.fromRGB(18, 19, 24)
     MainFrame.ClipsDescendants = true
     MainFrame.Parent = ScreenGui
@@ -125,7 +123,7 @@ function Cloudy.new(options)
 
     local Sidebar = Instance.new("Frame")
     Sidebar.Name = "Sidebar"
-    Sidebar.Size = UDim2.new(0, 175, 1, 0)
+    Sidebar.Size = UDim2.new(0, 180, 1, 0)
     Sidebar.BackgroundColor3 = Color3.fromRGB(22, 23, 29)
     Sidebar.BorderSizePixel = 0
     Sidebar.Parent = MainFrame
@@ -147,7 +145,7 @@ function Cloudy.new(options)
     LogoIcon.Position = UDim2.new(0, 16, 0, 20)
     LogoIcon.BackgroundTransparency = 1
     LogoIcon.Image = GetIcon("cloud-bold")
-    LogoIcon.ImageColor3 = Color3.fromRGB(245, 247, 250)
+    LogoIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
     LogoIcon.Parent = BrandContainer
 
     local TitleLabel = Instance.new("TextLabel")
@@ -157,17 +155,18 @@ function Cloudy.new(options)
     TitleLabel.Text = windowTitle
     TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleLabel.Font = Enum.Font.GothamBold
-    TitleLabel.TextSize = 17
+    TitleLabel.TextSize = 18
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     TitleLabel.Parent = BrandContainer
 
     local TitleGrad = Instance.new("UIGradient")
     TitleGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(225, 228, 235)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 155, 168))
+        ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
+        ColorSequenceKeypoint.new(0.35, Color3.fromRGB(210, 214, 222)),
+        ColorSequenceKeypoint.new(0.7, Color3.fromRGB(115, 120, 132)),
+        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(42, 45, 54))
     })
-    TitleGrad.Rotation = 35
+    TitleGrad.Rotation = 0
     TitleGrad.Parent = TitleLabel
 
     local SubLabel = Instance.new("TextLabel")
@@ -200,8 +199,8 @@ function Cloudy.new(options)
     end)
 
     local TopBar = Instance.new("Frame")
-    TopBar.Size = UDim2.new(1, -175, 0, 45)
-    TopBar.Position = UDim2.new(0, 175, 0, 0)
+    TopBar.Size = UDim2.new(1, -180, 0, 45)
+    TopBar.Position = UDim2.new(0, 180, 0, 0)
     TopBar.BackgroundTransparency = 1
     TopBar.Parent = MainFrame
 
@@ -239,55 +238,20 @@ function Cloudy.new(options)
     CloseIcon.ImageColor3 = Color3.fromRGB(160, 165, 178)
     CloseIcon.Parent = CloseBtn
 
-    CloseBtn.MouseEnter:Connect(function()
-        TweenService:Create(CloseBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(200, 50, 60)}):Play()
-        TweenService:Create(CloseIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-    end)
-
-    CloseBtn.MouseLeave:Connect(function()
-        TweenService:Create(CloseBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(28, 30, 38)}):Play()
-        TweenService:Create(CloseIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(160, 165, 178)}):Play()
-    end)
-
     local ContentArea = Instance.new("Frame")
-    ContentArea.Size = UDim2.new(1, -175, 1, -45)
-    ContentArea.Position = UDim2.new(0, 175, 0, 45)
+    ContentArea.Size = UDim2.new(1, -180, 1, -45)
+    ContentArea.Position = UDim2.new(0, 180, 0, 45)
     ContentArea.BackgroundTransparency = 1
     ContentArea.Parent = MainFrame
 
     local isOpen = true
     local function ToggleUI()
         isOpen = not isOpen
-        if isOpen then
-            MainFrame.Visible = true
-            TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 620, 0, 420),
-                BackgroundTransparency = 0
-            }):Play()
-        else
-            local tw = TweenService:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                Size = UDim2.new(0, 620, 0, 0),
-                BackgroundTransparency = 1
-            })
-            tw:Play()
-            tw.Completed:Connect(function()
-                if not isOpen then
-                    MainFrame.Visible = false
-                end
-            end)
-        end
+        MainFrame.Visible = isOpen
     end
 
     ToggleBtn.MouseButton1Click:Connect(ToggleUI)
     CloseBtn.MouseButton1Click:Connect(ToggleUI)
-
-    ToggleBtn.MouseEnter:Connect(function()
-        TweenService:Create(ToggleStroke, TweenInfo.new(0.15), {Color = Color3.fromRGB(140, 145, 160)}):Play()
-    end)
-
-    ToggleBtn.MouseLeave:Connect(function()
-        TweenService:Create(ToggleStroke, TweenInfo.new(0.15), {Color = Color3.fromRGB(55, 58, 68)}):Play()
-    end)
 
     local selfObj = setmetatable({
         ScreenGui = ScreenGui,
@@ -300,6 +264,12 @@ function Cloudy.new(options)
     }, Cloudy)
 
     return selfObj
+end
+
+function Cloudy:Destroy()
+    if self.ScreenGui then
+        self.ScreenGui:Destroy()
+    end
 end
 
 function Cloudy:CreateTab(tabName, iconName)
@@ -377,20 +347,20 @@ function Cloudy:CreateTab(tabName, iconName)
     local function SelectTab()
         for _, t in ipairs(self.Tabs) do
             t.Page.Visible = false
-            TweenService:Create(t.Button, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(22, 23, 29)}):Play()
-            TweenService:Create(t.Label, TweenInfo.new(0.15), {TextColor3 = Color3.fromRGB(130, 135, 148)}):Play()
-            TweenService:Create(t.Icon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(130, 135, 148)}):Play()
-            TweenService:Create(t.Indicator, TweenInfo.new(0.15), {BackgroundTransparency = 1}):Play()
+            t.Button.BackgroundColor3 = Color3.fromRGB(22, 23, 29)
+            t.Label.TextColor3 = Color3.fromRGB(130, 135, 148)
+            t.Icon.ImageColor3 = Color3.fromRGB(130, 135, 148)
+            t.Indicator.BackgroundTransparency = 1
         end
 
         TabPage.Visible = true
         self.PageTitle.Text = tabName
         self.ActiveTab = tabObject
 
-        TweenService:Create(TabBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(32, 34, 44)}):Play()
-        TweenService:Create(TabLabel, TweenInfo.new(0.15), {TextColor3 = Color3.fromRGB(245, 247, 250)}):Play()
-        TweenService:Create(TabIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(245, 247, 250)}):Play()
-        TweenService:Create(TabIndicator, TweenInfo.new(0.15), {BackgroundTransparency = 0}):Play()
+        TabBtn.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
+        TabLabel.TextColor3 = Color3.fromRGB(245, 247, 250)
+        TabIcon.ImageColor3 = Color3.fromRGB(245, 247, 250)
+        TabIndicator.BackgroundTransparency = 0
     end
 
     TabBtn.MouseButton1Click:Connect(SelectTab)
@@ -446,6 +416,57 @@ function Cloudy:CreateTab(tabName, iconName)
 
         local SecMethods = {}
 
+        function SecMethods:CreateHeader(text)
+            local HeaderLabel = Instance.new("TextLabel")
+            HeaderLabel.Size = UDim2.new(1, 0, 0, 20)
+            HeaderLabel.BackgroundTransparency = 1
+            HeaderLabel.Text = text
+            HeaderLabel.TextColor3 = Color3.fromRGB(150, 155, 170)
+            HeaderLabel.Font = Enum.Font.GothamBold
+            HeaderLabel.TextSize = 11
+            HeaderLabel.TextXAlignment = Enum.TextXAlignment.Left
+            HeaderLabel.Parent = SecContent
+        end
+
+        function SecMethods:CreateParagraph(title, content)
+            local ParaFrame = Instance.new("Frame")
+            ParaFrame.Size = UDim2.new(1, 0, 0, 48)
+            ParaFrame.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+            ParaFrame.Parent = SecContent
+
+            local ParaCorner = Instance.new("UICorner")
+            ParaCorner.CornerRadius = UDim.new(0, 8)
+            ParaCorner.Parent = ParaFrame
+
+            local ParaStroke = Instance.new("UIStroke")
+            ParaStroke.Color = Color3.fromRGB(45, 48, 60)
+            ParaStroke.Thickness = 1
+            ParaStroke.Parent = ParaFrame
+
+            local PTitle = Instance.new("TextLabel")
+            PTitle.Size = UDim2.new(1, -24, 0, 20)
+            PTitle.Position = UDim2.new(0, 12, 0, 4)
+            PTitle.BackgroundTransparency = 1
+            PTitle.Text = title
+            PTitle.TextColor3 = Color3.fromRGB(230, 234, 245)
+            PTitle.Font = Enum.Font.GothamBold
+            PTitle.TextSize = 12
+            PTitle.TextXAlignment = Enum.TextXAlignment.Left
+            PTitle.Parent = ParaFrame
+
+            local PText = Instance.new("TextLabel")
+            PText.Size = UDim2.new(1, -24, 0, 20)
+            PText.Position = UDim2.new(0, 12, 0, 24)
+            PText.BackgroundTransparency = 1
+            PText.Text = content
+            PText.TextColor3 = Color3.fromRGB(140, 145, 158)
+            PText.Font = Enum.Font.GothamMedium
+            PText.TextSize = 11
+            PText.TextXAlignment = Enum.TextXAlignment.Left
+            PText.TextWrapped = true
+            PText.Parent = ParaFrame
+        end
+
         function SecMethods:CreateButton(text, callback)
             callback = callback or function() end
 
@@ -466,7 +487,7 @@ function Cloudy:CreateTab(tabName, iconName)
             BtnStroke.Parent = Btn
 
             local BtnLabel = Instance.new("TextLabel")
-            BtnLabel.Size = UDim2.new(1, -20, 1, 0)
+            BtnLabel.Size = UDim2.new(1, -40, 1, 0)
             BtnLabel.Position = UDim2.new(0, 12, 0, 0)
             BtnLabel.BackgroundTransparency = 1
             BtnLabel.Text = text
@@ -484,20 +505,7 @@ function Cloudy:CreateTab(tabName, iconName)
             BtnIcon.ImageColor3 = Color3.fromRGB(140, 145, 160)
             BtnIcon.Parent = Btn
 
-            Btn.MouseEnter:Connect(function()
-                TweenService:Create(Btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(40, 43, 56)}):Play()
-                TweenService:Create(BtnStroke, TweenInfo.new(0.15), {Color = Color3.fromRGB(70, 75, 92)}):Play()
-            end)
-
-            Btn.MouseLeave:Connect(function()
-                TweenService:Create(Btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(30, 32, 42)}):Play()
-                TweenService:Create(BtnStroke, TweenInfo.new(0.15), {Color = Color3.fromRGB(45, 48, 60)}):Play()
-            end)
-
             Btn.MouseButton1Click:Connect(function()
-                TweenService:Create(Btn, TweenInfo.new(0.08), {BackgroundColor3 = Color3.fromRGB(50, 54, 70)}):Play()
-                task.wait(0.08)
-                TweenService:Create(Btn, TweenInfo.new(0.08), {BackgroundColor3 = Color3.fromRGB(40, 43, 56)}):Play()
                 pcall(callback)
             end)
         end
@@ -535,7 +543,7 @@ function Cloudy:CreateTab(tabName, iconName)
             local Switch = Instance.new("TextButton")
             Switch.Size = UDim2.new(0, 36, 0, 20)
             Switch.Position = UDim2.new(1, -44, 0.5, -10)
-            Switch.BackgroundColor3 = toggled and Color3.fromRGB(220, 225, 235) or Color3.fromRGB(45, 48, 60)
+            Switch.BackgroundColor3 = toggled and Color3.fromRGB(235, 238, 245) or Color3.fromRGB(45, 48, 60)
             Switch.AutoButtonColor = false
             Switch.Text = ""
             Switch.Parent = TogFrame
@@ -556,17 +564,13 @@ function Cloudy:CreateTab(tabName, iconName)
 
             local function UpdateToggle()
                 if toggled then
-                    TweenService:Create(Switch, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(235, 238, 245)}):Play()
-                    TweenService:Create(Circle, TweenInfo.new(0.15), {
-                        Position = UDim2.new(1, -17, 0.5, -7),
-                        BackgroundColor3 = Color3.fromRGB(20, 22, 28)
-                    }):Play()
+                    Switch.BackgroundColor3 = Color3.fromRGB(235, 238, 245)
+                    Circle.Position = UDim2.new(1, -17, 0.5, -7)
+                    Circle.BackgroundColor3 = Color3.fromRGB(20, 22, 28)
                 else
-                    TweenService:Create(Switch, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(45, 48, 60)}):Play()
-                    TweenService:Create(Circle, TweenInfo.new(0.15), {
-                        Position = UDim2.new(0, 3, 0.5, -7),
-                        BackgroundColor3 = Color3.fromRGB(150, 155, 170)
-                    }):Play()
+                    Switch.BackgroundColor3 = Color3.fromRGB(45, 48, 60)
+                    Circle.Position = UDim2.new(0, 3, 0.5, -7)
+                    Circle.BackgroundColor3 = Color3.fromRGB(150, 155, 170)
                 end
                 pcall(callback, toggled)
             end
@@ -590,7 +594,7 @@ function Cloudy:CreateTab(tabName, iconName)
             callback = callback or function() end
 
             local SldFrame = Instance.new("Frame")
-            SldFrame.Size = UDim2.new(1, 0, 0, 48)
+            SldFrame.Size = UDim2.new(1, 0, 0, 50)
             SldFrame.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
             SldFrame.Parent = SecContent
 
@@ -627,7 +631,7 @@ function Cloudy:CreateTab(tabName, iconName)
 
             local Track = Instance.new("TextButton")
             Track.Size = UDim2.new(1, -24, 0, 6)
-            Track.Position = UDim2.new(0, 12, 0, 32)
+            Track.Position = UDim2.new(0, 12, 0, 33)
             Track.BackgroundColor3 = Color3.fromRGB(45, 48, 60)
             Track.AutoButtonColor = false
             Track.Text = ""
@@ -647,6 +651,22 @@ function Cloudy:CreateTab(tabName, iconName)
             FillCorner.CornerRadius = UDim.new(1, 0)
             FillCorner.Parent = Fill
 
+            local Knob = Instance.new("Frame")
+            Knob.Size = UDim2.new(0, 16, 0, 16)
+            Knob.AnchorPoint = Vector2.new(0.5, 0.5)
+            Knob.Position = UDim2.new(initPct, 0, 0.5, 0)
+            Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            Knob.Parent = Track
+
+            local KnobCorner = Instance.new("UICorner")
+            KnobCorner.CornerRadius = UDim.new(1, 0)
+            KnobCorner.Parent = Knob
+
+            local KnobStroke = Instance.new("UIStroke")
+            KnobStroke.Color = Color3.fromRGB(35, 37, 46)
+            KnobStroke.Thickness = 2
+            KnobStroke.Parent = Knob
+
             local isDragging = false
 
             local function UpdateSlider(input)
@@ -654,6 +674,7 @@ function Cloudy:CreateTab(tabName, iconName)
                 local val = math.floor(min + (max - min) * pct)
                 ValLabel.Text = tostring(val)
                 Fill.Size = UDim2.new(pct, 0, 1, 0)
+                Knob.Position = UDim2.new(pct, 0, 0.5, 0)
                 pcall(callback, val)
             end
 
@@ -759,8 +780,8 @@ function Cloudy:CreateTab(tabName, iconName)
                 OptBtn.MouseButton1Click:Connect(function()
                     SelectedLabel.Text = tostring(opt)
                     isExpanded = false
-                    TweenService:Create(DropFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 34)}):Play()
-                    TweenService:Create(ArrowIcon, TweenInfo.new(0.2), {Rotation = 0}):Play()
+                    DropFrame.Size = UDim2.new(1, 0, 0, 34)
+                    ArrowIcon.Rotation = 0
                     pcall(callback, opt)
                 end)
             end
@@ -773,10 +794,177 @@ function Cloudy:CreateTab(tabName, iconName)
 
             ToggleDropBtn.MouseButton1Click:Connect(function()
                 isExpanded = not isExpanded
-                local targetH = isExpanded and (38 + #options * 26) or 34
-                TweenService:Create(DropFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, targetH)}):Play()
-                TweenService:Create(ArrowIcon, TweenInfo.new(0.2), {Rotation = isExpanded and 180 or 0}):Play()
+                DropFrame.Size = UDim2.new(1, 0, 0, isExpanded and (38 + #options * 26) or 34)
+                ArrowIcon.Rotation = isExpanded and 180 or 0
             end)
+        end
+
+        function SecMethods:CreateMultiDropdown(text, options, defaultTable, callback)
+            options = options or {}
+            defaultTable = defaultTable or {}
+            callback = callback or function() end
+
+            local selectedMap = {}
+            for _, v in ipairs(defaultTable) do
+                selectedMap[v] = true
+            end
+
+            local DropFrame = Instance.new("Frame")
+            DropFrame.Size = UDim2.new(1, 0, 0, 34)
+            DropFrame.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+            DropFrame.ClipsDescendants = true
+            DropFrame.Parent = SecContent
+
+            local DropCorner = Instance.new("UICorner")
+            DropCorner.CornerRadius = UDim.new(0, 8)
+            DropCorner.Parent = DropFrame
+
+            local DropStroke = Instance.new("UIStroke")
+            DropStroke.Color = Color3.fromRGB(45, 48, 60)
+            DropStroke.Thickness = 1
+            DropStroke.Parent = DropFrame
+
+            local DropLabel = Instance.new("TextLabel")
+            DropLabel.Size = UDim2.new(0, 120, 0, 34)
+            DropLabel.Position = UDim2.new(0, 12, 0, 0)
+            DropLabel.BackgroundTransparency = 1
+            DropLabel.Text = text
+            DropLabel.TextColor3 = Color3.fromRGB(220, 224, 235)
+            DropLabel.Font = Enum.Font.GothamMedium
+            DropLabel.TextSize = 12
+            DropLabel.TextXAlignment = Enum.TextXAlignment.Left
+            DropLabel.Parent = DropFrame
+
+            local SelectedLabel = Instance.new("TextLabel")
+            SelectedLabel.Size = UDim2.new(1, -165, 0, 34)
+            SelectedLabel.Position = UDim2.new(0, 130, 0, 0)
+            SelectedLabel.BackgroundTransparency = 1
+            SelectedLabel.TextColor3 = Color3.fromRGB(160, 165, 178)
+            SelectedLabel.Font = Enum.Font.GothamMedium
+            SelectedLabel.TextSize = 11
+            SelectedLabel.TextXAlignment = Enum.TextXAlignment.Right
+            SelectedLabel.Parent = DropFrame
+
+            local function RefreshLabel()
+                local list = {}
+                for k, v in pairs(selectedMap) do
+                    if v then table.insert(list, k) end
+                end
+                if #list == 0 then
+                    SelectedLabel.Text = "None"
+                else
+                    SelectedLabel.Text = table.concat(list, ", ")
+                end
+            end
+            RefreshLabel()
+
+            local ArrowIcon = Instance.new("ImageLabel")
+            ArrowIcon.Size = UDim2.new(0, 14, 0, 14)
+            ArrowIcon.Position = UDim2.new(1, -24, 0, 10)
+            ArrowIcon.BackgroundTransparency = 1
+            ArrowIcon.Image = GetIcon("alt-arrow-down-linear")
+            ArrowIcon.ImageColor3 = Color3.fromRGB(140, 145, 160)
+            ArrowIcon.Parent = DropFrame
+
+            local OptionContainer = Instance.new("Frame")
+            OptionContainer.Size = UDim2.new(1, -16, 0, #options * 26)
+            OptionContainer.Position = UDim2.new(0, 8, 0, 34)
+            OptionContainer.BackgroundTransparency = 1
+            OptionContainer.Parent = DropFrame
+
+            local OptLayout = Instance.new("UIListLayout")
+            OptLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            OptLayout.Padding = UDim.new(0, 2)
+            OptLayout.Parent = OptionContainer
+
+            local isExpanded = false
+
+            for _, opt in ipairs(options) do
+                local OptBtn = Instance.new("TextButton")
+                OptBtn.Size = UDim2.new(1, 0, 0, 24)
+                OptBtn.BackgroundColor3 = selectedMap[opt] and Color3.fromRGB(42, 45, 58) or Color3.fromRGB(24, 26, 34)
+                OptBtn.AutoButtonColor = false
+                OptBtn.Text = "  " .. tostring(opt)
+                OptBtn.TextColor3 = selectedMap[opt] and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 185, 198)
+                OptBtn.Font = Enum.Font.GothamMedium
+                OptBtn.TextSize = 11
+                OptBtn.TextXAlignment = Enum.TextXAlignment.Left
+                OptBtn.Parent = OptionContainer
+
+                local OptCorner = Instance.new("UICorner")
+                OptCorner.CornerRadius = UDim.new(0, 6)
+                OptCorner.Parent = OptBtn
+
+                OptBtn.MouseButton1Click:Connect(function()
+                    selectedMap[opt] = not selectedMap[opt]
+                    OptBtn.BackgroundColor3 = selectedMap[opt] and Color3.fromRGB(42, 45, 58) or Color3.fromRGB(24, 26, 34)
+                    OptBtn.TextColor3 = selectedMap[opt] and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 185, 198)
+                    RefreshLabel()
+                    local res = {}
+                    for k, v in pairs(selectedMap) do
+                        if v then table.insert(res, k) end
+                    end
+                    pcall(callback, res)
+                end)
+            end
+
+            local ToggleDropBtn = Instance.new("TextButton")
+            ToggleDropBtn.Size = UDim2.new(1, 0, 0, 34)
+            ToggleDropBtn.BackgroundTransparency = 1
+            ToggleDropBtn.Text = ""
+            ToggleDropBtn.Parent = DropFrame
+
+            ToggleDropBtn.MouseButton1Click:Connect(function()
+                isExpanded = not isExpanded
+                DropFrame.Size = UDim2.new(1, 0, 0, isExpanded and (38 + #options * 26) or 34)
+                ArrowIcon.Rotation = isExpanded and 180 or 0
+            end)
+        end
+
+        function SecMethods:CreateColorPicker(text, defaultColor, callback)
+            defaultColor = defaultColor or Color3.fromRGB(255, 255, 255)
+            callback = callback or function() end
+            local currentColor = defaultColor
+
+            local CPFrame = Instance.new("Frame")
+            CPFrame.Size = UDim2.new(1, 0, 0, 34)
+            CPFrame.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+            CPFrame.Parent = SecContent
+
+            local CPCorner = Instance.new("UICorner")
+            CPCorner.CornerRadius = UDim.new(0, 8)
+            CPCorner.Parent = CPFrame
+
+            local CPStroke = Instance.new("UIStroke")
+            CPStroke.Color = Color3.fromRGB(45, 48, 60)
+            CPStroke.Thickness = 1
+            CPStroke.Parent = CPFrame
+
+            local CPLabel = Instance.new("TextLabel")
+            CPLabel.Size = UDim2.new(1, -60, 1, 0)
+            CPLabel.Position = UDim2.new(0, 12, 0, 0)
+            CPLabel.BackgroundTransparency = 1
+            CPLabel.Text = text
+            CPLabel.TextColor3 = Color3.fromRGB(220, 224, 235)
+            CPLabel.Font = Enum.Font.GothamMedium
+            CPLabel.TextSize = 12
+            CPLabel.TextXAlignment = Enum.TextXAlignment.Left
+            CPLabel.Parent = CPFrame
+
+            local Preview = Instance.new("Frame")
+            Preview.Size = UDim2.new(0, 26, 0, 18)
+            Preview.Position = UDim2.new(1, -38, 0.5, -9)
+            Preview.BackgroundColor3 = currentColor
+            Preview.Parent = CPFrame
+
+            local PrevCorner = Instance.new("UICorner")
+            PrevCorner.CornerRadius = UDim.new(0, 6)
+            PrevCorner.Parent = Preview
+
+            local PrevStroke = Instance.new("UIStroke")
+            PrevStroke.Color = Color3.fromRGB(60, 65, 78)
+            PrevStroke.Thickness = 1
+            PrevStroke.Parent = Preview
         end
 
         function SecMethods:CreateInput(text, placeholder, callback)
@@ -933,7 +1121,6 @@ function Cloudy:Notify(config)
     local Card = Instance.new("Frame")
     Card.Size = UDim2.new(1, 0, 0, 54)
     Card.BackgroundColor3 = Color3.fromRGB(24, 25, 32)
-    Card.BackgroundTransparency = 1
     Card.Parent = NotifContainer
 
     local CardCorner = Instance.new("UICorner")
@@ -943,7 +1130,6 @@ function Cloudy:Notify(config)
     local CardStroke = Instance.new("UIStroke")
     CardStroke.Color = Color3.fromRGB(50, 54, 66)
     CardStroke.Thickness = 1
-    CardStroke.Transparency = 1
     CardStroke.Parent = Card
 
     local CardIcon = Instance.new("ImageLabel")
@@ -952,7 +1138,6 @@ function Cloudy:Notify(config)
     CardIcon.BackgroundTransparency = 1
     CardIcon.Image = GetIcon(icon)
     CardIcon.ImageColor3 = Color3.fromRGB(240, 243, 250)
-    CardIcon.ImageTransparency = 1
     CardIcon.Parent = Card
 
     local CardTitle = Instance.new("TextLabel")
@@ -961,7 +1146,6 @@ function Cloudy:Notify(config)
     CardTitle.BackgroundTransparency = 1
     CardTitle.Text = title
     CardTitle.TextColor3 = Color3.fromRGB(245, 247, 250)
-    CardTitle.TextTransparency = 1
     CardTitle.Font = Enum.Font.GothamBold
     CardTitle.TextSize = 12
     CardTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -973,34 +1157,21 @@ function Cloudy:Notify(config)
     CardText.BackgroundTransparency = 1
     CardText.Text = content
     CardText.TextColor3 = Color3.fromRGB(150, 155, 168)
-    CardText.TextTransparency = 1
     CardText.Font = Enum.Font.GothamMedium
     CardText.TextSize = 11
     CardText.TextXAlignment = Enum.TextXAlignment.Left
     CardText.Parent = Card
 
-    TweenService:Create(Card, TweenInfo.new(0.25), {BackgroundTransparency = 0}):Play()
-    TweenService:Create(CardStroke, TweenInfo.new(0.25), {Transparency = 0}):Play()
-    TweenService:Create(CardIcon, TweenInfo.new(0.25), {ImageTransparency = 0}):Play()
-    TweenService:Create(CardTitle, TweenInfo.new(0.25), {TextTransparency = 0}):Play()
-    TweenService:Create(CardText, TweenInfo.new(0.25), {TextTransparency = 0}):Play()
-
     task.delay(duration, function()
-        local tw = TweenService:Create(Card, TweenInfo.new(0.25), {BackgroundTransparency = 1})
-        TweenService:Create(CardStroke, TweenInfo.new(0.25), {Transparency = 1}):Play()
-        TweenService:Create(CardIcon, TweenInfo.new(0.25), {ImageTransparency = 1}):Play()
-        TweenService:Create(CardTitle, TweenInfo.new(0.25), {TextTransparency = 1}):Play()
-        TweenService:Create(CardText, TweenInfo.new(0.25), {TextTransparency = 1}):Play()
-        tw:Play()
-        tw.Completed:Connect(function()
+        if Card and Card.Parent then
             Card:Destroy()
-        end)
+        end
     end)
 end
 
 local Window = Cloudy.new({
     Title = "Cloudy",
-    SubTitle = "v1.0.0",
+    SubTitle = "v2.0.0",
     ToggleIcon = "cloud-bold"
 })
 
@@ -1011,7 +1182,9 @@ local SettingsTab = Window:CreateTab("Settings", "settings-bold")
 
 local MainSec = MainTab:CreateSection("Farming Controls")
 
-MainSec:CreateToggle("Auto Farm", false, function(state)
+MainSec:CreateHeader("Automated Settings")
+
+MainSec:CreateToggle("Auto Farm Mobs", false, function(state)
     print("Auto Farm:", state)
 end)
 
@@ -1019,15 +1192,21 @@ MainSec:CreateToggle("Auto Collect Drops", true, function(state)
     print("Auto Collect:", state)
 end)
 
-MainSec:CreateSlider("Attack Delay (ms)", 100, 1000, 300, function(val)
-    print("Delay set to:", val)
+MainSec:CreateSlider("Attack Distance (Studs)", 5, 100, 25, function(val)
+    print("Distance set to:", val)
 end)
 
-MainSec:CreateDropdown("Select Method", {"Fast Attack", "Normal Attack", "Safe Attack"}, "Fast Attack", function(selected)
-    print("Selected Method:", selected)
+MainSec:CreateDropdown("Select Mode", {"Fast Attack", "Normal Attack", "Safe Attack"}, "Fast Attack", function(selected)
+    print("Selected Mode:", selected)
 end)
 
-local MiscSec = MainTab:CreateSection("Actions")
+MainSec:CreateMultiDropdown("Target Mobs", {"Bandit", "Pirate", "Boss", "Skeleton"}, {"Bandit", "Boss"}, function(selectedTable)
+    print("Target Mobs selected:", table.concat(selectedTable, ", "))
+end)
+
+local MiscSec = MainTab:CreateSection("Actions & Information")
+
+MiscSec:CreateParagraph("Cloudy Info", "Cloudy UI is now optimized with zero-animation instant response and custom circular slider handles!")
 
 MiscSec:CreateButton("Teleport to Safe Zone", function()
     Window:Notify({
@@ -1064,9 +1243,19 @@ PlayerSec:CreateKeybind("Sprint Keybind", Enum.KeyCode.LeftShift, function(key)
     print("Keybind changed to:", key.Name)
 end)
 
+local VisualSec = VisualTab:CreateSection("ESP Settings")
+
+VisualSec:CreateToggle("Enable ESP", true, function(state)
+    print("ESP Enabled:", state)
+end)
+
+VisualSec:CreateColorPicker("ESP Box Color", Color3.fromRGB(255, 255, 255), function(color)
+    print("Color changed:", color)
+end)
+
 Window:Notify({
     Title = "Cloudy Loaded",
-    Content = "Welcome to Cloudy UI Framework!",
+    Content = "Welcome to Cloudy UI Framework v2!",
     Duration = 4,
     Icon = "check-circle-bold"
 })
