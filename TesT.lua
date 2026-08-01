@@ -53,8 +53,8 @@ local function CompileString(src)
 	return compiledFn
 end
 
-local function FetchSolarIconsPack()
-	local rawSrc = GetUrlContent("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua")
+local function FetchIconPack(url)
+	local rawSrc = GetUrlContent(url)
 	if rawSrc then
 		local fn = CompileString(rawSrc)
 		if type(fn) == "function" then
@@ -73,7 +73,8 @@ local IconModule = {
 	IconThemeTag = nil,
 
 	Icons = {
-		solar = FetchSolarIconsPack() or {},
+		solar = FetchIconPack("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua") or {},
+		gravity = FetchIconPack("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/gravity/dist/Icons.lua") or {},
 	},
 }
 
@@ -171,28 +172,29 @@ function IconModule.Icon(Icon, Type, DefaultFormat)
 		resolvedAsset = iconSet[targetName]
 	end
 
-	if not resolvedAsset then
+	if not resolvedAsset and targetType == "solar" then
 		local boldName = (targetName:sub(-5) == "-bold") and targetName or (targetName .. "-bold")
 		if type(iconSet[boldName]) == "string" and string.find(iconSet[boldName], "rbxassetid://") then
 			resolvedAsset = iconSet[boldName]
 		end
-	end
 
-	if not resolvedAsset then
-		local suffixes = {"-linear", "-outline", "-broken", "-line-duotone", "-bold-duotone"}
-		for _, s in ipairs(suffixes) do
-			if type(iconSet[targetName .. s]) == "string" and string.find(iconSet[targetName .. s], "rbxassetid://") then
-				resolvedAsset = iconSet[targetName .. s]
-				break
+		if not resolvedAsset then
+			local suffixes = {"-linear", "-outline", "-broken", "-line-duotone", "-bold-duotone"}
+			for _, s in ipairs(suffixes) do
+				if type(iconSet[targetName .. s]) == "string" and string.find(iconSet[targetName .. s], "rbxassetid://") then
+					resolvedAsset = iconSet[targetName .. s]
+					break
+				end
 			end
 		end
 	end
 
 	if not resolvedAsset then
 		local aliases = {
-			["minus"] = "minus-square-bold",
-			["maximize"] = "full-screen-bold",
-			["close"] = "close-circle-bold",
+			["minus"] = "minus",
+			["maximize"] = "chevrons-expand-up-right",
+			["close"] = "xmark",
+			["x"] = "xmark",
 			["alt-arrow-down"] = "alt-arrow-down-bold",
 			["home"] = "home-2-bold",
 			["home-2"] = "home-2-bold",
@@ -202,8 +204,6 @@ function IconModule.Icon(Icon, Type, DefaultFormat)
 			["server"] = "server-bold",
 			["settings"] = "settings-bold",
 			["cloud"] = "cloud-bold",
-			["bell"] = "bell-bold",
-			["shield"] = "shield-bold",
 		}
 		if aliases[targetName] and type(iconSet[aliases[targetName]]) == "string" then
 			resolvedAsset = iconSet[aliases[targetName]]
@@ -611,7 +611,7 @@ function CloudyLib:CreateWindow(options)
 	MinimizeIcon.BackgroundTransparency = 1
 	MinimizeIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
 	MinimizeIcon.Parent = MinimizeBtn
-	applyIcon(MinimizeIcon, "minus")
+	applyIcon(MinimizeIcon, "gravity:minus")
 
 	local ResizeBtn = Instance.new("TextButton")
 	ResizeBtn.Size = UDim2.new(0, 26, 0, 26)
@@ -631,7 +631,7 @@ function CloudyLib:CreateWindow(options)
 	ResizeIcon.BackgroundTransparency = 1
 	ResizeIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
 	ResizeIcon.Parent = ResizeBtn
-	applyIcon(ResizeIcon, "maximize")
+	applyIcon(ResizeIcon, "gravity:chevrons-expand-up-right")
 
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 26, 0, 26)
@@ -651,7 +651,7 @@ function CloudyLib:CreateWindow(options)
 	CloseIcon.BackgroundTransparency = 1
 	CloseIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
 	CloseIcon.Parent = CloseBtn
-	applyIcon(CloseIcon, "close")
+	applyIcon(CloseIcon, "gravity:xmark")
 
 	local dragging, dragInput, dragStart, startPos
 	local function onDragBegan(input)
@@ -790,38 +790,16 @@ function CloudyLib:CreateWindow(options)
 		TweenService:Create(ResizeIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(200, 200, 215)}):Play()
 	end)
 
-	local TabScroll = Instance.new("ScrollingFrame")
-	TabScroll.Size = UDim2.new(1, 0, 1, -48)
-	TabScroll.Position = UDim2.new(0, 0, 0, 48)
-	TabScroll.BackgroundTransparency = 1
-	TabScroll.BorderSizePixel = 0
-	TabScroll.ScrollBarThickness = 2
-	TabScroll.ScrollBarImageColor3 = Color3.fromRGB(45, 45, 58)
-	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-	TabScroll.Parent = Sidebar
-
-	local TabListLayout = Instance.new("UIListLayout")
-	TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	TabListLayout.Padding = UDim.new(0, 4)
-	TabListLayout.Parent = TabScroll
-
-	local TabPadding = Instance.new("UIPadding")
-	TabPadding.PaddingTop = UDim.new(0, 8)
-	TabPadding.PaddingLeft = UDim.new(0, 8)
-	TabPadding.PaddingRight = UDim.new(0, 8)
-	TabPadding.PaddingBottom = UDim.new(0, 8)
-	TabPadding.Parent = TabScroll
-
 	local TabIndicator = Instance.new("Frame")
 	TabIndicator.Name = "TabIndicator"
-	TabIndicator.Size = UDim2.new(1, -16, 0, 38)
-	TabIndicator.Position = UDim2.new(0, 8, 0, 8)
+	TabIndicator.Size = UDim2.new(0, 154, 0, 38)
+	TabIndicator.Position = UDim2.new(0, 8, 0, 56)
 	TabIndicator.BackgroundColor3 = Color3.fromRGB(30, 30, 42)
 	TabIndicator.BackgroundTransparency = 0.2
 	TabIndicator.BorderSizePixel = 0
 	TabIndicator.Visible = false
 	TabIndicator.ZIndex = 1
-	TabIndicator.Parent = TabScroll
+	TabIndicator.Parent = Sidebar
 
 	local IndCorner = Instance.new("UICorner")
 	IndCorner.CornerRadius = UDim.new(0, 8)
@@ -839,16 +817,39 @@ function CloudyLib:CreateWindow(options)
 	LineCorner.CornerRadius = UDim.new(1, 0)
 	LineCorner.Parent = IndLine
 
+	local TabScroll = Instance.new("ScrollingFrame")
+	TabScroll.Size = UDim2.new(1, 0, 1, -48)
+	TabScroll.Position = UDim2.new(0, 0, 0, 48)
+	TabScroll.BackgroundTransparency = 1
+	TabScroll.BorderSizePixel = 0
+	TabScroll.ScrollBarThickness = 2
+	TabScroll.ScrollBarImageColor3 = Color3.fromRGB(45, 45, 58)
+	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+	TabScroll.ZIndex = 2
+	TabScroll.Parent = Sidebar
+
+	local TabListLayout = Instance.new("UIListLayout")
+	TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	TabListLayout.Padding = UDim.new(0, 4)
+	TabListLayout.Parent = TabScroll
+
+	local TabPadding = Instance.new("UIPadding")
+	TabPadding.PaddingTop = UDim.new(0, 8)
+	TabPadding.PaddingLeft = UDim.new(0, 8)
+	TabPadding.PaddingRight = UDim.new(0, 8)
+	TabPadding.PaddingBottom = UDim.new(0, 8)
+	TabPadding.Parent = TabScroll
+
 	TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 		TabScroll.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y + 16)
 	end)
 
 	local ContentContainer = Instance.new("Frame")
 	ContentContainer.Name = "ContentContainer"
-	ContentContainer.Size = UDim2.new(1, 0, 1, -48)
-	ContentContainer.Position = UDim2.new(0, 0, 0, 48)
+	ContentContainer.Size = UDim2.new(1, -171, 1, -48)
+	ContentContainer.Position = UDim2.new(0, 171, 0, 48)
 	ContentContainer.BackgroundTransparency = 1
-	ContentContainer.Parent = MainContent
+	ContentContainer.Parent = MainFrame
 
 	playIntroAnimation(ScreenGui, titleText, function()
 		MainFrame.Visible = true
@@ -871,7 +872,7 @@ function CloudyLib:CreateWindow(options)
 		TabBtn.BackgroundTransparency = 1
 		TabBtn.Text = ""
 		TabBtn.AutoButtonColor = false
-		TabBtn.ZIndex = 2
+		TabBtn.ZIndex = 3
 		TabBtn.LayoutOrder = WindowObj.TabCount
 		TabBtn.Parent = TabScroll
 
@@ -894,7 +895,7 @@ function CloudyLib:CreateWindow(options)
 		TabIcon.BackgroundTransparency = 1
 		TabIcon.ImageColor3 = Color3.fromRGB(160, 160, 175)
 		TabIcon.LayoutOrder = 1
-		TabIcon.ZIndex = 2
+		TabIcon.ZIndex = 3
 		TabIcon.Parent = TabBtn
 		applyIcon(TabIcon, iconName)
 
@@ -907,7 +908,7 @@ function CloudyLib:CreateWindow(options)
 		TabText.TextColor3 = Color3.fromRGB(160, 160, 175)
 		TabText.TextXAlignment = Enum.TextXAlignment.Left
 		TabText.LayoutOrder = 2
-		TabText.ZIndex = 2
+		TabText.ZIndex = 3
 		TabText.Parent = TabBtn
 
 		local TabPage = Instance.new("ScrollingFrame")
@@ -946,9 +947,10 @@ function CloudyLib:CreateWindow(options)
 			local prevTab = WindowObj.ActiveTab
 			WindowObj.ActiveTab = TabObj
 
-			TabIndicator.Visible = true
-			local targetY = TabBtn.AbsolutePosition.Y - TabScroll.AbsolutePosition.Y + TabScroll.CanvasPosition.Y
+			local targetY = TabBtn.AbsolutePosition.Y - Sidebar.AbsolutePosition.Y
 			local targetPos = UDim2.new(0, 8, 0, targetY)
+
+			TabIndicator.Visible = true
 
 			if animated ~= false and prevTab then
 				TweenService:Create(TabIndicator, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
@@ -990,7 +992,7 @@ function CloudyLib:CreateWindow(options)
 		end)
 
 		if WindowObj.TabCount == 1 then
-			task.defer(function()
+			task.delay(0.1, function()
 				selectTab(false)
 			end)
 		end
