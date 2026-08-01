@@ -12,57 +12,68 @@ local ReplicatedStorage = cloneref(game:GetService("ReplicatedStorage"))
 
 local LocalPlayer = Players.LocalPlayer
 
-local function IsExploit()
-	return request and true or false
-end
-
-local function Get(url)
-	if IsExploit() then
-		return game:HttpGet(url)
-	else
-		local Success, Result = pcall(function()
-			return HttpService:GetAsync(url)
-		end)
-		if Success then
-			return Result
+local function GetUrlContent(url)
+	local content = nil
+	pcall(function()
+		if typeof(game) == "Instance" and typeof(game.HttpGet) == "function" then
+			content = game:HttpGet(url)
+		elseif type(request) == "function" then
+			local resp = request({Url = url, Method = "GET"})
+			if resp and resp.Body then content = resp.Body end
+		elseif type(http_request) == "function" then
+			local resp = http_request({Url = url, Method = "GET"})
+			if resp and resp.Body then content = resp.Body end
+		elseif type(syn) == "table" and type(syn.request) == "function" then
+			local resp = syn.request({Url = url, Method = "GET"})
+			if resp and resp.Body then content = resp.Body end
 		else
-			return ReplicatedStorage:WaitForChild("Request", 9999):InvokeServer({ Url = url })
+			local ok, res = pcall(function() return HttpService:GetAsync(url) end)
+			if ok then content = res end
 		end
-	end
+	end)
+	return content
 end
 
-local function Loadstring(src)
-	if not IsExploit() and ReplicatedStorage:FindFirstChild("Loadstring") then
-		return function()
-			return ReplicatedStorage:WaitForChild("Loadstring", 9999):InvokeServer(src)
-		end
-	else
-		return loadstring(src)
+local function CompileString(src)
+	if not src or type(src) ~= "string" or #src < 10 then
+		return nil
 	end
+	local compiledFn = nil
+	if type(loadstring) == "function" then
+		local ok, res = pcall(loadstring, src)
+		if ok and type(res) == "function" then
+			compiledFn = res
+		end
+	elseif type(getgenv) == "function" and type(getgenv().loadstring) == "function" then
+		local ok, res = pcall(getgenv().loadstring, src)
+		if ok and type(res) == "function" then
+			compiledFn = res
+		end
+	end
+	return compiledFn
+end
+
+local function FetchSolarIconsPack()
+	local rawSrc = GetUrlContent("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua")
+	if rawSrc then
+		local fn = CompileString(rawSrc)
+		if type(fn) == "function" then
+			local ok, pack = pcall(fn)
+			if ok and type(pack) == "table" then
+				return pack
+			end
+		end
+	end
+	return nil
 end
 
 local IconModule = {
 	IconsType = "solar",
-
 	New = nil,
 	IconThemeTag = nil,
 
 	Icons = {
-		solar = (function()
-			local success, result = pcall(function()
-				return Get("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua")
-			end)
-			if success and result and type(result) == "string" then
-				local ok, loaded = pcall(Loadstring(result))
-				if ok and type(loaded) == "function" then
-					local ok2, pack = pcall(loaded)
-					if ok2 and type(pack) == "table" then
-						return pack
-					end
-				end
-			end
-			return nil
-		end)(),
+		solar = FetchSolarIconsPack() or {},
 	},
 }
 
@@ -80,7 +91,6 @@ end
 
 function IconModule.AddIcons(packName, iconsData)
 	if type(packName) ~= "string" or type(iconsData) ~= "table" then
-		error("AddIcons: packName must be string, iconsData must be table")
 		return
 	end
 
@@ -122,8 +132,6 @@ function IconModule.AddIcons(packName, iconsData)
 				if not IconModule.Icons[packName].Spritesheets[imageId] then
 					IconModule.Icons[packName].Spritesheets[imageId] = imageId
 				end
-			else
-				warn("AddIcons: Invalid spritesheet data format for icon '" .. iconName .. "'")
 			end
 		end
 	end
@@ -136,7 +144,6 @@ end
 function IconModule.Init(New, IconThemeTag)
 	IconModule.New = New
 	IconModule.IconThemeTag = IconThemeTag
-
 	return IconModule
 end
 
@@ -147,24 +154,41 @@ function IconModule.Icon(Icon, Type, DefaultFormat)
 	local targetType = iconType or Type or IconModule.IconsType
 	local targetName = iconName
 
+	if not targetName or targetName == "" then return nil end
+
 	local iconSet = IconModule.Icons[targetType]
 	if not iconSet then return nil end
 
-	if iconSet.Icons and iconSet.Icons[targetName] then
-		return {
-			iconSet.Spritesheets and iconSet.Spritesheets[tostring(iconSet.Icons[targetName].Image)] or iconSet.Icons[targetName].Image,
-			iconSet.Icons[targetName],
-		}
+	if type(iconSet.Icons) == "table" and iconSet.Icons[targetName] then
+		local item = iconSet.Icons[targetName]
+		local sheet = (type(iconSet.Spritesheets) == "table" and iconSet.Spritesheets[tostring(item.Image)]) or item.Image
+		return { sheet, item }
 	end
 
 	local resolvedAsset = nil
 
-	local boldName = (targetName:sub(-5) == "-bold") and targetName or (targetName .. "-bold")
-	if type(iconSet[boldName]) == "string" and string.find(iconSet[boldName], "rbxassetid://") then
-		resolvedAsset = iconSet[boldName]
-	elseif type(iconSet[targetName]) == "string" and string.find(iconSet[targetName], "rbxassetid://") then
+	if type(iconSet[targetName]) == "string" and string.find(iconSet[targetName], "rbxassetid://") then
 		resolvedAsset = iconSet[targetName]
-	else
+	end
+
+	if not resolvedAsset then
+		local boldName = (targetName:sub(-5) == "-bold") and targetName or (targetName .. "-bold")
+		if type(iconSet[boldName]) == "string" and string.find(iconSet[boldName], "rbxassetid://") then
+			resolvedAsset = iconSet[boldName]
+		end
+	end
+
+	if not resolvedAsset then
+		local suffixes = {"-linear", "-outline", "-broken", "-line-duotone", "-bold-duotone"}
+		for _, s in ipairs(suffixes) do
+			if type(iconSet[targetName .. s]) == "string" and string.find(iconSet[targetName .. s], "rbxassetid://") then
+				resolvedAsset = iconSet[targetName .. s]
+				break
+			end
+		end
+	end
+
+	if not resolvedAsset then
 		local aliases = {
 			["minus"] = "minus-square-bold",
 			["maximize"] = "full-screen-bold",
@@ -184,13 +208,13 @@ function IconModule.Icon(Icon, Type, DefaultFormat)
 		if aliases[targetName] and type(iconSet[aliases[targetName]]) == "string" then
 			resolvedAsset = iconSet[aliases[targetName]]
 		end
+	end
 
-		if not resolvedAsset then
-			for k, v in pairs(iconSet) do
-				if type(k) == "string" and k:find(targetName, 1, true) and k:find("bold", 1, true) and type(v) == "string" and string.find(v, "rbxassetid://") then
-					resolvedAsset = v
-					break
-				end
+	if not resolvedAsset then
+		for k, v in pairs(iconSet) do
+			if type(k) == "string" and k:find(targetName, 1, true) and type(v) == "string" and string.find(v, "rbxassetid://") then
+				resolvedAsset = v
+				break
 			end
 		end
 	end
@@ -216,8 +240,8 @@ function IconModule.Icon2(Icon, Type, DefaultFormat)
 end
 
 local function applyIcon(imageLabel, iconName)
-	if not iconName or iconName == "" then
-		imageLabel.Visible = false
+	if not imageLabel or not iconName or iconName == "" then
+		if imageLabel then imageLabel.Visible = false end
 		return
 	end
 
@@ -1773,7 +1797,7 @@ FpsSec:AddToggle("Low Graphics Mode", false, function(state)
 	print("[Cloudy] Low Graphics:", state)
 end)
 FpsSec:AddSlider("Max FPS Target", 30, 240, 120, function(val)
-	if setfpscap me then setfpscap(val) end
+	if setfpscap then setfpscap(val) end
 end)
 
 local UiSec = TabPengaturan:AddSection("Konfigurasi UI", true)
