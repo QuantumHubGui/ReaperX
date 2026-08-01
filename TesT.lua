@@ -92,7 +92,7 @@ function IconModule.AddIcons(packName, iconsData)
 	end
 
 	for iconName, iconValue in pairs(iconsData) do
-		if type(iconValue) == "number" or (type(iconValue) == "string" and iconValue:match("^rbxassetid://")) then
+		if type(iconValue) ~= "table" then
 			local imageId = iconValue
 			if type(iconValue) == "number" then
 				imageId = "rbxassetid://" .. tostring(iconValue)
@@ -125,8 +125,6 @@ function IconModule.AddIcons(packName, iconsData)
 			else
 				warn("AddIcons: Invalid spritesheet data format for icon '" .. iconName .. "'")
 			end
-		else
-			warn("AddIcons: Unsupported data type for icon '" .. iconName .. "': " .. type(iconValue))
 		end
 	end
 end
@@ -150,20 +148,62 @@ function IconModule.Icon(Icon, Type, DefaultFormat)
 	local targetName = iconName
 
 	local iconSet = IconModule.Icons[targetType]
+	if not iconSet then return nil end
 
-	if iconSet and iconSet.Icons and iconSet.Icons[targetName] then
+	if iconSet.Icons and iconSet.Icons[targetName] then
 		return {
-			iconSet.Spritesheets[tostring(iconSet.Icons[targetName].Image)],
+			iconSet.Spritesheets and iconSet.Spritesheets[tostring(iconSet.Icons[targetName].Image)] or iconSet.Icons[targetName].Image,
 			iconSet.Icons[targetName],
 		}
-	elseif iconSet and iconSet[targetName] and string.find(iconSet[targetName], "rbxassetid://") then
+	end
+
+	local resolvedAsset = nil
+
+	local boldName = (targetName:sub(-5) == "-bold") and targetName or (targetName .. "-bold")
+	if type(iconSet[boldName]) == "string" and string.find(iconSet[boldName], "rbxassetid://") then
+		resolvedAsset = iconSet[boldName]
+	elseif type(iconSet[targetName]) == "string" and string.find(iconSet[targetName], "rbxassetid://") then
+		resolvedAsset = iconSet[targetName]
+	else
+		local aliases = {
+			["minus"] = "minus-square-bold",
+			["maximize"] = "full-screen-bold",
+			["close"] = "close-circle-bold",
+			["alt-arrow-down"] = "alt-arrow-down-bold",
+			["home"] = "home-2-bold",
+			["home-2"] = "home-2-bold",
+			["user"] = "user-bold",
+			["eye"] = "eye-bold",
+			["compass"] = "compass-bold",
+			["server"] = "server-bold",
+			["settings"] = "settings-bold",
+			["cloud"] = "cloud-bold",
+			["bell"] = "bell-bold",
+			["shield"] = "shield-bold",
+		}
+		if aliases[targetName] and type(iconSet[aliases[targetName]]) == "string" then
+			resolvedAsset = iconSet[aliases[targetName]]
+		end
+
+		if not resolvedAsset then
+			for k, v in pairs(iconSet) do
+				if type(k) == "string" and k:find(targetName, 1, true) and k:find("bold", 1, true) and type(v) == "string" and string.find(v, "rbxassetid://") then
+					resolvedAsset = v
+					break
+				end
+			end
+		end
+	end
+
+	if resolvedAsset then
 		return DefaultFormat
 				and {
-					iconSet[targetName],
+					resolvedAsset,
 					{ ImageRectSize = Vector2.new(0, 0), ImageRectPosition = Vector2.new(0, 0) },
 				}
-			or iconSet[targetName]
+			or resolvedAsset
 	end
+
 	return nil
 end
 
@@ -394,7 +434,7 @@ end
 function CloudyLib:CreateWindow(options)
 	options = options or {}
 	local titleText = options.Title or "Cloudy"
-	local logoIcon = options.Logo or "cloud"
+	local logoIcon = options.Logo or "cloud-bold"
 
 	local parentFolder = getGuiParent()
 	if parentFolder:FindFirstChild("CloudyUI") then
@@ -627,23 +667,14 @@ function CloudyLib:CreateWindow(options)
 
 	local RestoreBtn = Instance.new("ImageButton")
 	RestoreBtn.Name = "CloudyRestoreBtn"
-	RestoreBtn.Size = UDim2.new(0, 50, 0, 50)
-	RestoreBtn.Position = UDim2.new(0, 20, 0.5, -25)
-	RestoreBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+	RestoreBtn.Size = UDim2.new(0, 60, 0, 60)
+	RestoreBtn.Position = UDim2.new(0, 20, 0.5, -30)
+	RestoreBtn.BackgroundTransparency = 1
 	RestoreBtn.Image = "rbxassetid://88244237473485"
 	RestoreBtn.AutoButtonColor = false
 	RestoreBtn.Visible = false
 	RestoreBtn.ZIndex = 9999
 	RestoreBtn.Parent = ScreenGui
-
-	local RestoreCorner = Instance.new("UICorner")
-	RestoreCorner.CornerRadius = UDim.new(1, 0)
-	RestoreCorner.Parent = RestoreBtn
-
-	local RestoreStroke = Instance.new("UIStroke")
-	RestoreStroke.Color = Color3.fromRGB(50, 50, 68)
-	RestoreStroke.Thickness = 2
-	RestoreStroke.Parent = RestoreBtn
 
 	local floatDragging, floatDragInput, floatDragStart, floatStartPos
 	local floatDragMoved = false
@@ -807,7 +838,7 @@ function CloudyLib:CreateWindow(options)
 
 	function WindowObj:CreateTab(tabName, iconName)
 		WindowObj.TabCount = WindowObj.TabCount + 1
-		iconName = iconName or "settings"
+		iconName = iconName or "settings-bold"
 
 		local TabBtn = Instance.new("TextButton")
 		TabBtn.Name = "Tab_" .. tabName
@@ -976,7 +1007,7 @@ function CloudyLib:CreateWindow(options)
 			ArrowIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
 			ArrowIcon.Rotation = isOpen and 0 or -90
 			ArrowIcon.Parent = HeaderBtn
-			applyIcon(ArrowIcon, "alt-arrow-down")
+			applyIcon(ArrowIcon, "alt-arrow-down-bold")
 
 			local Underline = Instance.new("Frame")
 			Underline.Size = UDim2.new(1, 0, 0, 1)
@@ -1365,7 +1396,7 @@ function CloudyLib:CreateWindow(options)
 			ArrowIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
 			ArrowIcon.Rotation = isOpen and 180 or 0
 			ArrowIcon.Parent = ValueBox
-			applyIcon(ArrowIcon, "alt-arrow-down")
+			applyIcon(ArrowIcon, "alt-arrow-down-bold")
 
 			local ListHolder = Instance.new("Frame")
 			ListHolder.Size = UDim2.new(1, -24, 0, 0)
@@ -1498,7 +1529,7 @@ function CloudyLib:CreateWindow(options)
 			ArrowIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
 			ArrowIcon.Rotation = isOpen and 180 or 0
 			ArrowIcon.Parent = ValueBox
-			applyIcon(ArrowIcon, "alt-arrow-down")
+			applyIcon(ArrowIcon, "alt-arrow-down-bold")
 
 			local ListHolder = Instance.new("Frame")
 			ListHolder.Size = UDim2.new(1, -24, 0, 0)
@@ -1636,14 +1667,14 @@ end
 
 local Window = CloudyLib:CreateWindow({
 	Title = "Cloudy",
-	Logo = "cloud"
+	Logo = "cloud-bold"
 })
 
-local TabUtama = Window:CreateTab("Utama", "home-2")
-local TabVisual = Window:CreateTab("Visual & ESP", "eye")
-local TabTeleport = Window:CreateTab("Teleport", "compass")
-local TabMisc = Window:CreateTab("Misc & Server", "server")
-local TabPengaturan = Window:CreateTab("Pengaturan UI", "settings")
+local TabUtama = Window:CreateTab("Utama", "home-2-bold")
+local TabVisual = Window:CreateTab("Visual & ESP", "eye-bold")
+local TabTeleport = Window:CreateTab("Teleport", "compass-bold")
+local TabMisc = Window:CreateTab("Misc & Server", "server-bold")
+local TabPengaturan = Window:CreateTab("Pengaturan UI", "settings-bold")
 
 local PlayerSec = TabUtama:AddSection("Modifikasi Player", true)
 PlayerSec:AddToggle("Godmode (Infinite Health)", false, function(state)
@@ -1742,7 +1773,7 @@ FpsSec:AddToggle("Low Graphics Mode", false, function(state)
 	print("[Cloudy] Low Graphics:", state)
 end)
 FpsSec:AddSlider("Max FPS Target", 30, 240, 120, function(val)
-	if setfpscap then setfpscap(val) end
+	if setfpscap me then setfpscap(val) end
 end)
 
 local UiSec = TabPengaturan:AddSection("Konfigurasi UI", true)
