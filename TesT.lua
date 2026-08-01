@@ -12,6 +12,89 @@ local ReplicatedStorage = cloneref(game:GetService("ReplicatedStorage"))
 
 local LocalPlayer = Players.LocalPlayer
 
+local ConfigFolder = "CloudyConfigs"
+
+local function ensureConfigFolder()
+	if type(makefolder) == "function" and type(isfolder) == "function" then
+		if not isfolder(ConfigFolder) then
+			pcall(makefolder, ConfigFolder)
+		end
+	end
+end
+
+local MemoryConfigs = {}
+
+local function SaveConfigFile(filename, textData)
+	ensureConfigFolder()
+	local path = ConfigFolder .. "/" .. filename .. ".json"
+	if type(writefile) == "function" then
+		pcall(writefile, path, textData)
+	else
+		MemoryConfigs[filename] = textData
+	end
+end
+
+local function ReadConfigFile(filename)
+	ensureConfigFolder()
+	local path = ConfigFolder .. "/" .. filename .. ".json"
+	if type(readfile) == "function" and type(isfile) == "function" and isfile(path) then
+		local ok, data = pcall(readfile, path)
+		if ok then return data end
+	elseif MemoryConfigs[filename] then
+		return MemoryConfigs[filename]
+	end
+	return nil
+end
+
+local function DeleteConfigFile(filename)
+	ensureConfigFolder()
+	local path = ConfigFolder .. "/" .. filename .. ".json"
+	if type(delfile) == "function" and type(isfile) == "function" and isfile(path) then
+		pcall(delfile, path)
+	end
+	MemoryConfigs[filename] = nil
+end
+
+local function DeleteAllConfigFiles()
+	ensureConfigFolder()
+	if type(listfiles) == "function" and type(isfolder) == "function" and isfolder(ConfigFolder) then
+		local ok, files = pcall(listfiles, ConfigFolder)
+		if ok and type(files) == "table" then
+			for _, filePath in ipairs(files) do
+				if type(delfile) == "function" then
+					pcall(delfile, filePath)
+				end
+			end
+		end
+	end
+	MemoryConfigs = {}
+end
+
+local function ListConfigNames()
+	ensureConfigFolder()
+	local names = {}
+	if type(listfiles) == "function" and type(isfolder) == "function" and isfolder(ConfigFolder) then
+		local ok, files = pcall(listfiles, ConfigFolder)
+		if ok and type(files) == "table" then
+			for _, filePath in ipairs(files) do
+				local name = filePath:match("([^/\\]+)%.json$") or filePath:match("([^/\\]+)$")
+				if name then
+					table.insert(names, name)
+				end
+			end
+		end
+	end
+	for memName in pairs(MemoryConfigs) do
+		if not table.find(names, memName) then
+			table.insert(names, memName)
+		end
+	end
+	if #names == 0 then
+		table.insert(names, "Default")
+	end
+	return names
+end
+
 local function GetUrlContent(url)
 	local content = nil
 	pcall(function()
@@ -458,6 +541,7 @@ end
 function CloudyLib:CreateWindow(options)
 	options = options or {}
 	local titleText = options.Title or "Cloudy"
+	local versionText = options.Version or "v2.5.0 Premium"
 	local logoIcon = options.Logo or "cloud-bold"
 
 	local parentFolder = getGuiParent()
@@ -531,16 +615,29 @@ function CloudyLib:CreateWindow(options)
 	LogoImage.Parent = HeaderContainer
 	applyIcon(LogoImage, logoIcon)
 
+	local TitleContainer = Instance.new("Frame")
+	TitleContainer.Size = UDim2.new(1, -38, 1, 0)
+	TitleContainer.BackgroundTransparency = 1
+	TitleContainer.LayoutOrder = 2
+	TitleContainer.Parent = HeaderContainer
+
+	local TitleVLayout = Instance.new("UIListLayout")
+	TitleVLayout.FillDirection = Enum.FillDirection.Vertical
+	TitleVLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	TitleVLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	TitleVLayout.Padding = UDim.new(0, 0)
+	TitleVLayout.Parent = TitleContainer
+
 	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(1, -38, 1, 0)
+	TitleLabel.Size = UDim2.new(1, 0, 0, 18)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Text = titleText
 	TitleLabel.Font = Enum.Font.GothamBold
-	TitleLabel.TextSize = 18
+	TitleLabel.TextSize = 17
 	TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	TitleLabel.LayoutOrder = 2
-	TitleLabel.Parent = HeaderContainer
+	TitleLabel.LayoutOrder = 1
+	TitleLabel.Parent = TitleContainer
 
 	local TitleGradient = Instance.new("UIGradient")
 	TitleGradient.Rotation = 45
@@ -549,6 +646,25 @@ function CloudyLib:CreateWindow(options)
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 150, 170))
 	})
 	TitleGradient.Parent = TitleLabel
+
+	local VersionLabel = Instance.new("TextLabel")
+	VersionLabel.Size = UDim2.new(1, 0, 0, 12)
+	VersionLabel.BackgroundTransparency = 1
+	VersionLabel.Text = versionText
+	VersionLabel.Font = Enum.Font.GothamBold
+	VersionLabel.TextSize = 10
+	VersionLabel.TextColor3 = Color3.fromRGB(140, 140, 175)
+	VersionLabel.TextXAlignment = Enum.TextXAlignment.Left
+	VersionLabel.LayoutOrder = 2
+	VersionLabel.Parent = TitleContainer
+
+	local VersionGradient = Instance.new("UIGradient")
+	VersionGradient.Rotation = 45
+	VersionGradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(170, 170, 230)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(110, 110, 160))
+	})
+	VersionGradient.Parent = VersionLabel
 
 	local SidebarDivider = Instance.new("Frame")
 	SidebarDivider.Name = "SidebarDivider"
@@ -951,8 +1067,43 @@ function CloudyLib:CreateWindow(options)
 	local WindowObj = {
 		Tabs = {},
 		ActiveTab = nil,
-		TabCount = 0
+		TabCount = 0,
+		Flags = {},
+		Elements = {},
 	}
+
+	function WindowObj:SaveConfig(configName)
+		if not configName or configName == "" then configName = "Default" end
+		local textData = HttpService:JSONEncode(WindowObj.Flags)
+		SaveConfigFile(configName, textData)
+	end
+
+	function WindowObj:LoadConfig(configName)
+		if not configName or configName == "" then configName = "Default" end
+		local textData = ReadConfigFile(configName)
+		if textData then
+			local ok, decoded = pcall(function() return HttpService:JSONDecode(textData) end)
+			if ok and type(decoded) == "table" then
+				for flagKey, val in pairs(decoded) do
+					if WindowObj.Elements[flagKey] and WindowObj.Elements[flagKey].Set then
+						WindowObj.Elements[flagKey]:Set(val)
+					end
+				end
+			end
+		end
+	end
+
+	function WindowObj:DeleteConfig(configName)
+		DeleteConfigFile(configName)
+	end
+
+	function WindowObj:DeleteAllConfigs()
+		DeleteAllConfigFiles()
+	end
+
+	function WindowObj:GetConfigList()
+		return ListConfigNames()
+	end
 
 	function WindowObj:CreateTab(tabName, iconName)
 		WindowObj.TabCount = WindowObj.TabCount + 1
@@ -1189,24 +1340,33 @@ function CloudyLib:CreateWindow(options)
 				end
 			end
 
-			function SectionObj:AddToggle(toggleText, defaultVal, callback)
-				TabObj:AddToggle(toggleText, defaultVal, callback, ItemsContainer)
+			function SectionObj:AddToggle(toggleText, defaultVal, callback, flagName)
+				TabObj:AddToggle(toggleText, defaultVal, callback, flagName, ItemsContainer)
 				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
 				if lastChild and lastChild:IsA("Frame") then
 					addToSection(lastChild)
 				end
 			end
 
-			function SectionObj:AddSlider(sliderText, minV, maxV, defV, callback)
-				TabObj:AddSlider(sliderText, minV, maxV, defV, callback, ItemsContainer)
+			function SectionObj:AddSlider(sliderText, minV, maxV, defV, callback, flagName)
+				TabObj:AddSlider(sliderText, minV, maxV, defV, callback, flagName, ItemsContainer)
 				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
 				if lastChild and lastChild:IsA("Frame") then
 					addToSection(lastChild)
 				end
 			end
 
-			function SectionObj:AddDropdown(dropText, optList, defOpt, callback)
-				TabObj:AddDropdown(dropText, optList, defOpt, callback, ItemsContainer)
+			function SectionObj:AddDropdown(dropText, optList, defOpt, callback, flagName)
+				local res = TabObj:AddDropdown(dropText, optList, defOpt, callback, flagName, ItemsContainer)
+				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
+				if lastChild and lastChild:IsA("Frame") then
+					addToSection(lastChild)
+				end
+				return res
+			end
+
+			function SectionObj:AddButtonGroup2x2(buttonsData)
+				TabObj:AddButtonGroup2x2(buttonsData, ItemsContainer)
 				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
 				if lastChild and lastChild:IsA("Frame") then
 					addToSection(lastChild)
@@ -1256,11 +1416,92 @@ function CloudyLib:CreateWindow(options)
 			end)
 		end
 
-		function TabObj:AddToggle(text, defaultState, callback, targetParent)
+		function TabObj:AddButtonGroup2x2(buttonsData, targetParent)
 			TabObj.ElementCount = TabObj.ElementCount + 1
+			buttonsData = buttonsData or {}
+			targetParent = targetParent or TabPage
+
+			local GridContainer = Instance.new("Frame")
+			GridContainer.Size = UDim2.new(1, 0, 0, 82)
+			GridContainer.BackgroundTransparency = 1
+			GridContainer.LayoutOrder = TabObj.ElementCount
+			GridContainer.Parent = targetParent
+
+			local Row1 = Instance.new("Frame")
+			Row1.Size = UDim2.new(1, 0, 0, 38)
+			Row1.Position = UDim2.new(0, 0, 0, 0)
+			Row1.BackgroundTransparency = 1
+			Row1.Parent = GridContainer
+
+			local Row2 = Instance.new("Frame")
+			Row2.Size = UDim2.new(1, 0, 0, 38)
+			Row2.Position = UDim2.new(0, 0, 0, 44)
+			Row2.BackgroundTransparency = 1
+			Row2.Parent = GridContainer
+
+			local function createGridBtn(btnData, rowParent, posXScale)
+				local btnFrame = Instance.new("Frame")
+				btnFrame.Size = UDim2.new(0.5, -4, 1, 0)
+				btnFrame.Position = UDim2.new(posXScale, posXScale == 0 and 0 or 4, 0, 0)
+				btnFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 38)
+				btnFrame.Parent = rowParent
+
+				local corner = Instance.new("UICorner")
+				corner.CornerRadius = UDim.new(0, 8)
+				corner.Parent = btnFrame
+
+				local stroke = Instance.new("UIStroke")
+				stroke.Color = Color3.fromRGB(48, 48, 65)
+				stroke.Thickness = 1
+				stroke.Parent = btnFrame
+
+				local grad = Instance.new("UIGradient")
+				grad.Rotation = 45
+				grad.Color = ColorSequence.new({
+					ColorSequenceKeypoint.new(0, Color3.fromRGB(42, 42, 58)),
+					ColorSequenceKeypoint.new(1, Color3.fromRGB(22, 22, 32))
+				})
+				grad.Parent = btnFrame
+
+				local textBtn = Instance.new("TextButton")
+				textBtn.Size = UDim2.new(1, 0, 1, 0)
+				textBtn.BackgroundTransparency = 1
+				textBtn.Text = btnData.Text or "Button"
+				textBtn.Font = Enum.Font.GothamBold
+				textBtn.TextSize = 12
+				textBtn.TextColor3 = Color3.fromRGB(240, 240, 255)
+				textBtn.Parent = btnFrame
+
+				textBtn.MouseEnter:Connect(function()
+					TweenService:Create(stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(120, 120, 180)}):Play()
+					TweenService:Create(textBtn, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+				end)
+				textBtn.MouseLeave:Connect(function()
+					TweenService:Create(stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(48, 48, 65)}):Play()
+					TweenService:Create(textBtn, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(240, 240, 255)}):Play()
+				end)
+
+				textBtn.MouseButton1Click:Connect(function()
+					if btnData.Callback then
+						pcall(btnData.Callback)
+					end
+				end)
+			end
+
+			if buttonsData[1] then createGridBtn(buttonsData[1], Row1, 0) end
+			if buttonsData[2] then createGridBtn(buttonsData[2], Row1, 0.5) end
+			if buttonsData[3] then createGridBtn(buttonsData[3], Row2, 0) end
+			if buttonsData[4] then createGridBtn(buttonsData[4], Row2, 0.5) end
+		end
+
+		function TabObj:AddToggle(text, defaultState, callback, flagName, targetParent)
+			TabObj.ElementCount = TabObj.ElementCount + 1
+			flagName = flagName or text
 			local state = defaultState or false
 			callback = callback or function() end
 			targetParent = targetParent or TabPage
+
+			WindowObj.Flags[flagName] = state
 
 			local ToggleFrame = Instance.new("Frame")
 			ToggleFrame.Size = UDim2.new(1, 0, 0, 40)
@@ -1314,27 +1555,48 @@ function CloudyLib:CreateWindow(options)
 			ClickArea.Text = ""
 			ClickArea.Parent = ToggleFrame
 
-			local function updateToggle()
-				if state then
-					SwitchBg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					Dot.Position = UDim2.new(1, -17, 0.5, -7)
-					Dot.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+			local function updateToggle(animated)
+				WindowObj.Flags[flagName] = state
+				local switchColor = state and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(48, 48, 62)
+				local dotPos = state and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
+				local dotColor = state and Color3.fromRGB(20, 20, 26) or Color3.fromRGB(255, 255, 255)
+
+				if animated ~= false then
+					TweenService:Create(SwitchBg, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+						BackgroundColor3 = switchColor
+					}):Play()
+					TweenService:Create(Dot, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+						Position = dotPos,
+						BackgroundColor3 = dotColor
+					}):Play()
 				else
-					SwitchBg.BackgroundColor3 = Color3.fromRGB(48, 48, 62)
-					Dot.Position = UDim2.new(0, 3, 0.5, -7)
-					Dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+					SwitchBg.BackgroundColor3 = switchColor
+					Dot.Position = dotPos
+					Dot.BackgroundColor3 = dotColor
 				end
-				pcall(callback, state)
 			end
 
 			ClickArea.MouseButton1Click:Connect(function()
 				state = not state
-				updateToggle()
+				updateToggle(true)
+				pcall(callback, state)
 			end)
+
+			local toggleElement = {}
+			function toggleElement:Set(val, skipCallback)
+				state = not not val
+				updateToggle(true)
+				if not skipCallback then
+					pcall(callback, state)
+				end
+			end
+
+			WindowObj.Elements[flagName] = toggleElement
 		end
 
-		function TabObj:AddSlider(text, minVal, maxVal, defaultVal, callback, targetParent)
+		function TabObj:AddSlider(text, minVal, maxVal, defaultVal, callback, flagName, targetParent)
 			TabObj.ElementCount = TabObj.ElementCount + 1
+			flagName = flagName or text
 			minVal = minVal or 0
 			maxVal = maxVal or 100
 			defaultVal = defaultVal or minVal
@@ -1342,6 +1604,7 @@ function CloudyLib:CreateWindow(options)
 			targetParent = targetParent or TabPage
 
 			local currentVal = math.clamp(defaultVal, minVal, maxVal)
+			WindowObj.Flags[flagName] = currentVal
 
 			local SliderFrame = Instance.new("Frame")
 			SliderFrame.Size = UDim2.new(1, 0, 0, 50)
@@ -1412,15 +1675,22 @@ function CloudyLib:CreateWindow(options)
 
 			local isDragging = false
 
+			local function updateSliderVisual(val)
+				currentVal = math.clamp(val, minVal, maxVal)
+				WindowObj.Flags[flagName] = currentVal
+				ValLabel.Text = tostring(currentVal)
+				local ratio = (currentVal - minVal) / (maxVal - minVal)
+				Fill.Size = UDim2.new(ratio, 0, 1, 0)
+				Knob.Position = UDim2.new(ratio, 0, 0.5, 0)
+			end
+
 			local function updateSlider(input)
 				local trackAbsPos = Track.AbsolutePosition.X
 				local trackAbsSize = Track.AbsoluteSize.X
 				local mouseX = input.Position.X
 				local ratio = math.clamp((mouseX - trackAbsPos) / trackAbsSize, 0, 1)
-				currentVal = math.floor(minVal + (maxVal - minVal) * ratio)
-				ValLabel.Text = tostring(currentVal)
-				Fill.Size = UDim2.new(ratio, 0, 1, 0)
-				Knob.Position = UDim2.new(ratio, 0, 0.5, 0)
+				local val = math.floor(minVal + (maxVal - minVal) * ratio)
+				updateSliderVisual(val)
 				pcall(callback, currentVal)
 			end
 
@@ -1442,16 +1712,28 @@ function CloudyLib:CreateWindow(options)
 					isDragging = false
 				end
 			end)
+
+			local sliderElement = {}
+			function sliderElement:Set(val, skipCallback)
+				updateSliderVisual(val)
+				if not skipCallback then
+					pcall(callback, currentVal)
+				end
+			end
+
+			WindowObj.Elements[flagName] = sliderElement
 		end
 
-		function TabObj:AddDropdown(text, optionsList, defaultOpt, callback, targetParent)
+		function TabObj:AddDropdown(text, optionsList, defaultOpt, callback, flagName, targetParent)
 			TabObj.ElementCount = TabObj.ElementCount + 1
+			flagName = flagName or text
 			optionsList = optionsList or {}
 			defaultOpt = defaultOpt or optionsList[1] or ""
 			callback = callback or function() end
 			targetParent = targetParent or TabPage
 
 			local selectedOption = defaultOpt
+			WindowObj.Flags[flagName] = selectedOption
 
 			local DropdownFrame = Instance.new("Frame")
 			DropdownFrame.Size = UDim2.new(1, 0, 0, 40)
@@ -1562,6 +1844,7 @@ function CloudyLib:CreateWindow(options)
 
 					ItemBtn.MouseButton1Click:Connect(function()
 						selectedOption = opt
+						WindowObj.Flags[flagName] = selectedOption
 						ValText.Text = selectedOption
 						closeDrawer()
 						pcall(callback, selectedOption)
@@ -1578,10 +1861,33 @@ function CloudyLib:CreateWindow(options)
 			end
 
 			HeaderBtn.MouseButton1Click:Connect(openThisDropdownDrawer)
+
+			local dropdownElement = {}
+			function dropdownElement:Set(val, skipCallback)
+				selectedOption = val
+				WindowObj.Flags[flagName] = selectedOption
+				ValText.Text = selectedOption
+				if not skipCallback then
+					pcall(callback, selectedOption)
+				end
+			end
+
+			function dropdownElement:Refresh(newList, newDefault)
+				optionsList = newList or optionsList
+				if newDefault then
+					selectedOption = newDefault
+					WindowObj.Flags[flagName] = selectedOption
+					ValText.Text = selectedOption
+				end
+			end
+
+			WindowObj.Elements[flagName] = dropdownElement
+			return dropdownElement
 		end
 
-		function TabObj:AddMultiDropdown(text, optionsList, defaultSelected, callback, targetParent)
+		function TabObj:AddMultiDropdown(text, optionsList, defaultSelected, callback, flagName, targetParent)
 			TabObj.ElementCount = TabObj.ElementCount + 1
+			flagName = flagName or text
 			optionsList = optionsList or {}
 			defaultSelected = defaultSelected or {}
 			callback = callback or function() end
@@ -1667,6 +1973,7 @@ function CloudyLib:CreateWindow(options)
 
 			local function updateHeaderLabel()
 				local list = getSelectedList()
+				WindowObj.Flags[flagName] = list
 				if #list == 0 then
 					ValText.Text = "Pilih..."
 				else
@@ -1731,13 +2038,32 @@ function CloudyLib:CreateWindow(options)
 			end
 
 			HeaderBtn.MouseButton1Click:Connect(openThisMultiDropdownDrawer)
+
+			local multiElement = {}
+			function multiElement:Set(valList, skipCallback)
+				selectedMap = {}
+				if type(valList) == "table" then
+					for _, opt in ipairs(valList) do
+						selectedMap[opt] = true
+					end
+				end
+				updateHeaderLabel()
+				if not skipCallback then
+					pcall(callback, getSelectedList())
+				end
+			end
+
+			WindowObj.Elements[flagName] = multiElement
 		end
 
-		function TabObj:AddTextBox(text, placeholder, callback, targetParent)
+		function TabObj:AddTextBox(text, placeholder, callback, flagName, targetParent)
 			TabObj.ElementCount = TabObj.ElementCount + 1
+			flagName = flagName or text
 			placeholder = placeholder or "Ketik di sini..."
 			callback = callback or function() end
 			targetParent = targetParent or TabPage
+
+			WindowObj.Flags[flagName] = ""
 
 			local BoxFrame = Instance.new("Frame")
 			BoxFrame.Size = UDim2.new(1, 0, 0, 40)
@@ -1783,8 +2109,20 @@ function CloudyLib:CreateWindow(options)
 			InputCorner.Parent = InputBox
 
 			InputBox.FocusLost:Connect(function(enterPressed)
+				WindowObj.Flags[flagName] = InputBox.Text
 				pcall(callback, InputBox.Text, enterPressed)
 			end)
+
+			local boxElement = {}
+			function boxElement:Set(val, skipCallback)
+				InputBox.Text = tostring(val or "")
+				WindowObj.Flags[flagName] = InputBox.Text
+				if not skipCallback then
+					pcall(callback, InputBox.Text, true)
+				end
+			end
+
+			WindowObj.Elements[flagName] = boxElement
 		end
 
 		return TabObj
@@ -1795,6 +2133,7 @@ end
 
 local Window = CloudyLib:CreateWindow({
 	Title = "Cloudy",
+	Version = "v2.5.0 Premium",
 	Logo = "cloud-bold"
 })
 
@@ -1904,15 +2243,79 @@ FpsSec:AddSlider("Max FPS Target", 30, 240, 120, function(val)
 	if setfpscap then setfpscap(val) end
 end)
 
-local UiSec = TabPengaturan:AddSection("Konfigurasi UI", true)
-UiSec:AddToggle("Notifikasi Execution", true, function(state)
-	print("[Cloudy] Notifications:", state)
+local UiSec = TabPengaturan:AddSection("Konfigurasi UI & Config System", true)
+
+local currentConfigName = "Default"
+local autoSaveEnabled = false
+
+UiSec:AddToggle("Auto Save Config (3s)", false, function(state)
+	autoSaveEnabled = state
+	if autoSaveEnabled then
+		task.spawn(function()
+			while autoSaveEnabled do
+				task.wait(3)
+				if autoSaveEnabled then
+					Window:SaveConfig(currentConfigName)
+					print("[Cloudy] Auto Saved Config:", currentConfigName)
+				end
+			end
+		end)
+	end
 end)
-UiSec:AddButton("Simpan Config", function()
-	print("[Cloudy] Config saved!")
+
+UiSec:AddTextBox("Nama Config Baru", "Ketik nama config...", function(text)
+	if text and text ~= "" then
+		currentConfigName = text
+	end
 end)
-UiSec:AddButton("Reset Default Config", function()
-	print("[Cloudy] Config reset to default!")
+
+local configDropdown = nil
+
+local function refreshConfigDropdown()
+	local configs = Window:GetConfigList()
+	if configDropdown and configDropdown.Refresh then
+		configDropdown:Refresh(configs, currentConfigName)
+	end
+end
+
+configDropdown = UiSec:AddDropdown("Pilih Config Saved", Window:GetConfigList(), "Default", function(selected)
+	currentConfigName = selected
 end)
+
+UiSec:AddButtonGroup2x2({
+	{
+		Text = "Save Config",
+		Callback = function()
+			Window:SaveConfig(currentConfigName)
+			refreshConfigDropdown()
+			print("[Cloudy] Config Saved:", currentConfigName)
+		end
+	},
+	{
+		Text = "Load Config",
+		Callback = function()
+			Window:LoadConfig(currentConfigName)
+			print("[Cloudy] Config Loaded:", currentConfigName)
+		end
+	},
+	{
+		Text = "Remove Config",
+		Callback = function()
+			Window:DeleteConfig(currentConfigName)
+			currentConfigName = "Default"
+			refreshConfigDropdown()
+			print("[Cloudy] Config Removed:", currentConfigName)
+		end
+	},
+	{
+		Text = "Remove All",
+		Callback = function()
+			Window:DeleteAllConfigs()
+			currentConfigName = "Default"
+			refreshConfigDropdown()
+			print("[Cloudy] All Configs Removed")
+		end
+	}
+})
 
 return CloudyLib
