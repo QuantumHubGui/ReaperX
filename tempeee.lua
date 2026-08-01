@@ -1574,8 +1574,122 @@ function Cloudy:CreateTab(tabName, iconName)
             end)
         end
 
+        function SecMethods:CreateColorPicker(text, defaultColor, callback)
+            defaultColor = defaultColor or Color3.fromRGB(255, 255, 255)
+            callback = callback or function() end
+
+            local CPFrame = Instance.new("Frame")
+            CPFrame.Size = UDim2.new(1, 0, 0, 34)
+            CPFrame.BackgroundTransparency = 1
+            CPFrame.Parent = SecContent
+
+            local CPLabel = Instance.new("TextLabel")
+            CPLabel.Size = UDim2.new(1, -60, 1, 0)
+            CPLabel.Position = UDim2.new(0, 12, 0, 0)
+            CPLabel.BackgroundTransparency = 1
+            CPLabel.Text = text
+            CPLabel.TextColor3 = Color3.fromRGB(220, 224, 235)
+            CPLabel.Font = Enum.Font.GothamMedium
+            CPLabel.TextSize = 12
+            CPLabel.TextXAlignment = Enum.TextXAlignment.Left
+            CPLabel.Parent = CPFrame
+
+            local Preview = Instance.new("Frame")
+            Preview.Size = UDim2.new(0, 26, 0, 18)
+            Preview.Position = UDim2.new(1, -38, 0.5, -9)
+            Preview.BackgroundColor3 = defaultColor
+            Preview.Parent = CPFrame
+
+            local PrevCorner = Instance.new("UICorner")
+            PrevCorner.CornerRadius = UDim.new(0, 6)
+            PrevCorner.Parent = Preview
+
+            pcall(callback, defaultColor)
+            return CPFrame
+        end
+
+        -- Section Method Aliases
+        SecMethods.AddToggle = SecMethods.CreateToggle
+        SecMethods.AddButton = SecMethods.CreateButton
+        SecMethods.AddSlider = SecMethods.CreateSlider
+        SecMethods.AddDropdown = SecMethods.CreateDropdown
+        SecMethods.AddMultiDropdown = SecMethods.CreateMultiDropdown
+        SecMethods.AddInput = SecMethods.CreateInput
+        SecMethods.CreateTextbox = SecMethods.CreateInput
+        SecMethods.AddTextbox = SecMethods.CreateInput
+        SecMethods.AddKeybind = SecMethods.CreateKeybind
+        SecMethods.CreateBind = SecMethods.CreateKeybind
+        SecMethods.AddBind = SecMethods.CreateKeybind
+        SecMethods.AddBanner = SecMethods.CreateBanner
+        SecMethods.AddImage = SecMethods.CreateImage
+        SecMethods.AddImageButton = SecMethods.CreateImageButton
+        SecMethods.AddHeader = SecMethods.CreateHeader
+        SecMethods.CreateLabel = SecMethods.CreateHeader
+        SecMethods.AddLabel = SecMethods.CreateHeader
+        SecMethods.AddParagraph = SecMethods.CreateParagraph
+        SecMethods.AddColorPicker = SecMethods.CreateColorPicker
+        SecMethods.AddColorpicker = SecMethods.CreateColorPicker
+
         return SecMethods
     end
+
+    -- Tab Method Aliases & Direct Proxies
+    TabMethods.AddSection = TabMethods.CreateSection
+    TabMethods.Section = TabMethods.CreateSection
+    TabMethods.NewSection = TabMethods.CreateSection
+
+    function TabMethods:GetDefaultSection()
+        if not self._defaultSection then
+            self._defaultSection = self:CreateSection("General", true)
+        end
+        return self._defaultSection
+    end
+
+    function TabMethods:CreateToggle(...) return self:GetDefaultSection():CreateToggle(...) end
+    TabMethods.AddToggle = TabMethods.CreateToggle
+
+    function TabMethods:CreateButton(...) return self:GetDefaultSection():CreateButton(...) end
+    TabMethods.AddButton = TabMethods.CreateButton
+
+    function TabMethods:CreateSlider(...) return self:GetDefaultSection():CreateSlider(...) end
+    TabMethods.AddSlider = TabMethods.CreateSlider
+
+    function TabMethods:CreateDropdown(...) return self:GetDefaultSection():CreateDropdown(...) end
+    TabMethods.AddDropdown = TabMethods.CreateDropdown
+
+    function TabMethods:CreateMultiDropdown(...) return self:GetDefaultSection():CreateMultiDropdown(...) end
+    TabMethods.AddMultiDropdown = TabMethods.CreateMultiDropdown
+
+    function TabMethods:CreateInput(...) return self:GetDefaultSection():CreateInput(...) end
+    TabMethods.AddInput = TabMethods.CreateInput
+    TabMethods.CreateTextbox = TabMethods.CreateInput
+    TabMethods.AddTextbox = TabMethods.CreateInput
+
+    function TabMethods:CreateKeybind(...) return self:GetDefaultSection():CreateKeybind(...) end
+    TabMethods.AddKeybind = TabMethods.CreateKeybind
+    TabMethods.CreateBind = TabMethods.CreateKeybind
+    TabMethods.AddBind = TabMethods.CreateKeybind
+
+    function TabMethods:CreateBanner(...) return self:GetDefaultSection():CreateBanner(...) end
+    TabMethods.AddBanner = TabMethods.CreateBanner
+
+    function TabMethods:CreateImage(...) return self:GetDefaultSection():CreateImage(...) end
+    TabMethods.AddImage = TabMethods.CreateImage
+
+    function TabMethods:CreateImageButton(...) return self:GetDefaultSection():CreateImageButton(...) end
+    TabMethods.AddImageButton = TabMethods.CreateImageButton
+
+    function TabMethods:CreateHeader(...) return self:GetDefaultSection():CreateHeader(...) end
+    TabMethods.AddHeader = TabMethods.CreateHeader
+    TabMethods.CreateLabel = TabMethods.CreateHeader
+    TabMethods.AddLabel = TabMethods.CreateHeader
+
+    function TabMethods:CreateParagraph(...) return self:GetDefaultSection():CreateParagraph(...) end
+    TabMethods.AddParagraph = TabMethods.CreateParagraph
+
+    function TabMethods:CreateColorPicker(...) return self:GetDefaultSection():CreateColorPicker(...) end
+    TabMethods.AddColorPicker = TabMethods.CreateColorPicker
+    TabMethods.AddColorpicker = TabMethods.CreateColorPicker
 
     return TabMethods
 end
@@ -1655,6 +1769,31 @@ function Cloudy:Notify(config)
         end
     end)
 end
+
+-- Global Window Aliases
+Cloudy.AddTab = Cloudy.CreateTab
+Cloudy.Tab = Cloudy.CreateTab
+Cloudy.MakeTab = Cloudy.CreateTab
+Cloudy.NewTab = Cloudy.CreateTab
+
+function Cloudy.CreateWindow(options)
+    return Cloudy.new(options)
+end
+Cloudy.MakeWindow = Cloudy.CreateWindow
+Cloudy.Init = Cloudy.CreateWindow
+
+function Cloudy:CreateSection(sectionTitle, defaultOpen)
+    if self.ActiveTab then
+        return self.ActiveTab:CreateSection(sectionTitle, defaultOpen)
+    elseif #self.Tabs > 0 then
+        return self.Tabs[1]:CreateSection(sectionTitle, defaultOpen)
+    end
+end
+Cloudy.AddSection = Cloudy.CreateSection
+
+Cloudy.CreateNotification = Cloudy.Notify
+Cloudy.AddNotification = Cloudy.Notify
+Cloudy.Unload = Cloudy.Destroy
 
 local Window = Cloudy.new({
     Title = "Cloudy",
