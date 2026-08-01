@@ -735,13 +735,14 @@ function CloudyLib:CreateWindow(options)
 	local isExpanded = false
 	ResizeBtn.MouseButton1Click:Connect(function()
 		isExpanded = not isExpanded
-		if isExpanded then
-			MainFrame.Size = UDim2.new(0, 780, 0, 480)
-			MainFrame.Position = UDim2.new(0.5, -390, 0.5, -240)
-		else
-			MainFrame.Size = UDim2.new(0, 600, 0, 380)
-			MainFrame.Position = UDim2.new(0.5, -300, 0.5, -190)
-		end
+		local targetSize = isExpanded and UDim2.new(0, 780, 0, 480) or UDim2.new(0, 600, 0, 380)
+		local targetPos = isExpanded and UDim2.new(0.5, -390, 0.5, -240) or UDim2.new(0.5, -300, 0.5, -190)
+
+		local tweenInfo = TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+		TweenService:Create(MainFrame, tweenInfo, {
+			Size = targetSize,
+			Position = targetPos
+		}):Play()
 	end)
 
 	CloseBtn.MouseButton1Click:Connect(function()
@@ -829,6 +830,119 @@ function CloudyLib:CreateWindow(options)
 	ContentContainer.Position = UDim2.new(0, 171, 0, 48)
 	ContentContainer.BackgroundTransparency = 1
 	ContentContainer.Parent = MainFrame
+
+	-- Dropdown Side Drawer Frame
+	local DropdownDrawer = Instance.new("Frame")
+	DropdownDrawer.Name = "DropdownDrawer"
+	DropdownDrawer.Size = UDim2.new(0, 230, 1, -48)
+	DropdownDrawer.Position = UDim2.new(1, 0, 0, 48)
+	DropdownDrawer.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+	DropdownDrawer.BorderSizePixel = 0
+	DropdownDrawer.ZIndex = 50
+	DropdownDrawer.Visible = false
+	DropdownDrawer.Parent = MainFrame
+
+	local DrawerCorner = Instance.new("UICorner")
+	DrawerCorner.CornerRadius = UDim.new(0, 10)
+	DrawerCorner.Parent = DropdownDrawer
+
+	local DrawerStroke = Instance.new("UIStroke")
+	DrawerStroke.Color = Color3.fromRGB(45, 45, 60)
+	DrawerStroke.Thickness = 1
+	DrawerStroke.Parent = DropdownDrawer
+
+	local DrawerHeader = Instance.new("Frame")
+	DrawerHeader.Name = "DrawerHeader"
+	DrawerHeader.Size = UDim2.new(1, 0, 0, 42)
+	DrawerHeader.Position = UDim2.new(0, 0, 0, 0)
+	DrawerHeader.BackgroundTransparency = 1
+	DrawerHeader.Parent = DropdownDrawer
+
+	local DrawerTitle = Instance.new("TextLabel")
+	DrawerTitle.Size = UDim2.new(1, -48, 1, 0)
+	DrawerTitle.Position = UDim2.new(0, 14, 0, 0)
+	DrawerTitle.BackgroundTransparency = 1
+	DrawerTitle.Text = "Opsi Dropdown"
+	DrawerTitle.Font = Enum.Font.GothamBold
+	DrawerTitle.TextSize = 13
+	DrawerTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+	DrawerTitle.TextXAlignment = Enum.TextXAlignment.Left
+	DrawerTitle.TextTruncate = Enum.TextTruncate.AtEnd
+	DrawerTitle.Parent = DrawerHeader
+
+	local DrawerCloseBtn = Instance.new("TextButton")
+	DrawerCloseBtn.Size = UDim2.new(0, 28, 0, 28)
+	DrawerCloseBtn.Position = UDim2.new(1, -34, 0.5, -14)
+	DrawerCloseBtn.BackgroundTransparency = 1
+	DrawerCloseBtn.Text = ""
+	DrawerCloseBtn.Parent = DrawerHeader
+
+	local DrawerCloseIcon = Instance.new("ImageLabel")
+	DrawerCloseIcon.Size = UDim2.new(0, 14, 0, 14)
+	DrawerCloseIcon.Position = UDim2.new(0.5, -7, 0.5, -7)
+	DrawerCloseIcon.BackgroundTransparency = 1
+	DrawerCloseIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
+	DrawerCloseIcon.Parent = DrawerCloseBtn
+	applyIcon(DrawerCloseIcon, "gravity:xmark")
+
+	local DrawerDivider = Instance.new("Frame")
+	DrawerDivider.Size = UDim2.new(1, 0, 0, 1)
+	DrawerDivider.Position = UDim2.new(0, 0, 0, 42)
+	DrawerDivider.BackgroundColor3 = Color3.fromRGB(38, 38, 50)
+	DrawerDivider.BorderSizePixel = 0
+	DrawerDivider.Parent = DropdownDrawer
+
+	local DrawerScroll = Instance.new("ScrollingFrame")
+	DrawerScroll.Size = UDim2.new(1, 0, 1, -44)
+	DrawerScroll.Position = UDim2.new(0, 0, 0, 44)
+	DrawerScroll.BackgroundTransparency = 1
+	DrawerScroll.BorderSizePixel = 0
+	DrawerScroll.ScrollBarThickness = 3
+	DrawerScroll.ScrollBarImageColor3 = Color3.fromRGB(45, 45, 58)
+	DrawerScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+	DrawerScroll.Parent = DropdownDrawer
+
+	local DrawerLayout = Instance.new("UIListLayout")
+	DrawerLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	DrawerLayout.Padding = UDim.new(0, 6)
+	DrawerLayout.Parent = DrawerScroll
+
+	local DrawerPadding = Instance.new("UIPadding")
+	DrawerPadding.PaddingTop = UDim.new(0, 8)
+	DrawerPadding.PaddingLeft = UDim.new(0, 10)
+	DrawerPadding.PaddingRight = UDim.new(0, 10)
+	DrawerPadding.PaddingBottom = UDim.new(0, 8)
+	DrawerPadding.Parent = DrawerScroll
+
+	DrawerLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		DrawerScroll.CanvasSize = UDim2.new(0, 0, 0, DrawerLayout.AbsoluteContentSize.Y + 16)
+	end)
+
+	local currentActiveDrawerOwner = nil
+
+	local function closeDrawer()
+		if not DropdownDrawer.Visible then return end
+		local ownerToReset = currentActiveDrawerOwner
+		currentActiveDrawerOwner = nil
+
+		local tweenOut = TweenService:Create(DropdownDrawer, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+			Position = UDim2.new(1, 0, 0, 48)
+		})
+		tweenOut:Play()
+		tweenOut.Completed:Connect(function()
+			if currentActiveDrawerOwner == nil then
+				DropdownDrawer.Visible = false
+			end
+		end)
+
+		if ownerToReset and ownerToReset.ArrowIcon then
+			TweenService:Create(ownerToReset.ArrowIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Rotation = 0}):Play()
+		end
+	end
+
+	DrawerCloseBtn.MouseButton1Click:Connect(function()
+		closeDrawer()
+	end)
 
 	playIntroAnimation(ScreenGui, titleText, function()
 		MainFrame.Visible = true
@@ -925,6 +1039,8 @@ function CloudyLib:CreateWindow(options)
 		local function selectTab(animated)
 			local prevTab = WindowObj.ActiveTab
 			WindowObj.ActiveTab = TabObj
+
+			closeDrawer()
 
 			local targetY = TabBtn.AbsolutePosition.Y - Sidebar.AbsolutePosition.Y
 			local targetPos = UDim2.new(0, 8, 0, targetY)
@@ -1336,12 +1452,10 @@ function CloudyLib:CreateWindow(options)
 			targetParent = targetParent or TabPage
 
 			local selectedOption = defaultOpt
-			local isOpen = false
 
 			local DropdownFrame = Instance.new("Frame")
 			DropdownFrame.Size = UDim2.new(1, 0, 0, 40)
 			DropdownFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
-			DropdownFrame.ClipsDescendants = true
 			DropdownFrame.LayoutOrder = TabObj.ElementCount
 			DropdownFrame.Parent = targetParent
 
@@ -1355,7 +1469,7 @@ function CloudyLib:CreateWindow(options)
 			Stroke.Parent = DropdownFrame
 
 			local HeaderBtn = Instance.new("TextButton")
-			HeaderBtn.Size = UDim2.new(1, 0, 0, 40)
+			HeaderBtn.Size = UDim2.new(1, 0, 1, 0)
 			HeaderBtn.BackgroundTransparency = 1
 			HeaderBtn.Text = ""
 			HeaderBtn.Parent = DropdownFrame
@@ -1399,63 +1513,71 @@ function CloudyLib:CreateWindow(options)
 			ArrowIcon.Position = UDim2.new(1, -18, 0.5, -7)
 			ArrowIcon.BackgroundTransparency = 1
 			ArrowIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
-			ArrowIcon.Rotation = isOpen and 180 or 0
+			ArrowIcon.Rotation = 0
 			ArrowIcon.Parent = ValueBox
 			applyIcon(ArrowIcon, "alt-arrow-down-bold")
 
-			local ListHolder = Instance.new("Frame")
-			ListHolder.Size = UDim2.new(1, -24, 0, 0)
-			ListHolder.Position = UDim2.new(0, 12, 0, 44)
-			ListHolder.BackgroundTransparency = 1
-			ListHolder.Parent = DropdownFrame
+			local dropdownOwner = { ArrowIcon = ArrowIcon }
 
-			local ListLayout = Instance.new("UIListLayout")
-			ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			ListLayout.Padding = UDim.new(0, 4)
-			ListLayout.Parent = ListHolder
+			local function openThisDropdownDrawer()
+				if currentActiveDrawerOwner == dropdownOwner then
+					closeDrawer()
+					return
+				end
 
-			local function renderOptions()
-				for _, child in pairs(ListHolder:GetChildren()) do
+				currentActiveDrawerOwner = dropdownOwner
+				DrawerTitle.Text = text
+
+				for _, child in pairs(DrawerScroll:GetChildren()) do
 					if child:IsA("TextButton") then child:Destroy() end
 				end
+
 				for idx, opt in ipairs(optionsList) do
+					local isSelected = (opt == selectedOption)
 					local ItemBtn = Instance.new("TextButton")
-					ItemBtn.Size = UDim2.new(1, 0, 0, 28)
-					ItemBtn.BackgroundColor3 = (opt == selectedOption) and Color3.fromRGB(42, 42, 54) or Color3.fromRGB(20, 20, 26)
+					ItemBtn.Size = UDim2.new(1, 0, 0, 32)
+					ItemBtn.BackgroundColor3 = isSelected and Color3.fromRGB(45, 45, 60) or Color3.fromRGB(28, 28, 38)
 					ItemBtn.Text = "  " .. opt
-					ItemBtn.Font = Enum.Font.Gotham
+					ItemBtn.Font = Enum.Font.GothamMedium
 					ItemBtn.TextSize = 12
-					ItemBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+					ItemBtn.TextColor3 = isSelected and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 195)
 					ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
 					ItemBtn.LayoutOrder = idx
-					ItemBtn.Parent = ListHolder
+					ItemBtn.Parent = DrawerScroll
 
 					local ItemCorner = Instance.new("UICorner")
 					ItemCorner.CornerRadius = UDim.new(0, 6)
 					ItemCorner.Parent = ItemBtn
 
+					ItemBtn.MouseEnter:Connect(function()
+						if opt ~= selectedOption then
+							ItemBtn.BackgroundColor3 = Color3.fromRGB(36, 36, 48)
+						end
+					end)
+					ItemBtn.MouseLeave:Connect(function()
+						if opt ~= selectedOption then
+							ItemBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 38)
+						end
+					end)
+
 					ItemBtn.MouseButton1Click:Connect(function()
 						selectedOption = opt
 						ValText.Text = selectedOption
-						isOpen = false
-						DropdownFrame.Size = UDim2.new(1, 0, 0, 40)
-						TweenService:Create(ArrowIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Rotation = 0}):Play()
-						renderOptions()
+						closeDrawer()
 						pcall(callback, selectedOption)
 					end)
 				end
+
+				DropdownDrawer.Visible = true
+				DropdownDrawer.Position = UDim2.new(1, 0, 0, 48)
+				TweenService:Create(DropdownDrawer, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+					Position = UDim2.new(1, -230, 0, 48)
+				}):Play()
+
+				TweenService:Create(ArrowIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Rotation = 180}):Play()
 			end
 
-			renderOptions()
-
-			HeaderBtn.MouseButton1Click:Connect(function()
-				isOpen = not isOpen
-				local targetHeight = isOpen and (48 + #optionsList * 32) or 40
-				DropdownFrame.Size = UDim2.new(1, 0, 0, targetHeight)
-				TweenService:Create(ArrowIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-					Rotation = isOpen and 180 or 0
-				}):Play()
-			end)
+			HeaderBtn.MouseButton1Click:Connect(openThisDropdownDrawer)
 		end
 
 		function TabObj:AddMultiDropdown(text, optionsList, defaultSelected, callback, targetParent)
@@ -1470,12 +1592,9 @@ function CloudyLib:CreateWindow(options)
 				selectedMap[val] = true
 			end
 
-			local isOpen = false
-
 			local DropdownFrame = Instance.new("Frame")
 			DropdownFrame.Size = UDim2.new(1, 0, 0, 40)
 			DropdownFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
-			DropdownFrame.ClipsDescendants = true
 			DropdownFrame.LayoutOrder = TabObj.ElementCount
 			DropdownFrame.Parent = targetParent
 
@@ -1489,7 +1608,7 @@ function CloudyLib:CreateWindow(options)
 			Stroke.Parent = DropdownFrame
 
 			local HeaderBtn = Instance.new("TextButton")
-			HeaderBtn.Size = UDim2.new(1, 0, 0, 40)
+			HeaderBtn.Size = UDim2.new(1, 0, 1, 0)
 			HeaderBtn.BackgroundTransparency = 1
 			HeaderBtn.Text = ""
 			HeaderBtn.Parent = DropdownFrame
@@ -1532,20 +1651,9 @@ function CloudyLib:CreateWindow(options)
 			ArrowIcon.Position = UDim2.new(1, -18, 0.5, -7)
 			ArrowIcon.BackgroundTransparency = 1
 			ArrowIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
-			ArrowIcon.Rotation = isOpen and 180 or 0
+			ArrowIcon.Rotation = 0
 			ArrowIcon.Parent = ValueBox
 			applyIcon(ArrowIcon, "alt-arrow-down-bold")
-
-			local ListHolder = Instance.new("Frame")
-			ListHolder.Size = UDim2.new(1, -24, 0, 0)
-			ListHolder.Position = UDim2.new(0, 12, 0, 44)
-			ListHolder.BackgroundTransparency = 1
-			ListHolder.Parent = DropdownFrame
-
-			local ListLayout = Instance.new("UIListLayout")
-			ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			ListLayout.Padding = UDim.new(0, 4)
-			ListLayout.Parent = ListHolder
 
 			local function getSelectedList()
 				local result = {}
@@ -1566,23 +1674,28 @@ function CloudyLib:CreateWindow(options)
 				end
 			end
 
-			local function renderOptions()
-				for _, child in pairs(ListHolder:GetChildren()) do
+			updateHeaderLabel()
+
+			local dropdownOwner = { ArrowIcon = ArrowIcon }
+
+			local function renderDrawerItems()
+				for _, child in pairs(DrawerScroll:GetChildren()) do
 					if child:IsA("TextButton") then child:Destroy() end
 				end
+
 				for idx, opt in ipairs(optionsList) do
 					local isSel = selectedMap[opt] or false
 
 					local ItemBtn = Instance.new("TextButton")
-					ItemBtn.Size = UDim2.new(1, 0, 0, 28)
-					ItemBtn.BackgroundColor3 = isSel and Color3.fromRGB(42, 42, 54) or Color3.fromRGB(20, 20, 26)
-					ItemBtn.Text = (isSel and "  [x] " or "  [  ] ") .. opt
-					ItemBtn.Font = Enum.Font.Gotham
+					ItemBtn.Size = UDim2.new(1, 0, 0, 32)
+					ItemBtn.BackgroundColor3 = isSel and Color3.fromRGB(45, 45, 60) or Color3.fromRGB(28, 28, 38)
+					ItemBtn.Text = (isSel and "  [x]  " or "  [  ]  ") .. opt
+					ItemBtn.Font = Enum.Font.GothamMedium
 					ItemBtn.TextSize = 12
-					ItemBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+					ItemBtn.TextColor3 = isSel and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 195)
 					ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
 					ItemBtn.LayoutOrder = idx
-					ItemBtn.Parent = ListHolder
+					ItemBtn.Parent = DrawerScroll
 
 					local ItemCorner = Instance.new("UICorner")
 					ItemCorner.CornerRadius = UDim.new(0, 6)
@@ -1591,23 +1704,33 @@ function CloudyLib:CreateWindow(options)
 					ItemBtn.MouseButton1Click:Connect(function()
 						selectedMap[opt] = not selectedMap[opt]
 						updateHeaderLabel()
-						renderOptions()
+						renderDrawerItems()
 						pcall(callback, getSelectedList())
 					end)
 				end
 			end
 
-			updateHeaderLabel()
-			renderOptions()
+			local function openThisMultiDropdownDrawer()
+				if currentActiveDrawerOwner == dropdownOwner then
+					closeDrawer()
+					return
+				end
 
-			HeaderBtn.MouseButton1Click:Connect(function()
-				isOpen = not isOpen
-				local targetHeight = isOpen and (48 + #optionsList * 32) or 40
-				DropdownFrame.Size = UDim2.new(1, 0, 0, targetHeight)
-				TweenService:Create(ArrowIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-					Rotation = isOpen and 180 or 0
+				currentActiveDrawerOwner = dropdownOwner
+				DrawerTitle.Text = text
+
+				renderDrawerItems()
+
+				DropdownDrawer.Visible = true
+				DropdownDrawer.Position = UDim2.new(1, 0, 0, 48)
+				TweenService:Create(DropdownDrawer, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+					Position = UDim2.new(1, -230, 0, 48)
 				}):Play()
-			end)
+
+				TweenService:Create(ArrowIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Rotation = 180}):Play()
+			end
+
+			HeaderBtn.MouseButton1Click:Connect(openThisMultiDropdownDrawer)
 		end
 
 		function TabObj:AddTextBox(text, placeholder, callback, targetParent)
