@@ -68,7 +68,7 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
         IntroBlur.Name = "CloudyIntroBlur_" .. math.random(1000, 9999)
         IntroBlur.Size = 0
         IntroBlur.Parent = Lighting
-        TweenService:Create(IntroBlur, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = 12 }):Play()
+        TweenService:Create(IntroBlur, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = 12 }):Play()
     end)
 
     -- Fullscreen canvas with ZERO dark background (100% transparent)
@@ -81,21 +81,6 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
     IntroCanvas.ZIndex = 100
     IntroCanvas.Parent = screenGui
 
-    -- Center Light Glow Pulse behind clouds
-    local GlowPulse = Instance.new("Frame")
-    GlowPulse.Name = "GlowPulse"
-    GlowPulse.Size = UDim2.new(0, 40, 0, 40)
-    GlowPulse.Position = UDim2.new(0.5, 0, 0.5, 0)
-    GlowPulse.AnchorPoint = Vector2.new(0.5, 0.5)
-    GlowPulse.BackgroundColor3 = Color3.fromRGB(120, 180, 255)
-    GlowPulse.BackgroundTransparency = 1
-    GlowPulse.ZIndex = 101
-    GlowPulse.Parent = IntroCanvas
-
-    local GlowCorner = Instance.new("UICorner")
-    GlowCorner.CornerRadius = UDim.new(1, 0)
-    GlowCorner.Parent = GlowPulse
-
     local function CreateRealisticCloud(parent, scale)
         scale = scale or 1
         local Container = Instance.new("Frame")
@@ -103,34 +88,6 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
         Container.BackgroundTransparency = 1
         Container.AnchorPoint = Vector2.new(0.5, 0.5)
         Container.ZIndex = 110
-
-        -- Outer Aura Glow Group
-        local AuraGroup = Instance.new("Frame")
-        AuraGroup.Size = UDim2.new(1, math.floor(16 * scale), 1, math.floor(16 * scale))
-        AuraGroup.Position = UDim2.new(0, math.floor(-8 * scale), 0, math.floor(-8 * scale))
-        AuraGroup.BackgroundTransparency = 1
-        AuraGroup.ZIndex = 111
-        AuraGroup.Parent = Container
-
-        local function AddAuraPuff(size, pos, isCircle)
-            local p = Instance.new("Frame")
-            p.Size = size
-            p.Position = pos
-            p.BackgroundColor3 = Color3.fromRGB(140, 200, 255)
-            p.BackgroundTransparency = 0.82
-            p.BorderSizePixel = 0
-            p.ZIndex = 111
-            p.Parent = AuraGroup
-
-            local c = Instance.new("UICorner")
-            c.CornerRadius = isCircle and UDim.new(1, 0) or UDim.new(0, math.floor(14 * scale))
-            c.Parent = p
-        end
-
-        AddAuraPuff(UDim2.new(0.92, 0, 0.48, 0), UDim2.new(0.04, 0, 0.44, 0), false)
-        AddAuraPuff(UDim2.new(0.50, 0, 0.75, 0), UDim2.new(0.05, 0, 0.12, 0), true)
-        AddAuraPuff(UDim2.new(0.60, 0, 0.90, 0), UDim2.new(0.27, 0, 0, 0), true)
-        AddAuraPuff(UDim2.new(0.48, 0, 0.68, 0), UDim2.new(0.50, 0, 0.20, 0), true)
 
         -- Drop Shadow Group
         local ShadowGroup = Instance.new("Frame")
@@ -184,16 +141,15 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
             local g = Instance.new("UIGradient")
             g.Color = ColorSequence.new({
                 ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
-                ColorSequenceKeypoint.new(0.4, Color3.fromRGB(215, 230, 255)),
-                ColorSequenceKeypoint.new(0.75, Color3.fromRGB(150, 175, 210)),
-                ColorSequenceKeypoint.new(1.0, Color3.fromRGB(90, 110, 140))
+                ColorSequenceKeypoint.new(0.4, Color3.fromRGB(220, 225, 240)),
+                ColorSequenceKeypoint.new(0.75, Color3.fromRGB(140, 148, 168)),
+                ColorSequenceKeypoint.new(1.0, Color3.fromRGB(70, 75, 95))
             })
             g.Rotation = 65
             g.Parent = p
 
             local s = Instance.new("UIStroke")
-            s.Color = Color3.fromRGB(160, 195, 245)
-            s.Transparency = 0.2
+            s.Color = Color3.fromRGB(80, 88, 110)
             s.Thickness = 1.2
             s.Parent = p
         end
@@ -257,25 +213,19 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
     local TitleGrad = Instance.new("UIGradient")
     TitleGrad.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
-        ColorSequenceKeypoint.new(0.4, Color3.fromRGB(220, 235, 255)),
-        ColorSequenceKeypoint.new(0.75, Color3.fromRGB(150, 180, 230)),
-        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(90, 120, 170))
+        ColorSequenceKeypoint.new(0.4, Color3.fromRGB(220, 225, 240)),
+        ColorSequenceKeypoint.new(0.75, Color3.fromRGB(140, 148, 168)),
+        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(70, 75, 95))
     })
     TitleGrad.Rotation = 0
     TitleGrad.Parent = TitleLbl
-
-    local TitleStroke = Instance.new("UIStroke")
-    TitleStroke.Color = Color3.fromRGB(20, 30, 50)
-    TitleStroke.Thickness = 1.5
-    TitleStroke.Transparency = 0.3
-    TitleStroke.Parent = TitleLbl
 
     local SubLbl = Instance.new("TextLabel")
     SubLbl.Size = UDim2.new(1, 0, 0, 22)
     SubLbl.Position = UDim2.new(0, -40, 0, 44)
     SubLbl.BackgroundTransparency = 1
     SubLbl.Text = subText or "UI Framework"
-    SubLbl.TextColor3 = Color3.fromRGB(170, 200, 240)
+    SubLbl.TextColor3 = Color3.fromRGB(160, 168, 185)
     SubLbl.Font = Enum.Font.GothamMedium
     SubLbl.TextSize = 14
     SubLbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -283,58 +233,27 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
     SubLbl.ZIndex = 121
     SubLbl.Parent = TextHolder
 
-    local SubStroke = Instance.new("UIStroke")
-    SubStroke.Color = Color3.fromRGB(15, 22, 38)
-    SubStroke.Thickness = 1
-    SubStroke.Transparency = 0.4
-    SubStroke.Parent = SubLbl
-
-    -- Animation Sequence Timeline:
-    -- 1. Assemble clouds at center with smooth Back easing
-    local infoGather = TweenInfo.new(0.9, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    local infoGather = TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
     TweenService:Create(Cloud1, infoGather, { Position = Target1, Rotation = 0 }):Play()
     TweenService:Create(Cloud2, infoGather, { Position = Target2, Rotation = 0 }):Play()
     TweenService:Create(Cloud3, infoGather, { Position = Target3, Rotation = 0 }):Play()
 
-    -- 2. Glow pulse expansion behind clouds
-    TweenService:Create(GlowPulse, TweenInfo.new(0.7, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 300, 0, 200),
-        BackgroundTransparency = 0.75
-    }):Play()
-
-    task.delay(0.95, function()
-        -- 3. Shift clouds left & reveal glowing text right
-        local infoShift = TweenInfo.new(0.75, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+    task.delay(0.55, function()
+        local infoShift = TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
         TweenService:Create(CenterCloudGroup, infoShift, { Position = UDim2.new(0.5, -135, 0.5, 0) }):Play()
         TweenService:Create(TextHolder, infoShift, { Position = UDim2.new(0.5, 20, 0.5, -35) }):Play()
-        TweenService:Create(GlowPulse, infoShift, { Position = UDim2.new(0.5, -135, 0.5, 0) }):Play()
 
-        local infoFadeText = TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        local infoFadeText = TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
         TweenService:Create(TitleLbl, infoFadeText, { TextTransparency = 0, Position = UDim2.new(0, 0, 0, 0) }):Play()
         TweenService:Create(SubLbl, infoFadeText, { TextTransparency = 0, Position = UDim2.new(0, 0, 0, 44) }):Play()
 
-        -- Subtle float bobbing effect
-        local floatTween1 = TweenService:Create(CenterCloudGroup, TweenInfo.new(1.0, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-            Position = UDim2.new(0.5, -135, 0.5, -8)
-        })
-        floatTween1:Play()
-
-        task.delay(1.4, function()
-            floatTween1:Cancel()
-            -- 4. Epic Dispersal Outro (Clouds puff outward and float away, text fades up)
-            local infoOut = TweenInfo.new(0.55, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
-            
+        task.delay(0.65, function()
+            local infoOut = TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
             TweenService:Create(TitleLbl, infoOut, { TextTransparency = 1, Position = UDim2.new(0, 0, 0, -20) }):Play()
             TweenService:Create(SubLbl, infoOut, { TextTransparency = 1, Position = UDim2.new(0, 0, 0, 24) }):Play()
-            TweenService:Create(GlowPulse, infoOut, { Size = UDim2.new(0, 450, 0, 300), BackgroundTransparency = 1 }):Play()
             if IntroBlur then
                 TweenService:Create(IntroBlur, infoOut, { Size = 0 }):Play()
             end
-
-            -- Disperse clouds outwards
-            TweenService:Create(Cloud1, infoOut, { Position = UDim2.new(-1.0, 0, -1.0, 0), Rotation = -30 }):Play()
-            TweenService:Create(Cloud2, infoOut, { Position = UDim2.new(2.0, 0, -0.8, 0), Rotation = 35 }):Play()
-            TweenService:Create(Cloud3, infoOut, { Position = UDim2.new(0.5, 0, 2.0, 0), Rotation = 20 }):Play()
 
             for _, child in ipairs(CenterCloudGroup:GetDescendants()) do
                 if child:IsA("Frame") then
@@ -344,7 +263,7 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
                 end
             end
 
-            task.delay(0.55, function()
+            task.delay(0.35, function()
                 IntroCanvas:Destroy()
                 if IntroBlur then
                     pcall(function() IntroBlur:Destroy() end)
@@ -367,7 +286,8 @@ function Cloudy.new(options)
     local toggleIcon = options.ToggleIcon or options.ToggleImage or 88244237473485
     local logoIcon = options.Logo or options.LogoIcon or options.Icon or "cloud-bold"
     local bgImage = options.BackgroundImage or options.Background or options.Image or 132540552885841
-    local bgTransparency = options.BackgroundTransparency or options.ImageTransparency or 0.85
+    -- Make background image brighter (transparency 0.25 default instead of dark 0.85)
+    local bgTransparency = options.BackgroundTransparency or options.ImageTransparency or 0.25
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CloudyUI_" .. math.random(1000, 9999)
@@ -383,19 +303,32 @@ function Cloudy.new(options)
         ScreenGui.Parent = CoreGui
     end
 
-    local ToggleBtn = Instance.new("ImageButton")
+    -- Floating UI Toggle Button (Dark modern theme matching main window, NO blue border box!)
+    local ToggleBtn = Instance.new("TextButton")
     ToggleBtn.Name = "FloatingToggle"
-    ToggleBtn.Size = UDim2.new(0, 48, 0, 48)
+    ToggleBtn.Size = UDim2.new(0, 44, 0, 44)
     ToggleBtn.Position = UDim2.new(0.02, 0, 0.15, 0)
-    ToggleBtn.BackgroundTransparency = 1
+    ToggleBtn.BackgroundColor3 = Color3.fromRGB(22, 23, 30)
+    ToggleBtn.BackgroundTransparency = 0.15
     ToggleBtn.BorderSizePixel = 0
     ToggleBtn.AutoButtonColor = false
-    ToggleBtn.Image = ""
+    ToggleBtn.Text = ""
+    ToggleBtn.ClipsDescendants = true
     ToggleBtn.Parent = ScreenGui
+
+    local ToggleCorner = Instance.new("UICorner")
+    ToggleCorner.CornerRadius = UDim.new(0, 12)
+    ToggleCorner.Parent = ToggleBtn
+
+    local ToggleStroke = Instance.new("UIStroke")
+    ToggleStroke.Color = Color3.fromRGB(45, 48, 60)
+    ToggleStroke.Thickness = 1
+    ToggleStroke.Transparency = 0.2
+    ToggleStroke.Parent = ToggleBtn
 
     local ToggleIconImg = Instance.new("ImageLabel")
     ToggleIconImg.Name = "Icon"
-    ToggleIconImg.Size = UDim2.new(1, 0, 1, 0)
+    ToggleIconImg.Size = UDim2.new(0, 24, 0, 24)
     ToggleIconImg.AnchorPoint = Vector2.new(0.5, 0.5)
     ToggleIconImg.Position = UDim2.new(0.5, 0, 0.5, 0)
     ToggleIconImg.BackgroundTransparency = 1
@@ -405,11 +338,36 @@ function Cloudy.new(options)
     ToggleIconImg.ScaleType = Enum.ScaleType.Fit
     ToggleIconImg.Parent = ToggleBtn
 
+    ToggleBtn.MouseEnter:Connect(function()
+        TweenService:Create(ToggleBtn, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 47, 0, 47),
+            BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+        }):Play()
+        TweenService:Create(ToggleIconImg, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 26, 0, 26)
+        }):Play()
+    end)
+
+    ToggleBtn.MouseLeave:Connect(function()
+        TweenService:Create(ToggleBtn, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 44, 0, 44),
+            BackgroundColor3 = Color3.fromRGB(22, 23, 30)
+        }):Play()
+        TweenService:Create(ToggleIconImg, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 24, 0, 24)
+        }):Play()
+    end)
+
     MakeDraggable(ToggleBtn)
+
+    local defaultSize = UDim2.new(0, 560, 0, 380)
+    local expandedSize = UDim2.new(0, 720, 0, 480)
+    local isMaximized = false
+    local isMinimized = false
 
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
-    MainFrame.Size = UDim2.new(0, 560, 0, 380)
+    MainFrame.Size = defaultSize
     MainFrame.Position = UDim2.new(0.5, -280, 0.5, -190)
     MainFrame.BackgroundColor3 = Color3.fromRGB(18, 19, 24)
     MainFrame.ClipsDescendants = true
@@ -424,6 +382,20 @@ function Cloudy.new(options)
     MainStroke.Thickness = 1.5
     MainStroke.Parent = MainFrame
 
+    -- Background Image Holder with UICorner so image is NOT harsh rectangular box cut off
+    local MainBgHolder = Instance.new("Frame")
+    MainBgHolder.Name = "MainBgHolder"
+    MainBgHolder.Size = UDim2.new(1, 0, 1, 0)
+    MainBgHolder.Position = UDim2.new(0, 0, 0, 0)
+    MainBgHolder.BackgroundTransparency = 1
+    MainBgHolder.ClipsDescendants = true
+    MainBgHolder.ZIndex = 0
+    MainBgHolder.Parent = MainFrame
+
+    local MainBgCorner = Instance.new("UICorner")
+    MainBgCorner.CornerRadius = UDim.new(0, 12)
+    MainBgCorner.Parent = MainBgHolder
+
     local MainBgImg = Instance.new("ImageLabel")
     MainBgImg.Name = "MainBgImage"
     MainBgImg.Size = UDim2.new(1, 0, 1, 0)
@@ -431,27 +403,29 @@ function Cloudy.new(options)
     MainBgImg.BackgroundTransparency = 1
     MainBgImg.Image = GetIcon(bgImage)
     MainBgImg.ImageTransparency = bgTransparency
+    MainBgImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
     MainBgImg.ScaleType = Enum.ScaleType.Crop
     MainBgImg.ZIndex = 0
     MainBgImg.Visible = (bgImage ~= nil and bgImage ~= "" and bgImage ~= 0)
-    MainBgImg.Parent = MainFrame
+    MainBgImg.Parent = MainBgHolder
 
+    local MainBgGrad = Instance.new("UIGradient")
+    MainBgGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0.0, Color3.fromRGB(18, 19, 24)),
+        ColorSequenceKeypoint.new(0.35, Color3.fromRGB(120, 125, 140)),
+        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(255, 255, 255))
+    })
+    MainBgGrad.Rotation = 0
+    MainBgGrad.Parent = MainBgImg
+
+    -- Sidebar (Background TRANSPARENT so it seamlessly blends with UI!)
     local Sidebar = Instance.new("Frame")
     Sidebar.Name = "Sidebar"
     Sidebar.Size = UDim2.new(0, 155, 1, -16)
     Sidebar.Position = UDim2.new(0, 8, 0, 8)
-    Sidebar.BackgroundColor3 = Color3.fromRGB(22, 23, 30)
+    Sidebar.BackgroundTransparency = 1
     Sidebar.BorderSizePixel = 0
     Sidebar.Parent = MainFrame
-
-    local SidebarCorner = Instance.new("UICorner")
-    SidebarCorner.CornerRadius = UDim.new(0, 12)
-    SidebarCorner.Parent = Sidebar
-
-    local SidebarStroke = Instance.new("UIStroke")
-    SidebarStroke.Color = Color3.fromRGB(36, 39, 48)
-    SidebarStroke.Thickness = 1
-    SidebarStroke.Parent = Sidebar
 
     local BrandContainer = Instance.new("Frame")
     BrandContainer.Size = UDim2.new(1, 0, 0, 58)
@@ -518,27 +492,19 @@ function Cloudy.new(options)
         TabContainer.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y)
     end)
 
+    -- TopBar (Background TRANSPARENT so it seamlessly blends with UI!)
     local TopBar = Instance.new("Frame")
     TopBar.Name = "TopBar"
     TopBar.Size = UDim2.new(1, -179, 0, 42)
     TopBar.Position = UDim2.new(0, 171, 0, 8)
-    TopBar.BackgroundColor3 = Color3.fromRGB(22, 23, 30)
+    TopBar.BackgroundTransparency = 1
     TopBar.BorderSizePixel = 0
     TopBar.Parent = MainFrame
-
-    local TopBarCorner = Instance.new("UICorner")
-    TopBarCorner.CornerRadius = UDim.new(0, 12)
-    TopBarCorner.Parent = TopBar
-
-    local TopBarStroke = Instance.new("UIStroke")
-    TopBarStroke.Color = Color3.fromRGB(36, 39, 48)
-    TopBarStroke.Thickness = 1
-    TopBarStroke.Parent = TopBar
 
     MakeDraggable(MainFrame, TopBar)
 
     local PageTitle = Instance.new("TextLabel")
-    PageTitle.Size = UDim2.new(1, -70, 1, 0)
+    PageTitle.Size = UDim2.new(1, -130, 1, 0)
     PageTitle.Position = UDim2.new(0, 16, 0, 0)
     PageTitle.BackgroundTransparency = 1
     PageTitle.Text = "Dashboard"
@@ -548,28 +514,76 @@ function Cloudy.new(options)
     PageTitle.TextXAlignment = Enum.TextXAlignment.Left
     PageTitle.Parent = TopBar
 
-    local CloseBtn = Instance.new("TextButton")
-    CloseBtn.Size = UDim2.new(0, 26, 0, 26)
-    CloseBtn.Position = UDim2.new(1, -34, 0.5, -13)
-    CloseBtn.BackgroundColor3 = Color3.fromRGB(28, 30, 38)
-    CloseBtn.AutoButtonColor = false
-    CloseBtn.Text = ""
-    CloseBtn.Parent = TopBar
+    -- Control Container for Window Buttons (Minimize, Maximize/Resize, Close) matching Photo 1
+    local ControlHolder = Instance.new("Frame")
+    ControlHolder.Name = "ControlHolder"
+    ControlHolder.Size = UDim2.new(0, 110, 1, 0)
+    ControlHolder.Position = UDim2.new(1, -114, 0, 0)
+    ControlHolder.BackgroundTransparency = 1
+    ControlHolder.Parent = TopBar
 
-    local CloseCorner = Instance.new("UICorner")
-    CloseCorner.CornerRadius = UDim.new(0, 8)
-    CloseCorner.Parent = CloseBtn
+    local ControlLayout = Instance.new("UIListLayout")
+    ControlLayout.FillDirection = Enum.FillDirection.Horizontal
+    ControlLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    ControlLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    ControlLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    ControlLayout.Padding = UDim.new(0, 6)
+    ControlLayout.Parent = ControlHolder
 
-    local CloseIcon = Instance.new("ImageLabel")
-    CloseIcon.Size = UDim2.new(0, 14, 0, 14)
-    CloseIcon.AnchorPoint = Vector2.new(0.5, 0.5)
-    CloseIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
-    CloseIcon.BackgroundTransparency = 1
-    CloseIcon.Image = GetIcon("close-square-linear")
-    CloseIcon.ImageColor3 = Color3.fromRGB(160, 165, 178)
-    CloseIcon.Parent = CloseBtn
+    local function CreateTopBarButton(name, iconAsset, order, hoverBg)
+        local btn = Instance.new("TextButton")
+        btn.Name = name
+        btn.Size = UDim2.new(0, 26, 0, 26)
+        btn.BackgroundTransparency = 1
+        btn.BackgroundColor3 = hoverBg or Color3.fromRGB(36, 39, 50)
+        btn.AutoButtonColor = false
+        btn.Text = ""
+        btn.LayoutOrder = order
+        btn.Parent = ControlHolder
+
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 6)
+        corner.Parent = btn
+
+        local icon = Instance.new("ImageLabel")
+        icon.Size = UDim2.new(0, 15, 0, 15)
+        icon.AnchorPoint = Vector2.new(0.5, 0.5)
+        icon.Position = UDim2.new(0.5, 0, 0.5, 0)
+        icon.BackgroundTransparency = 1
+        icon.Image = GetIcon(iconAsset)
+        icon.ImageColor3 = Color3.fromRGB(220, 225, 240)
+        icon.Parent = btn
+
+        btn.MouseEnter:Connect(function()
+            TweenService:Create(btn, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                BackgroundTransparency = 0.3
+            }):Play()
+            TweenService:Create(icon, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                ImageColor3 = Color3.fromRGB(255, 255, 255)
+            }):Play()
+        end)
+
+        btn.MouseLeave:Connect(function()
+            TweenService:Create(btn, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                BackgroundTransparency = 1
+            }):Play()
+            TweenService:Create(icon, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                ImageColor3 = Color3.fromRGB(220, 225, 240)
+            }):Play()
+        end)
+
+        return btn, icon
+    end
+
+    -- 1. Minimize Button (Corner brackets pointing in / shrink - Photo 1 left icon)
+    local MinimizeBtn = CreateTopBarButton("MinimizeBtn", "rbxassetid://10747383819", 1)
+    -- 2. Maximize / Resize Button (Corner brackets pointing out / expand - Photo 1 center icon)
+    local MaximizeBtn = CreateTopBarButton("MaximizeBtn", "rbxassetid://10747383961", 2)
+    -- 3. Close Button (Clean X Icon - Photo 1 right icon)
+    local CloseBtn = CreateTopBarButton("CloseBtn", "rbxassetid://10747384394", 3, Color3.fromRGB(180, 45, 55))
 
     local ContentArea = Instance.new("Frame")
+    ContentArea.Name = "ContentArea"
     ContentArea.Size = UDim2.new(1, -179, 1, -64)
     ContentArea.Position = UDim2.new(0, 171, 0, 56)
     ContentArea.BackgroundTransparency = 1
@@ -578,8 +592,57 @@ function Cloudy.new(options)
     local isOpen = true
     local function ToggleUI()
         isOpen = not isOpen
-        MainFrame.Visible = isOpen
+        if isOpen then
+            MainFrame.Visible = true
+            TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = isMaximized and expandedSize or defaultSize
+            }):Play()
+        else
+            TweenService:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                Size = UDim2.new(0, 0, 0, 0)
+            }):Play()
+            task.delay(0.2, function()
+                if not isOpen then
+                    MainFrame.Visible = false
+                end
+            end)
+        end
     end
+
+    -- Minimize Button Event
+    MinimizeBtn.MouseButton1Click:Connect(function()
+        isMinimized = not isMinimized
+        if isMinimized then
+            TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, isMaximized and 720 or 560, 0, 50)
+            }):Play()
+            ContentArea.Visible = false
+            Sidebar.Visible = false
+        else
+            ContentArea.Visible = true
+            Sidebar.Visible = true
+            TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = isMaximized and expandedSize or defaultSize
+            }):Play()
+        end
+    end)
+
+    -- Maximize / Resize Button Event
+    MaximizeBtn.MouseButton1Click:Connect(function()
+        if isMinimized then
+            isMinimized = false
+            ContentArea.Visible = true
+            Sidebar.Visible = true
+        end
+        isMaximized = not isMaximized
+        local targetSize = isMaximized and expandedSize or defaultSize
+        local targetPos = isMaximized and UDim2.new(0.5, -360, 0.5, -240) or UDim2.new(0.5, -280, 0.5, -190)
+
+        TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Size = targetSize,
+            Position = targetPos
+        }):Play()
+    end)
 
     ToggleBtn.MouseButton1Click:Connect(ToggleUI)
     CloseBtn.MouseButton1Click:Connect(ToggleUI)
