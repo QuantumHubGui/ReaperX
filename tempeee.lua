@@ -247,8 +247,8 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
         TweenService:Create(TitleLbl, infoFadeText, { TextTransparency = 0, Position = UDim2.new(0, 0, 0, 0) }):Play()
         TweenService:Create(SubLbl, infoFadeText, { TextTransparency = 0, Position = UDim2.new(0, 0, 0, 44) }):Play()
 
-        task.delay(0.65, function()
-            local infoOut = TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+        task.delay(2.2, function()
+            local infoOut = TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
             TweenService:Create(TitleLbl, infoOut, { TextTransparency = 1, Position = UDim2.new(0, 0, 0, -20) }):Play()
             TweenService:Create(SubLbl, infoOut, { TextTransparency = 1, Position = UDim2.new(0, 0, 0, 24) }):Play()
             if IntroBlur then
@@ -263,7 +263,7 @@ local function PlayIntroAnimation(screenGui, titleText, subText, onComplete)
                 end
             end
 
-            task.delay(0.35, function()
+            task.delay(0.6, function()
                 IntroCanvas:Destroy()
                 if IntroBlur then
                     pcall(function() IntroBlur:Destroy() end)
@@ -285,9 +285,6 @@ function Cloudy.new(options)
     local windowSub = options.SubTitle or "UI Framework"
     local toggleIcon = options.ToggleIcon or options.ToggleImage or 88244237473485
     local logoIcon = options.Logo or options.LogoIcon or options.Icon or "cloud-bold"
-    local bgImage = options.BackgroundImage or options.Background or options.Image or 132540552885841
-    -- Make background image brighter (transparency 0.25 default instead of dark 0.85)
-    local bgTransparency = options.BackgroundTransparency or options.ImageTransparency or 0.45
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CloudyUI_" .. math.random(1000, 9999)
@@ -462,22 +459,14 @@ function Cloudy.new(options)
     VerticalDivider.BorderSizePixel = 0
     VerticalDivider.Parent = MainFrame
 
+    -- Transparent TopBar seamlessly integrated with window
     local TopBar = Instance.new("Frame")
     TopBar.Name = "TopBar"
     TopBar.Size = UDim2.new(1, -179, 0, 42)
     TopBar.Position = UDim2.new(0, 171, 0, 8)
-    TopBar.BackgroundColor3 = Color3.fromRGB(22, 23, 30)
+    TopBar.BackgroundTransparency = 1
     TopBar.BorderSizePixel = 0
     TopBar.Parent = MainFrame
-
-    local TopBarCorner = Instance.new("UICorner")
-    TopBarCorner.CornerRadius = UDim.new(0, 12)
-    TopBarCorner.Parent = TopBar
-
-    local TopBarStroke = Instance.new("UIStroke")
-    TopBarStroke.Color = Color3.fromRGB(36, 39, 48)
-    TopBarStroke.Thickness = 1
-    TopBarStroke.Parent = TopBar
 
     MakeDraggable(MainFrame, TopBar)
 
@@ -558,7 +547,7 @@ function Cloudy.new(options)
     local MaximizeBtn = CreateTopBarButton("MaximizeBtn", "rbxassetid://10747383961", 2)
     local CloseBtn = CreateTopBarButton("CloseBtn", "rbxassetid://10747384394", 3, Color3.fromRGB(180, 45, 55))
 
-    -- Main Content Area (Background Image ONLY inside Content Area, NOT on Sidebar!)
+    -- Main Content Area (Clean solid dark gray theme)
     local ContentArea = Instance.new("Frame")
     ContentArea.Name = "ContentArea"
     ContentArea.Size = UDim2.new(1, -179, 1, -64)
@@ -566,32 +555,6 @@ function Cloudy.new(options)
     ContentArea.BackgroundTransparency = 1
     ContentArea.ClipsDescendants = true
     ContentArea.Parent = MainFrame
-
-    local MainBgHolder = Instance.new("Frame")
-    MainBgHolder.Name = "MainBgHolder"
-    MainBgHolder.Size = UDim2.new(1, 0, 1, 0)
-    MainBgHolder.Position = UDim2.new(0, 0, 0, 0)
-    MainBgHolder.BackgroundTransparency = 1
-    MainBgHolder.ClipsDescendants = true
-    MainBgHolder.ZIndex = 0
-    MainBgHolder.Parent = ContentArea
-
-    local MainBgCorner = Instance.new("UICorner")
-    MainBgCorner.CornerRadius = UDim.new(0, 10)
-    MainBgCorner.Parent = MainBgHolder
-
-    local MainBgImg = Instance.new("ImageLabel")
-    MainBgImg.Name = "MainBgImage"
-    MainBgImg.Size = UDim2.new(1, 0, 1, 0)
-    MainBgImg.Position = UDim2.new(0, 0, 0, 0)
-    MainBgImg.BackgroundTransparency = 1
-    MainBgImg.Image = GetIcon(bgImage)
-    MainBgImg.ImageTransparency = bgTransparency
-    MainBgImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
-    MainBgImg.ScaleType = Enum.ScaleType.Crop
-    MainBgImg.ZIndex = 0
-    MainBgImg.Visible = (bgImage ~= nil and bgImage ~= "" and bgImage ~= 0)
-    MainBgImg.Parent = MainBgHolder
 
     -- Clean, instant UI toggle (NO over-the-top/lebay bounce or shrink animation)
     local function ToggleUI()
@@ -763,18 +726,9 @@ function Cloudy:CreateTab(tabName, iconName)
         local SecFrame = Instance.new("Frame")
         SecFrame.Name = "Section_" .. tostring(sectionTitle)
         SecFrame.Size = UDim2.new(1, 0, 0, 34)
-        SecFrame.BackgroundColor3 = Color3.fromRGB(24, 25, 32)
+        SecFrame.BackgroundTransparency = 1
         SecFrame.ClipsDescendants = true
         SecFrame.Parent = TabPage
-
-        local SecCorner = Instance.new("UICorner")
-        SecCorner.CornerRadius = UDim.new(0, 10)
-        SecCorner.Parent = SecFrame
-
-        local SecStroke = Instance.new("UIStroke")
-        SecStroke.Color = Color3.fromRGB(38, 40, 50)
-        SecStroke.Thickness = 1
-        SecStroke.Parent = SecFrame
 
         local SecHeader = Instance.new("TextButton")
         SecHeader.Name = "SecHeader"
@@ -850,18 +804,13 @@ function Cloudy:CreateTab(tabName, iconName)
 
             local BanFrame = Instance.new("Frame")
             BanFrame.Size = UDim2.new(1, 0, 0, height)
-            BanFrame.BackgroundColor3 = Color3.fromRGB(24, 25, 34)
+            BanFrame.BackgroundTransparency = 1
             BanFrame.ClipsDescendants = true
             BanFrame.Parent = SecContent
 
             local BanCorner = Instance.new("UICorner")
             BanCorner.CornerRadius = UDim.new(0, 10)
             BanCorner.Parent = BanFrame
-
-            local BanStroke = Instance.new("UIStroke")
-            BanStroke.Color = Color3.fromRGB(45, 48, 62)
-            BanStroke.Thickness = 1
-            BanStroke.Parent = BanFrame
 
             if imageId and imageId ~= "" and imageId ~= 0 then
                 local BanImg = Instance.new("ImageLabel")
@@ -935,18 +884,13 @@ function Cloudy:CreateTab(tabName, iconName)
 
             local ImgFrame = Instance.new("Frame")
             ImgFrame.Size = UDim2.new(1, 0, 0, height)
-            ImgFrame.BackgroundColor3 = Color3.fromRGB(24, 25, 34)
+            ImgFrame.BackgroundTransparency = 1
             ImgFrame.ClipsDescendants = true
             ImgFrame.Parent = SecContent
 
             local ImgCorner = Instance.new("UICorner")
             ImgCorner.CornerRadius = UDim.new(0, 10)
             ImgCorner.Parent = ImgFrame
-
-            local ImgStroke = Instance.new("UIStroke")
-            ImgStroke.Color = Color3.fromRGB(45, 48, 62)
-            ImgStroke.Thickness = 1
-            ImgStroke.Parent = ImgFrame
 
             local DisplayImg = Instance.new("ImageLabel")
             DisplayImg.Size = UDim2.new(1, 0, 1, 0)
@@ -971,7 +915,7 @@ function Cloudy:CreateTab(tabName, iconName)
 
             local BtnFrame = Instance.new("TextButton")
             BtnFrame.Size = UDim2.new(1, 0, 0, height)
-            BtnFrame.BackgroundColor3 = Color3.fromRGB(24, 25, 34)
+            BtnFrame.BackgroundTransparency = 1
             BtnFrame.AutoButtonColor = false
             BtnFrame.Text = ""
             BtnFrame.ClipsDescendants = true
@@ -980,11 +924,6 @@ function Cloudy:CreateTab(tabName, iconName)
             local BtnCorner = Instance.new("UICorner")
             BtnCorner.CornerRadius = UDim.new(0, 10)
             BtnCorner.Parent = BtnFrame
-
-            local BtnStroke = Instance.new("UIStroke")
-            BtnStroke.Color = Color3.fromRGB(45, 48, 62)
-            BtnStroke.Thickness = 1
-            BtnStroke.Parent = BtnFrame
 
             if imageId and imageId ~= "" and imageId ~= 0 then
                 local BtnImg = Instance.new("ImageLabel")
@@ -1054,17 +993,8 @@ function Cloudy:CreateTab(tabName, iconName)
         function SecMethods:CreateParagraph(title, content)
             local ParaFrame = Instance.new("Frame")
             ParaFrame.Size = UDim2.new(1, 0, 0, 48)
-            ParaFrame.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+            ParaFrame.BackgroundTransparency = 1
             ParaFrame.Parent = SecContent
-
-            local ParaCorner = Instance.new("UICorner")
-            ParaCorner.CornerRadius = UDim.new(0, 8)
-            ParaCorner.Parent = ParaFrame
-
-            local ParaStroke = Instance.new("UIStroke")
-            ParaStroke.Color = Color3.fromRGB(45, 48, 60)
-            ParaStroke.Thickness = 1
-            ParaStroke.Parent = ParaFrame
 
             local PTitle = Instance.new("TextLabel")
             PTitle.Size = UDim2.new(1, -24, 0, 20)
@@ -1095,19 +1025,10 @@ function Cloudy:CreateTab(tabName, iconName)
 
             local Btn = Instance.new("TextButton")
             Btn.Size = UDim2.new(1, 0, 0, 34)
-            Btn.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+            Btn.BackgroundTransparency = 1
             Btn.AutoButtonColor = false
             Btn.Text = ""
             Btn.Parent = SecContent
-
-            local BtnCorner = Instance.new("UICorner")
-            BtnCorner.CornerRadius = UDim.new(0, 8)
-            BtnCorner.Parent = Btn
-
-            local BtnStroke = Instance.new("UIStroke")
-            BtnStroke.Color = Color3.fromRGB(45, 48, 60)
-            BtnStroke.Thickness = 1
-            BtnStroke.Parent = Btn
 
             local BtnLabel = Instance.new("TextLabel")
             BtnLabel.Size = UDim2.new(1, -40, 1, 0)
@@ -1140,17 +1061,8 @@ function Cloudy:CreateTab(tabName, iconName)
 
             local TogFrame = Instance.new("Frame")
             TogFrame.Size = UDim2.new(1, 0, 0, 34)
-            TogFrame.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+            TogFrame.BackgroundTransparency = 1
             TogFrame.Parent = SecContent
-
-            local TogCorner = Instance.new("UICorner")
-            TogCorner.CornerRadius = UDim.new(0, 8)
-            TogCorner.Parent = TogFrame
-
-            local TogStroke = Instance.new("UIStroke")
-            TogStroke.Color = Color3.fromRGB(45, 48, 60)
-            TogStroke.Thickness = 1
-            TogStroke.Parent = TogFrame
 
             local TogLabel = Instance.new("TextLabel")
             TogLabel.Size = UDim2.new(1, -60, 1, 0)
@@ -1218,17 +1130,8 @@ function Cloudy:CreateTab(tabName, iconName)
 
             local SldFrame = Instance.new("Frame")
             SldFrame.Size = UDim2.new(1, 0, 0, 50)
-            SldFrame.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+            SldFrame.BackgroundTransparency = 1
             SldFrame.Parent = SecContent
-
-            local SldCorner = Instance.new("UICorner")
-            SldCorner.CornerRadius = UDim.new(0, 8)
-            SldCorner.Parent = SldFrame
-
-            local SldStroke = Instance.new("UIStroke")
-            SldStroke.Color = Color3.fromRGB(45, 48, 60)
-            SldStroke.Thickness = 1
-            SldStroke.Parent = SldFrame
 
             local SldLabel = Instance.new("TextLabel")
             SldLabel.Size = UDim2.new(1, -60, 0, 20)
@@ -1328,18 +1231,9 @@ function Cloudy:CreateTab(tabName, iconName)
 
             local DropFrame = Instance.new("Frame")
             DropFrame.Size = UDim2.new(1, 0, 0, 34)
-            DropFrame.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+            DropFrame.BackgroundTransparency = 1
             DropFrame.ClipsDescendants = true
             DropFrame.Parent = SecContent
-
-            local DropCorner = Instance.new("UICorner")
-            DropCorner.CornerRadius = UDim.new(0, 8)
-            DropCorner.Parent = DropFrame
-
-            local DropStroke = Instance.new("UIStroke")
-            DropStroke.Color = Color3.fromRGB(45, 48, 60)
-            DropStroke.Thickness = 1
-            DropStroke.Parent = DropFrame
 
             local DropLabel = Instance.new("TextLabel")
             DropLabel.Size = UDim2.new(0, 120, 0, 34)
@@ -1434,18 +1328,9 @@ function Cloudy:CreateTab(tabName, iconName)
 
             local DropFrame = Instance.new("Frame")
             DropFrame.Size = UDim2.new(1, 0, 0, 34)
-            DropFrame.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+            DropFrame.BackgroundTransparency = 1
             DropFrame.ClipsDescendants = true
             DropFrame.Parent = SecContent
-
-            local DropCorner = Instance.new("UICorner")
-            DropCorner.CornerRadius = UDim.new(0, 8)
-            DropCorner.Parent = DropFrame
-
-            local DropStroke = Instance.new("UIStroke")
-            DropStroke.Color = Color3.fromRGB(45, 48, 60)
-            DropStroke.Thickness = 1
-            DropStroke.Parent = DropFrame
 
             local DropLabel = Instance.new("TextLabel")
             DropLabel.Size = UDim2.new(0, 120, 0, 34)
@@ -1587,26 +1472,14 @@ function Cloudy:CreateTab(tabName, iconName)
             local PrevStroke = Instance.new("UIStroke")
             PrevStroke.Color = Color3.fromRGB(60, 65, 78)
             PrevStroke.Thickness = 1
-            PrevStroke.Parent = Preview
-        end
-
         function SecMethods:CreateInput(text, placeholder, callback)
             placeholder = placeholder or "Type here..."
             callback = callback or function() end
 
             local InpFrame = Instance.new("Frame")
             InpFrame.Size = UDim2.new(1, 0, 0, 34)
-            InpFrame.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+            InpFrame.BackgroundTransparency = 1
             InpFrame.Parent = SecContent
-
-            local InpCorner = Instance.new("UICorner")
-            InpCorner.CornerRadius = UDim.new(0, 8)
-            InpCorner.Parent = InpFrame
-
-            local InpStroke = Instance.new("UIStroke")
-            InpStroke.Color = Color3.fromRGB(45, 48, 60)
-            InpStroke.Thickness = 1
-            InpStroke.Parent = InpFrame
 
             local InpLabel = Instance.new("TextLabel")
             InpLabel.Size = UDim2.new(0, 120, 1, 0)
@@ -1653,17 +1526,8 @@ function Cloudy:CreateTab(tabName, iconName)
 
             local KeyFrame = Instance.new("Frame")
             KeyFrame.Size = UDim2.new(1, 0, 0, 34)
-            KeyFrame.BackgroundColor3 = Color3.fromRGB(30, 32, 42)
+            KeyFrame.BackgroundTransparency = 1
             KeyFrame.Parent = SecContent
-
-            local KeyCorner = Instance.new("UICorner")
-            KeyCorner.CornerRadius = UDim.new(0, 8)
-            KeyCorner.Parent = KeyFrame
-
-            local KeyStroke = Instance.new("UIStroke")
-            KeyStroke.Color = Color3.fromRGB(45, 48, 60)
-            KeyStroke.Thickness = 1
-            KeyStroke.Parent = KeyFrame
 
             local KeyLabel = Instance.new("TextLabel")
             KeyLabel.Size = UDim2.new(1, -90, 1, 0)
