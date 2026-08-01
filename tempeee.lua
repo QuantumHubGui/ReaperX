@@ -54,7 +54,82 @@ local function applyIcon(imageLabel, iconName)
 	end
 end
 
-local REALISTIC_CLOUD_ID = "rbxassetid://7072722880"
+local function createCustomCloud(parentFrame, size, position, scaleFactor)
+	scaleFactor = scaleFactor or 1
+
+	local CloudContainer = Instance.new("Frame")
+	CloudContainer.Name = "CustomCloud"
+	CloudContainer.Size = size
+	CloudContainer.Position = position
+	CloudContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+	CloudContainer.BackgroundTransparency = 1
+	CloudContainer.Parent = parentFrame
+
+	local ShadowLayer = Instance.new("Frame")
+	ShadowLayer.Name = "ShadowLayer"
+	ShadowLayer.Size = UDim2.new(1, 0, 1, 0)
+	ShadowLayer.Position = UDim2.new(0, 4 * scaleFactor, 0, 6 * scaleFactor)
+	ShadowLayer.BackgroundTransparency = 1
+	ShadowLayer.Parent = CloudContainer
+
+	local shadowPuffs = {
+		{UDim2.new(0.72, 0, 0.44, 0), UDim2.new(0.14, 0, 0.5, 0)},
+		{UDim2.new(0.42, 0, 0.62, 0), UDim2.new(0.08, 0, 0.3, 0)},
+		{UDim2.new(0.52, 0, 0.74, 0), UDim2.new(0.24, 0, 0.08, 0)},
+		{UDim2.new(0.44, 0, 0.64, 0), UDim2.new(0.5, 0, 0.22, 0)}
+	}
+
+	for _, pData in ipairs(shadowPuffs) do
+		local puff = Instance.new("Frame")
+		puff.Size = pData[1]
+		puff.Position = pData[2]
+		puff.BackgroundColor3 = Color3.fromRGB(40, 40, 52)
+		puff.BackgroundTransparency = 0.55
+		puff.BorderSizePixel = 0
+		puff.Parent = ShadowLayer
+
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(1, 0)
+		corner.Parent = puff
+	end
+
+	local BodyLayer = Instance.new("Frame")
+	BodyLayer.Name = "BodyLayer"
+	BodyLayer.Size = UDim2.new(1, 0, 1, 0)
+	BodyLayer.BackgroundTransparency = 1
+	BodyLayer.Parent = CloudContainer
+
+	local bodyPuffs = {
+		{UDim2.new(0.74, 0, 0.44, 0), UDim2.new(0.13, 0, 0.5, 0), Color3.fromRGB(240, 242, 248), Color3.fromRGB(200, 204, 218)},
+		{UDim2.new(0.42, 0, 0.62, 0), UDim2.new(0.07, 0, 0.3, 0), Color3.fromRGB(245, 246, 252), Color3.fromRGB(210, 215, 228)},
+		{UDim2.new(0.54, 0, 0.76, 0), UDim2.new(0.23, 0, 0.06, 0), Color3.fromRGB(255, 255, 255), Color3.fromRGB(225, 230, 242)},
+		{UDim2.new(0.46, 0, 0.66, 0), UDim2.new(0.49, 0, 0.2, 0), Color3.fromRGB(248, 250, 255), Color3.fromRGB(215, 220, 234)},
+		{UDim2.new(0.36, 0, 0.54, 0), UDim2.new(0.27, 0, 0.08, 0), Color3.fromRGB(255, 255, 255), Color3.fromRGB(235, 240, 250)}
+	}
+
+	for _, pData in ipairs(bodyPuffs) do
+		local puff = Instance.new("Frame")
+		puff.Size = pData[1]
+		puff.Position = pData[2]
+		puff.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		puff.BorderSizePixel = 0
+		puff.Parent = BodyLayer
+
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(1, 0)
+		corner.Parent = puff
+
+		local grad = Instance.new("UIGradient")
+		grad.Rotation = 90
+		grad.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, pData[3]),
+			ColorSequenceKeypoint.new(1, pData[4])
+		})
+		grad.Parent = puff
+	end
+
+	return CloudContainer
+end
 
 local CloudyLib = {}
 CloudyLib.__index = CloudyLib
@@ -79,45 +154,12 @@ local function playIntroAnimation(screenGui, titleText, onComplete)
 	IntroFrame.ZIndex = 999
 	IntroFrame.Parent = screenGui
 
-	local cloud1 = Instance.new("ImageLabel")
-	cloud1.Size = UDim2.new(0, 140, 0, 90)
-	cloud1.Position = UDim2.new(1, 120, 0, -120)
-	cloud1.AnchorPoint = Vector2.new(0.5, 0.5)
-	cloud1.BackgroundTransparency = 1
-	cloud1.Image = REALISTIC_CLOUD_ID
-	cloud1.ImageColor3 = Color3.fromRGB(240, 240, 250)
-	cloud1.ImageTransparency = 0.1
-	cloud1.Parent = IntroFrame
+	local cloud1 = createCustomCloud(IntroFrame, UDim2.new(0, 110, 0, 70), UDim2.new(1, 100, 0, -100), 1)
+	local cloud2 = createCustomCloud(IntroFrame, UDim2.new(0, 110, 0, 70), UDim2.new(0, -100, 1, 100), 1)
+	local cloud3 = createCustomCloud(IntroFrame, UDim2.new(0, 110, 0, 70), UDim2.new(0, -100, 0, -100), 1)
 
-	local cloud2 = Instance.new("ImageLabel")
-	cloud2.Size = UDim2.new(0, 140, 0, 90)
-	cloud2.Position = UDim2.new(0, -120, 1, 120)
-	cloud2.AnchorPoint = Vector2.new(0.5, 0.5)
-	cloud2.BackgroundTransparency = 1
-	cloud2.Image = REALISTIC_CLOUD_ID
-	cloud2.ImageColor3 = Color3.fromRGB(240, 240, 250)
-	cloud2.ImageTransparency = 0.1
-	cloud2.Parent = IntroFrame
-
-	local cloud3 = Instance.new("ImageLabel")
-	cloud3.Size = UDim2.new(0, 140, 0, 90)
-	cloud3.Position = UDim2.new(0, -120, 0, -120)
-	cloud3.AnchorPoint = Vector2.new(0.5, 0.5)
-	cloud3.BackgroundTransparency = 1
-	cloud3.Image = REALISTIC_CLOUD_ID
-	cloud3.ImageColor3 = Color3.fromRGB(240, 240, 250)
-	cloud3.ImageTransparency = 0.1
-	cloud3.Parent = IntroFrame
-
-	local centerCloud = Instance.new("ImageLabel")
-	centerCloud.Size = UDim2.new(0, 40, 0, 25)
-	centerCloud.Position = UDim2.new(0.5, 0, 0.5, 0)
-	centerCloud.AnchorPoint = Vector2.new(0.5, 0.5)
-	centerCloud.BackgroundTransparency = 1
-	centerCloud.Image = REALISTIC_CLOUD_ID
-	centerCloud.ImageColor3 = Color3.fromRGB(255, 255, 255)
-	centerCloud.ImageTransparency = 1
-	centerCloud.Parent = IntroFrame
+	local centerCloud = createCustomCloud(IntroFrame, UDim2.new(0, 30, 0, 20), UDim2.new(0.5, 0, 0.5, 0), 1.5)
+	centerCloud.Visible = false
 
 	local splashText = Instance.new("TextLabel")
 	splashText.Size = UDim2.new(0, 260, 0, 70)
@@ -135,7 +177,7 @@ local function playIntroAnimation(screenGui, titleText, onComplete)
 	textGradient.Rotation = 45
 	textGradient.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 60, 70))
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 60, 72))
 	})
 	textGradient.Parent = splashText
 
@@ -149,20 +191,24 @@ local function playIntroAnimation(screenGui, titleText, onComplete)
 		cloud2:Destroy()
 		cloud3:Destroy()
 
-		centerCloud.ImageTransparency = 0
-		centerCloud.Size = UDim2.new(0, 40, 0, 25)
+		centerCloud.Visible = true
+		centerCloud.Size = UDim2.new(0, 30, 0, 20)
 
-		local tweenInfoGrow = TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+		local tweenInfoGrow = TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 		TweenService:Create(centerCloud, tweenInfoGrow, {Size = UDim2.new(0, 180, 0, 115)}):Play()
 
-		task.delay(0.45, function()
+		task.delay(0.5, function()
 			local tweenInfoMoveLeft = TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 			TweenService:Create(centerCloud, tweenInfoMoveLeft, {Position = UDim2.new(0.5, -140, 0.5, 0)}):Play()
 			TweenService:Create(splashText, tweenInfoMoveLeft, {TextTransparency = 0, Position = UDim2.new(0.5, -30, 0.5, -35)}):Play()
 
 			task.delay(0.9, function()
 				local tweenInfoFadeOut = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-				TweenService:Create(centerCloud, tweenInfoFadeOut, {ImageTransparency = 1}):Play()
+				for _, child in pairs(centerCloud:GetDescendants()) do
+					if child:IsA("Frame") then
+						TweenService:Create(child, tweenInfoFadeOut, {BackgroundTransparency = 1}):Play()
+					end
+				end
 				TweenService:Create(splashText, tweenInfoFadeOut, {TextTransparency = 1}):Play()
 
 				task.delay(0.5, function()
