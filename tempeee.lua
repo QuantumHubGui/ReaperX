@@ -54,6 +54,8 @@ local function applyIcon(imageLabel, iconName)
 	end
 end
 
+local REALISTIC_CLOUD_ID = "rbxassetid://7072722880"
+
 local CloudyLib = {}
 CloudyLib.__index = CloudyLib
 
@@ -67,7 +69,7 @@ local function getGuiParent()
 	return LocalPlayer:WaitForChild("PlayerGui")
 end
 
-local function playIntroAnimation(screenGui, titleText, logoIcon, onComplete)
+local function playIntroAnimation(screenGui, titleText, onComplete)
 	local IntroFrame = Instance.new("Frame")
 	IntroFrame.Name = "CloudyIntro"
 	IntroFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -78,52 +80,52 @@ local function playIntroAnimation(screenGui, titleText, logoIcon, onComplete)
 	IntroFrame.Parent = screenGui
 
 	local cloud1 = Instance.new("ImageLabel")
-	cloud1.Size = UDim2.new(0, 60, 0, 60)
-	cloud1.Position = UDim2.new(1, 80, 0, -80)
+	cloud1.Size = UDim2.new(0, 140, 0, 90)
+	cloud1.Position = UDim2.new(1, 120, 0, -120)
 	cloud1.AnchorPoint = Vector2.new(0.5, 0.5)
 	cloud1.BackgroundTransparency = 1
-	cloud1.ImageColor3 = Color3.fromRGB(240, 240, 248)
-	cloud1.ImageTransparency = 0.2
+	cloud1.Image = REALISTIC_CLOUD_ID
+	cloud1.ImageColor3 = Color3.fromRGB(240, 240, 250)
+	cloud1.ImageTransparency = 0.1
 	cloud1.Parent = IntroFrame
-	applyIcon(cloud1, logoIcon or "cloud")
 
 	local cloud2 = Instance.new("ImageLabel")
-	cloud2.Size = UDim2.new(0, 60, 0, 60)
-	cloud2.Position = UDim2.new(0, -80, 1, 80)
+	cloud2.Size = UDim2.new(0, 140, 0, 90)
+	cloud2.Position = UDim2.new(0, -120, 1, 120)
 	cloud2.AnchorPoint = Vector2.new(0.5, 0.5)
 	cloud2.BackgroundTransparency = 1
-	cloud2.ImageColor3 = Color3.fromRGB(240, 240, 248)
-	cloud2.ImageTransparency = 0.2
+	cloud2.Image = REALISTIC_CLOUD_ID
+	cloud2.ImageColor3 = Color3.fromRGB(240, 240, 250)
+	cloud2.ImageTransparency = 0.1
 	cloud2.Parent = IntroFrame
-	applyIcon(cloud2, logoIcon or "cloud")
 
 	local cloud3 = Instance.new("ImageLabel")
-	cloud3.Size = UDim2.new(0, 60, 0, 60)
-	cloud3.Position = UDim2.new(0, -80, 0, -80)
+	cloud3.Size = UDim2.new(0, 140, 0, 90)
+	cloud3.Position = UDim2.new(0, -120, 0, -120)
 	cloud3.AnchorPoint = Vector2.new(0.5, 0.5)
 	cloud3.BackgroundTransparency = 1
-	cloud3.ImageColor3 = Color3.fromRGB(240, 240, 248)
-	cloud3.ImageTransparency = 0.2
+	cloud3.Image = REALISTIC_CLOUD_ID
+	cloud3.ImageColor3 = Color3.fromRGB(240, 240, 250)
+	cloud3.ImageTransparency = 0.1
 	cloud3.Parent = IntroFrame
-	applyIcon(cloud3, logoIcon or "cloud")
 
 	local centerCloud = Instance.new("ImageLabel")
-	centerCloud.Size = UDim2.new(0, 20, 0, 20)
+	centerCloud.Size = UDim2.new(0, 40, 0, 25)
 	centerCloud.Position = UDim2.new(0.5, 0, 0.5, 0)
 	centerCloud.AnchorPoint = Vector2.new(0.5, 0.5)
 	centerCloud.BackgroundTransparency = 1
+	centerCloud.Image = REALISTIC_CLOUD_ID
 	centerCloud.ImageColor3 = Color3.fromRGB(255, 255, 255)
 	centerCloud.ImageTransparency = 1
 	centerCloud.Parent = IntroFrame
-	applyIcon(centerCloud, logoIcon or "cloud")
 
 	local splashText = Instance.new("TextLabel")
-	splashText.Size = UDim2.new(0, 220, 0, 60)
-	splashText.Position = UDim2.new(0.5, 40, 0.5, -30)
+	splashText.Size = UDim2.new(0, 260, 0, 70)
+	splashText.Position = UDim2.new(0.5, 40, 0.5, -35)
 	splashText.BackgroundTransparency = 1
 	splashText.Text = titleText
 	splashText.Font = Enum.Font.GothamBold
-	splashText.TextSize = 42
+	splashText.TextSize = 48
 	splashText.TextColor3 = Color3.fromRGB(255, 255, 255)
 	splashText.TextTransparency = 1
 	splashText.TextXAlignment = Enum.TextXAlignment.Left
@@ -133,7 +135,7 @@ local function playIntroAnimation(screenGui, titleText, logoIcon, onComplete)
 	textGradient.Rotation = 45
 	textGradient.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 70, 80))
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 60, 70))
 	})
 	textGradient.Parent = splashText
 
@@ -148,15 +150,15 @@ local function playIntroAnimation(screenGui, titleText, logoIcon, onComplete)
 		cloud3:Destroy()
 
 		centerCloud.ImageTransparency = 0
-		centerCloud.Size = UDim2.new(0, 20, 0, 20)
+		centerCloud.Size = UDim2.new(0, 40, 0, 25)
 
 		local tweenInfoGrow = TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-		TweenService:Create(centerCloud, tweenInfoGrow, {Size = UDim2.new(0, 110, 0, 110)}):Play()
+		TweenService:Create(centerCloud, tweenInfoGrow, {Size = UDim2.new(0, 180, 0, 115)}):Play()
 
 		task.delay(0.45, function()
 			local tweenInfoMoveLeft = TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-			TweenService:Create(centerCloud, tweenInfoMoveLeft, {Position = UDim2.new(0.5, -110, 0.5, 0)}):Play()
-			TweenService:Create(splashText, tweenInfoMoveLeft, {TextTransparency = 0, Position = UDim2.new(0.5, -30, 0.5, -30)}):Play()
+			TweenService:Create(centerCloud, tweenInfoMoveLeft, {Position = UDim2.new(0.5, -140, 0.5, 0)}):Play()
+			TweenService:Create(splashText, tweenInfoMoveLeft, {TextTransparency = 0, Position = UDim2.new(0.5, -30, 0.5, -35)}):Play()
 
 			task.delay(0.9, function()
 				local tweenInfoFadeOut = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -192,9 +194,9 @@ function CloudyLib:CreateWindow(options)
 
 	local MainFrame = Instance.new("Frame")
 	MainFrame.Name = "MainFrame"
-	MainFrame.Size = UDim2.new(0, 720, 0, 460)
-	MainFrame.Position = UDim2.new(0.5, -360, 0.5, -230)
-	MainFrame.BackgroundColor3 = Color3.fromRGB(246, 246, 248)
+	MainFrame.Size = UDim2.new(0, 600, 0, 380)
+	MainFrame.Position = UDim2.new(0.5, -300, 0.5, -190)
+	MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
 	MainFrame.BorderSizePixel = 0
 	MainFrame.ClipsDescendants = true
 	MainFrame.Visible = false
@@ -205,23 +207,17 @@ function CloudyLib:CreateWindow(options)
 	MainCorner.Parent = MainFrame
 
 	local MainStroke = Instance.new("UIStroke")
-	MainStroke.Color = Color3.fromRGB(215, 215, 222)
+	MainStroke.Color = Color3.fromRGB(38, 38, 50)
 	MainStroke.Thickness = 1
 	MainStroke.Parent = MainFrame
 
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
-	Topbar.Size = UDim2.new(1, 0, 0, 44)
-	Topbar.BackgroundColor3 = Color3.fromRGB(238, 238, 242)
+	Topbar.Size = UDim2.new(1, 0, 0, 48)
+	Topbar.Position = UDim2.new(0, 0, 0, 0)
+	Topbar.BackgroundColor3 = Color3.fromRGB(16, 16, 22)
 	Topbar.BorderSizePixel = 0
 	Topbar.Parent = MainFrame
-
-	local TopbarLine = Instance.new("Frame")
-	TopbarLine.Size = UDim2.new(1, 0, 0, 1)
-	TopbarLine.Position = UDim2.new(0, 0, 1, -1)
-	TopbarLine.BackgroundColor3 = Color3.fromRGB(220, 220, 228)
-	TopbarLine.BorderSizePixel = 0
-	TopbarLine.Parent = Topbar
 
 	local LeftContainer = Instance.new("Frame")
 	LeftContainer.Size = UDim2.new(0, 300, 1, 0)
@@ -233,23 +229,23 @@ function CloudyLib:CreateWindow(options)
 	LeftLayout.FillDirection = Enum.FillDirection.Horizontal
 	LeftLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	LeftLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	LeftLayout.Padding = UDim.new(0, 8)
+	LeftLayout.Padding = UDim.new(0, 10)
 	LeftLayout.Parent = LeftContainer
 
 	local LogoImage = Instance.new("ImageLabel")
-	LogoImage.Size = UDim2.new(0, 22, 0, 22)
+	LogoImage.Size = UDim2.new(0, 32, 0, 32)
 	LogoImage.BackgroundTransparency = 1
-	LogoImage.ImageColor3 = Color3.fromRGB(40, 40, 48)
+	LogoImage.ImageColor3 = Color3.fromRGB(255, 255, 255)
 	LogoImage.LayoutOrder = 1
 	LogoImage.Parent = LeftContainer
 	applyIcon(LogoImage, logoIcon)
 
 	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(0, 200, 1, 0)
+	TitleLabel.Size = UDim2.new(0, 220, 1, 0)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Text = titleText
 	TitleLabel.Font = Enum.Font.GothamBold
-	TitleLabel.TextSize = 18
+	TitleLabel.TextSize = 22
 	TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	TitleLabel.LayoutOrder = 2
@@ -259,7 +255,7 @@ function CloudyLib:CreateWindow(options)
 	TitleGradient.Rotation = 45
 	TitleGradient.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 70, 80))
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 60, 72))
 	})
 	TitleGradient.Parent = TitleLabel
 
@@ -279,9 +275,9 @@ function CloudyLib:CreateWindow(options)
 
 	local MinimizeBtn = Instance.new("TextButton")
 	MinimizeBtn.Size = UDim2.new(0, 26, 0, 26)
-	MinimizeBtn.BackgroundColor3 = Color3.fromRGB(225, 225, 232)
+	MinimizeBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 	MinimizeBtn.Text = "⌟ ⌞"
-	MinimizeBtn.TextColor3 = Color3.fromRGB(60, 60, 70)
+	MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	MinimizeBtn.Font = Enum.Font.GothamBold
 	MinimizeBtn.TextSize = 11
 	MinimizeBtn.AutoButtonColor = false
@@ -294,9 +290,9 @@ function CloudyLib:CreateWindow(options)
 
 	local ResizeBtn = Instance.new("TextButton")
 	ResizeBtn.Size = UDim2.new(0, 26, 0, 26)
-	ResizeBtn.BackgroundColor3 = Color3.fromRGB(225, 225, 232)
+	ResizeBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 	ResizeBtn.Text = "⌜ ⌝"
-	ResizeBtn.TextColor3 = Color3.fromRGB(60, 60, 70)
+	ResizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	ResizeBtn.Font = Enum.Font.GothamBold
 	ResizeBtn.TextSize = 11
 	ResizeBtn.AutoButtonColor = false
@@ -309,9 +305,9 @@ function CloudyLib:CreateWindow(options)
 
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 26, 0, 26)
-	CloseBtn.BackgroundColor3 = Color3.fromRGB(225, 225, 232)
+	CloseBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 	CloseBtn.Text = "X"
-	CloseBtn.TextColor3 = Color3.fromRGB(60, 60, 70)
+	CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	CloseBtn.Font = Enum.Font.GothamBold
 	CloseBtn.TextSize = 13
 	CloseBtn.AutoButtonColor = false
@@ -353,10 +349,10 @@ function CloudyLib:CreateWindow(options)
 	RestoreBtn.Name = "CloudyRestoreBtn"
 	RestoreBtn.Size = UDim2.new(0, 44, 0, 44)
 	RestoreBtn.Position = UDim2.new(0, 20, 0.5, -22)
-	RestoreBtn.BackgroundColor3 = Color3.fromRGB(240, 240, 245)
+	RestoreBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
 	RestoreBtn.Text = "C"
 	RestoreBtn.Font = Enum.Font.GothamBold
-	RestoreBtn.TextColor3 = Color3.fromRGB(30, 30, 40)
+	RestoreBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	RestoreBtn.TextSize = 18
 	RestoreBtn.Visible = false
 	RestoreBtn.Parent = ScreenGui
@@ -366,7 +362,7 @@ function CloudyLib:CreateWindow(options)
 	RestoreCorner.Parent = RestoreBtn
 
 	local RestoreStroke = Instance.new("UIStroke")
-	RestoreStroke.Color = Color3.fromRGB(200, 200, 210)
+	RestoreStroke.Color = Color3.fromRGB(45, 45, 60)
 	RestoreStroke.Thickness = 1.5
 	RestoreStroke.Parent = RestoreBtn
 
@@ -384,11 +380,11 @@ function CloudyLib:CreateWindow(options)
 	ResizeBtn.MouseButton1Click:Connect(function()
 		isExpanded = not isExpanded
 		if isExpanded then
-			MainFrame.Size = UDim2.new(0, 900, 0, 560)
-			MainFrame.Position = UDim2.new(0.5, -450, 0.5, -280)
+			MainFrame.Size = UDim2.new(0, 780, 0, 480)
+			MainFrame.Position = UDim2.new(0.5, -390, 0.5, -240)
 		else
-			MainFrame.Size = UDim2.new(0, 720, 0, 460)
-			MainFrame.Position = UDim2.new(0.5, -360, 0.5, -230)
+			MainFrame.Size = UDim2.new(0, 600, 0, 380)
+			MainFrame.Position = UDim2.new(0.5, -300, 0.5, -190)
 		end
 	end)
 
@@ -397,55 +393,47 @@ function CloudyLib:CreateWindow(options)
 	end)
 
 	CloseBtn.MouseEnter:Connect(function()
-		CloseBtn.BackgroundColor3 = Color3.fromRGB(235, 70, 70)
-		CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		CloseBtn.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
 	end)
 	CloseBtn.MouseLeave:Connect(function()
-		CloseBtn.BackgroundColor3 = Color3.fromRGB(225, 225, 232)
-		CloseBtn.TextColor3 = Color3.fromRGB(60, 60, 70)
+		CloseBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 	end)
 
 	MinimizeBtn.MouseEnter:Connect(function()
-		MinimizeBtn.BackgroundColor3 = Color3.fromRGB(210, 210, 220)
+		MinimizeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 52)
 	end)
 	MinimizeBtn.MouseLeave:Connect(function()
-		MinimizeBtn.BackgroundColor3 = Color3.fromRGB(225, 225, 232)
+		MinimizeBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 	end)
 
 	ResizeBtn.MouseEnter:Connect(function()
-		ResizeBtn.BackgroundColor3 = Color3.fromRGB(210, 210, 220)
+		ResizeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 52)
 	end)
 	ResizeBtn.MouseLeave:Connect(function()
-		ResizeBtn.BackgroundColor3 = Color3.fromRGB(225, 225, 232)
+		ResizeBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 	end)
 
 	local Body = Instance.new("Frame")
 	Body.Name = "Body"
-	Body.Size = UDim2.new(1, 0, 1, -44)
-	Body.Position = UDim2.new(0, 0, 0, 44)
+	Body.Size = UDim2.new(1, 0, 1, -48)
+	Body.Position = UDim2.new(0, 0, 0, 48)
 	Body.BackgroundTransparency = 1
 	Body.Parent = MainFrame
 
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Name = "Sidebar"
-	Sidebar.Size = UDim2.new(0, 200, 1, 0)
-	Sidebar.BackgroundColor3 = Color3.fromRGB(238, 238, 242)
+	Sidebar.Size = UDim2.new(0, 170, 1, 0)
+	Sidebar.Position = UDim2.new(0, 0, 0, 0)
+	Sidebar.BackgroundColor3 = Color3.fromRGB(16, 16, 22)
 	Sidebar.BorderSizePixel = 0
 	Sidebar.Parent = Body
-
-	local SidebarLine = Instance.new("Frame")
-	SidebarLine.Size = UDim2.new(0, 1, 1, 0)
-	SidebarLine.Position = UDim2.new(1, -1, 0, 0)
-	SidebarLine.BackgroundColor3 = Color3.fromRGB(220, 220, 228)
-	SidebarLine.BorderSizePixel = 0
-	SidebarLine.Parent = Sidebar
 
 	local TabScroll = Instance.new("ScrollingFrame")
 	TabScroll.Size = UDim2.new(1, 0, 1, 0)
 	TabScroll.BackgroundTransparency = 1
 	TabScroll.BorderSizePixel = 0
 	TabScroll.ScrollBarThickness = 2
-	TabScroll.ScrollBarImageColor3 = Color3.fromRGB(190, 190, 200)
+	TabScroll.ScrollBarImageColor3 = Color3.fromRGB(45, 45, 58)
 	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 	TabScroll.Parent = Sidebar
 
@@ -455,24 +443,24 @@ function CloudyLib:CreateWindow(options)
 	TabListLayout.Parent = TabScroll
 
 	local TabPadding = Instance.new("UIPadding")
-	TabPadding.PaddingTop = UDim.new(0, 10)
-	TabPadding.PaddingLeft = UDim.new(0, 10)
-	TabPadding.PaddingRight = UDim.new(0, 10)
-	TabPadding.PaddingBottom = UDim.new(0, 10)
+	TabPadding.PaddingTop = UDim.new(0, 8)
+	TabPadding.PaddingLeft = UDim.new(0, 8)
+	TabPadding.PaddingRight = UDim.new(0, 8)
+	TabPadding.PaddingBottom = UDim.new(0, 8)
 	TabPadding.Parent = TabScroll
 
 	TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		TabScroll.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y + 20)
+		TabScroll.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y + 16)
 	end)
 
 	local ContentContainer = Instance.new("Frame")
 	ContentContainer.Name = "ContentContainer"
-	ContentContainer.Size = UDim2.new(1, -200, 1, 0)
-	ContentContainer.Position = UDim2.new(0, 200, 0, 0)
+	ContentContainer.Size = UDim2.new(1, -170, 1, 0)
+	ContentContainer.Position = UDim2.new(0, 170, 0, 0)
 	ContentContainer.BackgroundTransparency = 1
 	ContentContainer.Parent = Body
 
-	playIntroAnimation(ScreenGui, titleText, logoIcon, function()
+	playIntroAnimation(ScreenGui, titleText, function()
 		MainFrame.Visible = true
 	end)
 
@@ -488,8 +476,8 @@ function CloudyLib:CreateWindow(options)
 
 		local TabBtn = Instance.new("TextButton")
 		TabBtn.Name = "Tab_" .. tabName
-		TabBtn.Size = UDim2.new(1, 0, 0, 40)
-		TabBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		TabBtn.Size = UDim2.new(1, 0, 0, 38)
+		TabBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 		TabBtn.BackgroundTransparency = 1
 		TabBtn.Text = ""
 		TabBtn.AutoButtonColor = false
@@ -507,24 +495,24 @@ function CloudyLib:CreateWindow(options)
 		TabContentLayout.Parent = TabBtn
 
 		local TabContentPadding = Instance.new("UIPadding")
-		TabContentPadding.PaddingLeft = UDim.new(0, 12)
+		TabContentPadding.PaddingLeft = UDim.new(0, 10)
 		TabContentPadding.Parent = TabBtn
 
 		local TabIcon = Instance.new("ImageLabel")
 		TabIcon.Size = UDim2.new(0, 18, 0, 18)
 		TabIcon.BackgroundTransparency = 1
-		TabIcon.ImageColor3 = Color3.fromRGB(110, 110, 125)
+		TabIcon.ImageColor3 = Color3.fromRGB(160, 160, 175)
 		TabIcon.LayoutOrder = 1
 		TabIcon.Parent = TabBtn
 		applyIcon(TabIcon, iconName)
 
 		local TabText = Instance.new("TextLabel")
-		TabText.Size = UDim2.new(1, -32, 1, 0)
+		TabText.Size = UDim2.new(1, -30, 1, 0)
 		TabText.BackgroundTransparency = 1
 		TabText.Text = tabName
 		TabText.Font = Enum.Font.GothamMedium
-		TabText.TextSize = 14
-		TabText.TextColor3 = Color3.fromRGB(110, 110, 125)
+		TabText.TextSize = 13
+		TabText.TextColor3 = Color3.fromRGB(160, 160, 175)
 		TabText.TextXAlignment = Enum.TextXAlignment.Left
 		TabText.LayoutOrder = 2
 		TabText.Parent = TabBtn
@@ -535,7 +523,7 @@ function CloudyLib:CreateWindow(options)
 		TabPage.BackgroundTransparency = 1
 		TabPage.BorderSizePixel = 0
 		TabPage.ScrollBarThickness = 3
-		TabPage.ScrollBarImageColor3 = Color3.fromRGB(190, 190, 200)
+		TabPage.ScrollBarImageColor3 = Color3.fromRGB(45, 45, 58)
 		TabPage.Visible = false
 		TabPage.Parent = ContentContainer
 
@@ -545,14 +533,14 @@ function CloudyLib:CreateWindow(options)
 		PageLayout.Parent = TabPage
 
 		local PagePadding = Instance.new("UIPadding")
-		PagePadding.PaddingTop = UDim.new(0, 14)
-		PagePadding.PaddingLeft = UDim.new(0, 16)
-		PagePadding.PaddingRight = UDim.new(0, 16)
-		PagePadding.PaddingBottom = UDim.new(0, 14)
+		PagePadding.PaddingTop = UDim.new(0, 12)
+		PagePadding.PaddingLeft = UDim.new(0, 14)
+		PagePadding.PaddingRight = UDim.new(0, 14)
+		PagePadding.PaddingBottom = UDim.new(0, 12)
 		PagePadding.Parent = TabPage
 
 		PageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-			TabPage.CanvasSize = UDim2.new(0, 0, 0, PageLayout.AbsoluteContentSize.Y + 28)
+			TabPage.CanvasSize = UDim2.new(0, 0, 0, PageLayout.AbsoluteContentSize.Y + 24)
 		end)
 
 		local TabObj = {
@@ -567,14 +555,14 @@ function CloudyLib:CreateWindow(options)
 				t.Button.BackgroundTransparency = 1
 				local icon = t.Button:FindFirstChildOfClass("ImageLabel")
 				local text = t.Button:FindFirstChildOfClass("TextLabel")
-				if icon then icon.ImageColor3 = Color3.fromRGB(110, 110, 125) end
-				if text then text.TextColor3 = Color3.fromRGB(110, 110, 125) end
+				if icon then icon.ImageColor3 = Color3.fromRGB(160, 160, 175) end
+				if text then text.TextColor3 = Color3.fromRGB(160, 160, 175) end
 			end
 			TabPage.Visible = true
 			TabBtn.BackgroundTransparency = 0
-			TabBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			TabIcon.ImageColor3 = Color3.fromRGB(30, 30, 40)
-			TabText.TextColor3 = Color3.fromRGB(30, 30, 40)
+			TabBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+			TabIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+			TabText.TextColor3 = Color3.fromRGB(255, 255, 255)
 			WindowObj.ActiveTab = TabObj
 		end
 
@@ -591,13 +579,13 @@ function CloudyLib:CreateWindow(options)
 			local isOpen = (defaultOpen == nil) and true or defaultOpen
 
 			local SectionHolder = Instance.new("Frame")
-			SectionHolder.Size = UDim2.new(1, 0, 0, 36)
+			SectionHolder.Size = UDim2.new(1, 0, 0, 32)
 			SectionHolder.BackgroundTransparency = 1
 			SectionHolder.LayoutOrder = TabObj.ElementCount
 			SectionHolder.Parent = TabPage
 
 			local HeaderBtn = Instance.new("TextButton")
-			HeaderBtn.Size = UDim2.new(1, 0, 0, 32)
+			HeaderBtn.Size = UDim2.new(1, 0, 0, 28)
 			HeaderBtn.BackgroundTransparency = 1
 			HeaderBtn.Text = ""
 			HeaderBtn.Parent = SectionHolder
@@ -607,8 +595,8 @@ function CloudyLib:CreateWindow(options)
 			SectionText.BackgroundTransparency = 1
 			SectionText.Text = text
 			SectionText.Font = Enum.Font.GothamBold
-			SectionText.TextSize = 15
-			SectionText.TextColor3 = Color3.fromRGB(30, 30, 40)
+			SectionText.TextSize = 14
+			SectionText.TextColor3 = Color3.fromRGB(255, 255, 255)
 			SectionText.TextXAlignment = Enum.TextXAlignment.Left
 			SectionText.Parent = HeaderBtn
 
@@ -619,19 +607,19 @@ function CloudyLib:CreateWindow(options)
 			Arrow.Text = isOpen and "v" or "^"
 			Arrow.Font = Enum.Font.GothamBold
 			Arrow.TextSize = 12
-			Arrow.TextColor3 = Color3.fromRGB(120, 120, 135)
+			Arrow.TextColor3 = Color3.fromRGB(255, 255, 255)
 			Arrow.Parent = HeaderBtn
 
 			local Underline = Instance.new("Frame")
 			Underline.Size = UDim2.new(1, 0, 0, 1)
 			Underline.Position = UDim2.new(0, 0, 1, -1)
-			Underline.BackgroundColor3 = Color3.fromRGB(220, 220, 228)
+			Underline.BackgroundColor3 = Color3.fromRGB(38, 38, 50)
 			Underline.BorderSizePixel = 0
 			Underline.Parent = SectionHolder
 
 			local ItemsContainer = Instance.new("Frame")
 			ItemsContainer.Size = UDim2.new(1, 0, 0, 0)
-			ItemsContainer.Position = UDim2.new(0, 0, 0, 36)
+			ItemsContainer.Position = UDim2.new(0, 0, 0, 32)
 			ItemsContainer.BackgroundTransparency = 1
 			ItemsContainer.Visible = isOpen
 			ItemsContainer.Parent = SectionHolder
@@ -644,7 +632,7 @@ function CloudyLib:CreateWindow(options)
 			ItemsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 				if isOpen then
 					ItemsContainer.Size = UDim2.new(1, 0, 0, ItemsLayout.AbsoluteContentSize.Y)
-					SectionHolder.Size = UDim2.new(1, 0, 0, 36 + ItemsLayout.AbsoluteContentSize.Y + 6)
+					SectionHolder.Size = UDim2.new(1, 0, 0, 32 + ItemsLayout.AbsoluteContentSize.Y + 6)
 				end
 			end)
 
@@ -654,9 +642,9 @@ function CloudyLib:CreateWindow(options)
 				Arrow.Text = isOpen and "v" or "^"
 				if isOpen then
 					ItemsContainer.Size = UDim2.new(1, 0, 0, ItemsLayout.AbsoluteContentSize.Y)
-					SectionHolder.Size = UDim2.new(1, 0, 0, 36 + ItemsLayout.AbsoluteContentSize.Y + 6)
+					SectionHolder.Size = UDim2.new(1, 0, 0, 32 + ItemsLayout.AbsoluteContentSize.Y + 6)
 				else
-					SectionHolder.Size = UDim2.new(1, 0, 0, 36)
+					SectionHolder.Size = UDim2.new(1, 0, 0, 32)
 				end
 			end)
 
@@ -666,7 +654,7 @@ function CloudyLib:CreateWindow(options)
 				elementFrame.Parent = ItemsContainer
 				if isOpen then
 					ItemsContainer.Size = UDim2.new(1, 0, 0, ItemsLayout.AbsoluteContentSize.Y)
-					SectionHolder.Size = UDim2.new(1, 0, 0, 36 + ItemsLayout.AbsoluteContentSize.Y + 6)
+					SectionHolder.Size = UDim2.new(1, 0, 0, 32 + ItemsLayout.AbsoluteContentSize.Y + 6)
 				end
 			end
 
@@ -711,8 +699,8 @@ function CloudyLib:CreateWindow(options)
 			targetParent = targetParent or TabPage
 
 			local BtnFrame = Instance.new("Frame")
-			BtnFrame.Size = UDim2.new(1, 0, 0, 40)
-			BtnFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			BtnFrame.Size = UDim2.new(1, 0, 0, 38)
+			BtnFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 			BtnFrame.LayoutOrder = TabObj.ElementCount
 			BtnFrame.Parent = targetParent
 
@@ -721,7 +709,7 @@ function CloudyLib:CreateWindow(options)
 			Corner.Parent = BtnFrame
 
 			local Stroke = Instance.new("UIStroke")
-			Stroke.Color = Color3.fromRGB(220, 220, 228)
+			Stroke.Color = Color3.fromRGB(42, 42, 54)
 			Stroke.Thickness = 1
 			Stroke.Parent = BtnFrame
 
@@ -730,15 +718,15 @@ function CloudyLib:CreateWindow(options)
 			ActionBtn.BackgroundTransparency = 1
 			ActionBtn.Text = text
 			ActionBtn.Font = Enum.Font.GothamMedium
-			ActionBtn.TextSize = 14
-			ActionBtn.TextColor3 = Color3.fromRGB(40, 40, 50)
+			ActionBtn.TextSize = 13
+			ActionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 			ActionBtn.Parent = BtnFrame
 
 			ActionBtn.MouseEnter:Connect(function()
-				BtnFrame.BackgroundColor3 = Color3.fromRGB(244, 244, 248)
+				BtnFrame.BackgroundColor3 = Color3.fromRGB(36, 36, 46)
 			end)
 			ActionBtn.MouseLeave:Connect(function()
-				BtnFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				BtnFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 			end)
 			ActionBtn.MouseButton1Click:Connect(function()
 				pcall(callback)
@@ -752,8 +740,8 @@ function CloudyLib:CreateWindow(options)
 			targetParent = targetParent or TabPage
 
 			local ToggleFrame = Instance.new("Frame")
-			ToggleFrame.Size = UDim2.new(1, 0, 0, 44)
-			ToggleFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			ToggleFrame.Size = UDim2.new(1, 0, 0, 40)
+			ToggleFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 			ToggleFrame.LayoutOrder = TabObj.ElementCount
 			ToggleFrame.Parent = targetParent
 
@@ -762,7 +750,7 @@ function CloudyLib:CreateWindow(options)
 			Corner.Parent = ToggleFrame
 
 			local Stroke = Instance.new("UIStroke")
-			Stroke.Color = Color3.fromRGB(220, 220, 228)
+			Stroke.Color = Color3.fromRGB(42, 42, 54)
 			Stroke.Thickness = 1
 			Stroke.Parent = ToggleFrame
 
@@ -772,15 +760,15 @@ function CloudyLib:CreateWindow(options)
 			Label.BackgroundTransparency = 1
 			Label.Text = text
 			Label.Font = Enum.Font.GothamMedium
-			Label.TextSize = 14
-			Label.TextColor3 = Color3.fromRGB(40, 40, 50)
+			Label.TextSize = 13
+			Label.TextColor3 = Color3.fromRGB(255, 255, 255)
 			Label.TextXAlignment = Enum.TextXAlignment.Left
 			Label.Parent = ToggleFrame
 
 			local SwitchBg = Instance.new("Frame")
-			SwitchBg.Size = UDim2.new(0, 44, 0, 22)
-			SwitchBg.Position = UDim2.new(1, -56, 0.5, -11)
-			SwitchBg.BackgroundColor3 = state and Color3.fromRGB(45, 45, 55) or Color3.fromRGB(215, 215, 222)
+			SwitchBg.Size = UDim2.new(0, 42, 0, 20)
+			SwitchBg.Position = UDim2.new(1, -54, 0.5, -10)
+			SwitchBg.BackgroundColor3 = state and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(48, 48, 62)
 			SwitchBg.Parent = ToggleFrame
 
 			local SwitchCorner = Instance.new("UICorner")
@@ -788,9 +776,9 @@ function CloudyLib:CreateWindow(options)
 			SwitchCorner.Parent = SwitchBg
 
 			local Dot = Instance.new("Frame")
-			Dot.Size = UDim2.new(0, 16, 0, 16)
-			Dot.Position = state and UDim2.new(1, -19, 0.5, -8) or UDim2.new(0, 3, 0.5, -8)
-			Dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Dot.Size = UDim2.new(0, 14, 0, 14)
+			Dot.Position = state and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
+			Dot.BackgroundColor3 = state and Color3.fromRGB(20, 20, 26) or Color3.fromRGB(255, 255, 255)
 			Dot.Parent = SwitchBg
 
 			local DotCorner = Instance.new("UICorner")
@@ -805,11 +793,13 @@ function CloudyLib:CreateWindow(options)
 
 			local function updateToggle()
 				if state then
-					SwitchBg.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-					Dot.Position = UDim2.new(1, -19, 0.5, -8)
+					SwitchBg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+					Dot.Position = UDim2.new(1, -17, 0.5, -7)
+					Dot.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
 				else
-					SwitchBg.BackgroundColor3 = Color3.fromRGB(215, 215, 222)
-					Dot.Position = UDim2.new(0, 3, 0.5, -8)
+					SwitchBg.BackgroundColor3 = Color3.fromRGB(48, 48, 62)
+					Dot.Position = UDim2.new(0, 3, 0.5, -7)
+					Dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 				end
 				pcall(callback, state)
 			end
@@ -831,8 +821,8 @@ function CloudyLib:CreateWindow(options)
 			local currentVal = math.clamp(defaultVal, minVal, maxVal)
 
 			local SliderFrame = Instance.new("Frame")
-			SliderFrame.Size = UDim2.new(1, 0, 0, 54)
-			SliderFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			SliderFrame.Size = UDim2.new(1, 0, 0, 50)
+			SliderFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 			SliderFrame.LayoutOrder = TabObj.ElementCount
 			SliderFrame.Parent = targetParent
 
@@ -841,36 +831,36 @@ function CloudyLib:CreateWindow(options)
 			Corner.Parent = SliderFrame
 
 			local Stroke = Instance.new("UIStroke")
-			Stroke.Color = Color3.fromRGB(220, 220, 228)
+			Stroke.Color = Color3.fromRGB(42, 42, 54)
 			Stroke.Thickness = 1
 			Stroke.Parent = SliderFrame
 
 			local Label = Instance.new("TextLabel")
-			Label.Size = UDim2.new(1, -80, 0, 24)
+			Label.Size = UDim2.new(1, -80, 0, 22)
 			Label.Position = UDim2.new(0, 12, 0, 4)
 			Label.BackgroundTransparency = 1
 			Label.Text = text
 			Label.Font = Enum.Font.GothamMedium
-			Label.TextSize = 14
-			Label.TextColor3 = Color3.fromRGB(40, 40, 50)
+			Label.TextSize = 13
+			Label.TextColor3 = Color3.fromRGB(255, 255, 255)
 			Label.TextXAlignment = Enum.TextXAlignment.Left
 			Label.Parent = SliderFrame
 
 			local ValLabel = Instance.new("TextLabel")
-			ValLabel.Size = UDim2.new(0, 60, 0, 24)
+			ValLabel.Size = UDim2.new(0, 60, 0, 22)
 			ValLabel.Position = UDim2.new(1, -72, 0, 4)
 			ValLabel.BackgroundTransparency = 1
 			ValLabel.Text = tostring(currentVal)
 			ValLabel.Font = Enum.Font.GothamBold
 			ValLabel.TextSize = 13
-			ValLabel.TextColor3 = Color3.fromRGB(110, 110, 125)
+			ValLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 			ValLabel.TextXAlignment = Enum.TextXAlignment.Right
 			ValLabel.Parent = SliderFrame
 
 			local Track = Instance.new("Frame")
 			Track.Size = UDim2.new(1, -24, 0, 6)
-			Track.Position = UDim2.new(0, 12, 0, 36)
-			Track.BackgroundColor3 = Color3.fromRGB(220, 220, 228)
+			Track.Position = UDim2.new(0, 12, 0, 33)
+			Track.BackgroundColor3 = Color3.fromRGB(48, 48, 62)
 			Track.Parent = SliderFrame
 
 			local TrackCorner = Instance.new("UICorner")
@@ -879,7 +869,7 @@ function CloudyLib:CreateWindow(options)
 
 			local Fill = Instance.new("Frame")
 			Fill.Size = UDim2.new((currentVal - minVal) / (maxVal - minVal), 0, 1, 0)
-			Fill.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+			Fill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			Fill.Parent = Track
 
 			local FillCorner = Instance.new("UICorner")
@@ -887,10 +877,10 @@ function CloudyLib:CreateWindow(options)
 			FillCorner.Parent = Fill
 
 			local Knob = Instance.new("Frame")
-			Knob.Size = UDim2.new(0, 14, 0, 14)
+			Knob.Size = UDim2.new(0, 12, 0, 12)
 			Knob.AnchorPoint = Vector2.new(0.5, 0.5)
 			Knob.Position = UDim2.new((currentVal - minVal) / (maxVal - minVal), 0, 0.5, 0)
-			Knob.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+			Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			Knob.Parent = Track
 
 			local KnobCorner = Instance.new("UICorner")
@@ -942,8 +932,8 @@ function CloudyLib:CreateWindow(options)
 			local isOpen = false
 
 			local DropdownFrame = Instance.new("Frame")
-			DropdownFrame.Size = UDim2.new(1, 0, 0, 44)
-			DropdownFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			DropdownFrame.Size = UDim2.new(1, 0, 0, 40)
+			DropdownFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 			DropdownFrame.ClipsDescendants = true
 			DropdownFrame.LayoutOrder = TabObj.ElementCount
 			DropdownFrame.Parent = targetParent
@@ -953,12 +943,12 @@ function CloudyLib:CreateWindow(options)
 			Corner.Parent = DropdownFrame
 
 			local Stroke = Instance.new("UIStroke")
-			Stroke.Color = Color3.fromRGB(220, 220, 228)
+			Stroke.Color = Color3.fromRGB(42, 42, 54)
 			Stroke.Thickness = 1
 			Stroke.Parent = DropdownFrame
 
 			local HeaderBtn = Instance.new("TextButton")
-			HeaderBtn.Size = UDim2.new(1, 0, 0, 44)
+			HeaderBtn.Size = UDim2.new(1, 0, 0, 40)
 			HeaderBtn.BackgroundTransparency = 1
 			HeaderBtn.Text = ""
 			HeaderBtn.Parent = DropdownFrame
@@ -969,15 +959,15 @@ function CloudyLib:CreateWindow(options)
 			Label.BackgroundTransparency = 1
 			Label.Text = text
 			Label.Font = Enum.Font.GothamMedium
-			Label.TextSize = 14
-			Label.TextColor3 = Color3.fromRGB(40, 40, 50)
+			Label.TextSize = 13
+			Label.TextColor3 = Color3.fromRGB(255, 255, 255)
 			Label.TextXAlignment = Enum.TextXAlignment.Left
 			Label.Parent = HeaderBtn
 
 			local ValueBox = Instance.new("Frame")
-			ValueBox.Size = UDim2.new(0, 180, 0, 28)
-			ValueBox.Position = UDim2.new(1, -192, 0.5, -14)
-			ValueBox.BackgroundColor3 = Color3.fromRGB(244, 244, 248)
+			ValueBox.Size = UDim2.new(0, 160, 0, 26)
+			ValueBox.Position = UDim2.new(1, -172, 0.5, -13)
+			ValueBox.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
 			ValueBox.Parent = HeaderBtn
 
 			local ValCorner = Instance.new("UICorner")
@@ -985,30 +975,30 @@ function CloudyLib:CreateWindow(options)
 			ValCorner.Parent = ValueBox
 
 			local ValText = Instance.new("TextLabel")
-			ValText.Size = UDim2.new(1, -26, 1, 0)
+			ValText.Size = UDim2.new(1, -24, 1, 0)
 			ValText.Position = UDim2.new(0, 8, 0, 0)
 			ValText.BackgroundTransparency = 1
 			ValText.Text = selectedOption
 			ValText.Font = Enum.Font.Gotham
 			ValText.TextSize = 12
-			ValText.TextColor3 = Color3.fromRGB(60, 60, 70)
+			ValText.TextColor3 = Color3.fromRGB(255, 255, 255)
 			ValText.TextXAlignment = Enum.TextXAlignment.Left
 			ValText.TextTruncate = Enum.TextTruncate.AtEnd
 			ValText.Parent = ValueBox
 
 			local Arrow = Instance.new("TextLabel")
 			Arrow.Size = UDim2.new(0, 20, 1, 0)
-			Arrow.Position = UDim2.new(1, -22, 0, 0)
+			Arrow.Position = UDim2.new(1, -20, 0, 0)
 			Arrow.BackgroundTransparency = 1
 			Arrow.Text = "v"
 			Arrow.Font = Enum.Font.GothamBold
-			Arrow.TextSize = 12
-			Arrow.TextColor3 = Color3.fromRGB(110, 110, 125)
+			Arrow.TextSize = 11
+			Arrow.TextColor3 = Color3.fromRGB(255, 255, 255)
 			Arrow.Parent = ValueBox
 
 			local ListHolder = Instance.new("Frame")
 			ListHolder.Size = UDim2.new(1, -24, 0, 0)
-			ListHolder.Position = UDim2.new(0, 12, 0, 48)
+			ListHolder.Position = UDim2.new(0, 12, 0, 44)
 			ListHolder.BackgroundTransparency = 1
 			ListHolder.Parent = DropdownFrame
 
@@ -1023,12 +1013,12 @@ function CloudyLib:CreateWindow(options)
 				end
 				for idx, opt in ipairs(optionsList) do
 					local ItemBtn = Instance.new("TextButton")
-					ItemBtn.Size = UDim2.new(1, 0, 0, 30)
-					ItemBtn.BackgroundColor3 = (opt == selectedOption) and Color3.fromRGB(230, 230, 238) or Color3.fromRGB(246, 246, 250)
+					ItemBtn.Size = UDim2.new(1, 0, 0, 28)
+					ItemBtn.BackgroundColor3 = (opt == selectedOption) and Color3.fromRGB(42, 42, 54) or Color3.fromRGB(20, 20, 26)
 					ItemBtn.Text = "  " .. opt
 					ItemBtn.Font = Enum.Font.Gotham
-					ItemBtn.TextSize = 13
-					ItemBtn.TextColor3 = (opt == selectedOption) and Color3.fromRGB(30, 30, 40) or Color3.fromRGB(90, 90, 105)
+					ItemBtn.TextSize = 12
+					ItemBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 					ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
 					ItemBtn.LayoutOrder = idx
 					ItemBtn.Parent = ListHolder
@@ -1041,7 +1031,7 @@ function CloudyLib:CreateWindow(options)
 						selectedOption = opt
 						ValText.Text = selectedOption
 						isOpen = false
-						DropdownFrame.Size = UDim2.new(1, 0, 0, 44)
+						DropdownFrame.Size = UDim2.new(1, 0, 0, 40)
 						Arrow.Text = "v"
 						renderOptions()
 						pcall(callback, selectedOption)
@@ -1053,7 +1043,7 @@ function CloudyLib:CreateWindow(options)
 
 			HeaderBtn.MouseButton1Click:Connect(function()
 				isOpen = not isOpen
-				local targetHeight = isOpen and (54 + #optionsList * 34) or 44
+				local targetHeight = isOpen and (48 + #optionsList * 32) or 40
 				DropdownFrame.Size = UDim2.new(1, 0, 0, targetHeight)
 				Arrow.Text = isOpen and "^" or "v"
 			end)
@@ -1074,8 +1064,8 @@ function CloudyLib:CreateWindow(options)
 			local isOpen = false
 
 			local DropdownFrame = Instance.new("Frame")
-			DropdownFrame.Size = UDim2.new(1, 0, 0, 44)
-			DropdownFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			DropdownFrame.Size = UDim2.new(1, 0, 0, 40)
+			DropdownFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 			DropdownFrame.ClipsDescendants = true
 			DropdownFrame.LayoutOrder = TabObj.ElementCount
 			DropdownFrame.Parent = targetParent
@@ -1085,12 +1075,12 @@ function CloudyLib:CreateWindow(options)
 			Corner.Parent = DropdownFrame
 
 			local Stroke = Instance.new("UIStroke")
-			Stroke.Color = Color3.fromRGB(220, 220, 228)
+			Stroke.Color = Color3.fromRGB(42, 42, 54)
 			Stroke.Thickness = 1
 			Stroke.Parent = DropdownFrame
 
 			local HeaderBtn = Instance.new("TextButton")
-			HeaderBtn.Size = UDim2.new(1, 0, 0, 44)
+			HeaderBtn.Size = UDim2.new(1, 0, 0, 40)
 			HeaderBtn.BackgroundTransparency = 1
 			HeaderBtn.Text = ""
 			HeaderBtn.Parent = DropdownFrame
@@ -1101,15 +1091,15 @@ function CloudyLib:CreateWindow(options)
 			Label.BackgroundTransparency = 1
 			Label.Text = text
 			Label.Font = Enum.Font.GothamMedium
-			Label.TextSize = 14
-			Label.TextColor3 = Color3.fromRGB(40, 40, 50)
+			Label.TextSize = 13
+			Label.TextColor3 = Color3.fromRGB(255, 255, 255)
 			Label.TextXAlignment = Enum.TextXAlignment.Left
 			Label.Parent = HeaderBtn
 
 			local ValueBox = Instance.new("Frame")
-			ValueBox.Size = UDim2.new(0, 180, 0, 28)
-			ValueBox.Position = UDim2.new(1, -192, 0.5, -14)
-			ValueBox.BackgroundColor3 = Color3.fromRGB(244, 244, 248)
+			ValueBox.Size = UDim2.new(0, 160, 0, 26)
+			ValueBox.Position = UDim2.new(1, -172, 0.5, -13)
+			ValueBox.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
 			ValueBox.Parent = HeaderBtn
 
 			local ValCorner = Instance.new("UICorner")
@@ -1117,29 +1107,29 @@ function CloudyLib:CreateWindow(options)
 			ValCorner.Parent = ValueBox
 
 			local ValText = Instance.new("TextLabel")
-			ValText.Size = UDim2.new(1, -26, 1, 0)
+			ValText.Size = UDim2.new(1, -24, 1, 0)
 			ValText.Position = UDim2.new(0, 8, 0, 0)
 			ValText.BackgroundTransparency = 1
 			ValText.Font = Enum.Font.Gotham
 			ValText.TextSize = 12
-			ValText.TextColor3 = Color3.fromRGB(60, 60, 70)
+			ValText.TextColor3 = Color3.fromRGB(255, 255, 255)
 			ValText.TextXAlignment = Enum.TextXAlignment.Left
 			ValText.TextTruncate = Enum.TextTruncate.AtEnd
 			ValText.Parent = ValueBox
 
 			local Arrow = Instance.new("TextLabel")
 			Arrow.Size = UDim2.new(0, 20, 1, 0)
-			Arrow.Position = UDim2.new(1, -22, 0, 0)
+			Arrow.Position = UDim2.new(1, -20, 0, 0)
 			Arrow.BackgroundTransparency = 1
 			Arrow.Text = "v"
 			Arrow.Font = Enum.Font.GothamBold
-			Arrow.TextSize = 12
-			Arrow.TextColor3 = Color3.fromRGB(110, 110, 125)
+			Arrow.TextSize = 11
+			Arrow.TextColor3 = Color3.fromRGB(255, 255, 255)
 			Arrow.Parent = ValueBox
 
 			local ListHolder = Instance.new("Frame")
 			ListHolder.Size = UDim2.new(1, -24, 0, 0)
-			ListHolder.Position = UDim2.new(0, 12, 0, 48)
+			ListHolder.Position = UDim2.new(0, 12, 0, 44)
 			ListHolder.BackgroundTransparency = 1
 			ListHolder.Parent = DropdownFrame
 
@@ -1175,12 +1165,12 @@ function CloudyLib:CreateWindow(options)
 					local isSel = selectedMap[opt] or false
 
 					local ItemBtn = Instance.new("TextButton")
-					ItemBtn.Size = UDim2.new(1, 0, 0, 30)
-					ItemBtn.BackgroundColor3 = isSel and Color3.fromRGB(230, 230, 238) or Color3.fromRGB(246, 246, 250)
+					ItemBtn.Size = UDim2.new(1, 0, 0, 28)
+					ItemBtn.BackgroundColor3 = isSel and Color3.fromRGB(42, 42, 54) or Color3.fromRGB(20, 20, 26)
 					ItemBtn.Text = (isSel and "  [x] " or "  [  ] ") .. opt
 					ItemBtn.Font = Enum.Font.Gotham
-					ItemBtn.TextSize = 13
-					ItemBtn.TextColor3 = isSel and Color3.fromRGB(30, 30, 40) or Color3.fromRGB(90, 90, 105)
+					ItemBtn.TextSize = 12
+					ItemBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 					ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
 					ItemBtn.LayoutOrder = idx
 					ItemBtn.Parent = ListHolder
@@ -1203,7 +1193,7 @@ function CloudyLib:CreateWindow(options)
 
 			HeaderBtn.MouseButton1Click:Connect(function()
 				isOpen = not isOpen
-				local targetHeight = isOpen and (54 + #optionsList * 34) or 44
+				local targetHeight = isOpen and (48 + #optionsList * 32) or 40
 				DropdownFrame.Size = UDim2.new(1, 0, 0, targetHeight)
 				Arrow.Text = isOpen and "^" or "v"
 			end)
@@ -1216,8 +1206,8 @@ function CloudyLib:CreateWindow(options)
 			targetParent = targetParent or TabPage
 
 			local BoxFrame = Instance.new("Frame")
-			BoxFrame.Size = UDim2.new(1, 0, 0, 44)
-			BoxFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			BoxFrame.Size = UDim2.new(1, 0, 0, 40)
+			BoxFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 			BoxFrame.LayoutOrder = TabObj.ElementCount
 			BoxFrame.Parent = targetParent
 
@@ -1226,7 +1216,7 @@ function CloudyLib:CreateWindow(options)
 			Corner.Parent = BoxFrame
 
 			local Stroke = Instance.new("UIStroke")
-			Stroke.Color = Color3.fromRGB(220, 220, 228)
+			Stroke.Color = Color3.fromRGB(42, 42, 54)
 			Stroke.Thickness = 1
 			Stroke.Parent = BoxFrame
 
@@ -1236,21 +1226,21 @@ function CloudyLib:CreateWindow(options)
 			Label.BackgroundTransparency = 1
 			Label.Text = text
 			Label.Font = Enum.Font.GothamMedium
-			Label.TextSize = 14
-			Label.TextColor3 = Color3.fromRGB(40, 40, 50)
+			Label.TextSize = 13
+			Label.TextColor3 = Color3.fromRGB(255, 255, 255)
 			Label.TextXAlignment = Enum.TextXAlignment.Left
 			Label.Parent = BoxFrame
 
 			local InputBox = Instance.new("TextBox")
-			InputBox.Size = UDim2.new(0, 180, 0, 28)
-			InputBox.Position = UDim2.new(1, -192, 0.5, -14)
-			InputBox.BackgroundColor3 = Color3.fromRGB(244, 244, 248)
+			InputBox.Size = UDim2.new(0, 160, 0, 26)
+			InputBox.Position = UDim2.new(1, -172, 0.5, -13)
+			InputBox.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
 			InputBox.Text = ""
 			InputBox.PlaceholderText = placeholder
-			InputBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 160)
+			InputBox.PlaceholderColor3 = Color3.fromRGB(130, 130, 145)
 			InputBox.Font = Enum.Font.Gotham
 			InputBox.TextSize = 12
-			InputBox.TextColor3 = Color3.fromRGB(30, 30, 40)
+			InputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 			InputBox.ClearTextOnFocus = false
 			InputBox.Parent = BoxFrame
 
