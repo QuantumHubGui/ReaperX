@@ -2,16 +2,73 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
 
 local LocalPlayer = Players.LocalPlayer
 
-local Icons = {}
-local iconSuccess, loadedIcons = pcall(function()
-	return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua"))()
-end)
+local IconModule = {
+	IconsType = "solar",
+	Icons = {},
+}
 
-if iconSuccess and loadedIcons then
-	Icons = loadedIcons
+local function FetchIconPack(url)
+	local success, result = pcall(function()
+		if typeof(game.HttpGet) == "function" then
+			return game:HttpGet(url)
+		elseif typeof(syn) == "table" and typeof(syn.request) == "function" then
+			local response = syn.request({Url = url, Method = "GET"})
+			return response and response.Body
+		elseif typeof(http_request) == "function" then
+			local response = http_request({Url = url, Method = "GET"})
+			return response and response.Body
+		else
+			return HttpService:GetAsync(url)
+		end
+	end)
+	if success and result and type(result) == "string" and result ~= "" then
+		local ok, loaded = pcall(loadstring, result)
+		if ok and type(loaded) == "function" then
+			local ok2, pack = pcall(loaded)
+			if ok2 and type(pack) == "table" then
+				return pack
+			end
+		end
+	end
+	return nil
+end
+
+local solarPack = FetchIconPack("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua")
+if solarPack and type(solarPack) == "table" then
+	IconModule.Icons["solar"] = solarPack
+end
+
+local function GetIcon(name)
+	if not name then return nil end
+
+	local iconSet = IconModule.Icons["solar"]
+	if iconSet then
+		if iconSet.Icons and iconSet.Icons[name] then
+			local iconData = iconSet.Icons[name]
+			local spriteSheet = iconSet.Spritesheets and iconSet.Spritesheets[tostring(iconData.Image)] or iconData.Image
+			return {
+				Image = spriteSheet,
+				ImageRectSize = iconData.ImageRectSize or Vector2.new(0, 0),
+				ImageRectOffset = iconData.ImageRectPosition or iconData.ImageRectOffset or Vector2.new(0, 0)
+			}
+		elseif iconSet[name] and type(iconSet[name]) == "string" then
+			return {
+				Image = iconSet[name],
+				ImageRectSize = Vector2.new(0, 0),
+				ImageRectOffset = Vector2.new(0, 0)
+			}
+		end
+	end
+
+	if type(name) == "string" and (name:sub(1, 13) == "rbxassetid://" or name:sub(1, 4) == "http") then
+		return {Image = name}
+	end
+
+	return nil
 end
 
 local function applyIcon(imageLabel, iconName)
@@ -20,37 +77,14 @@ local function applyIcon(imageLabel, iconName)
 		return
 	end
 
-	local iconData = nil
-	if type(Icons) == "table" then
-		if Icons[iconName] then
-			iconData = Icons[iconName]
-		elseif type(Icons.getIcon) == "function" then
-			iconData = Icons.getIcon(iconName)
-		elseif type(Icons.Init) == "function" then
-			iconData = Icons.Init(iconName)
-		end
-	end
-
-	if type(iconData) == "table" then
-		imageLabel.Image = iconData.Image or iconData.id or iconData[1] or ""
-		if iconData.ImageRectOffset then
-			imageLabel.ImageRectOffset = iconData.ImageRectOffset
-		end
-		if iconData.ImageRectSize then
-			imageLabel.ImageRectSize = iconData.ImageRectSize
-		end
+	local iconData = GetIcon(iconName)
+	if iconData then
+		imageLabel.Image = iconData.Image or ""
+		imageLabel.ImageRectSize = iconData.ImageRectSize or Vector2.new(0, 0)
+		imageLabel.ImageRectOffset = iconData.ImageRectOffset or Vector2.new(0, 0)
 		imageLabel.Visible = true
-	elseif type(iconData) == "string" and iconData ~= "" then
-		imageLabel.Image = iconData
-		imageLabel.Visible = true
-	elseif type(iconName) == "string" then
-		if iconName:find("rbxassetid://") or tonumber(iconName) then
-			imageLabel.Image = iconName:find("rbxassetid://") and iconName or "rbxassetid://" .. iconName
-			imageLabel.Visible = true
-		else
-			imageLabel.Image = "rbxassetid://6031097225"
-			imageLabel.Visible = true
-		end
+	else
+		imageLabel.Visible = false
 	end
 end
 
@@ -456,26 +490,58 @@ function CloudyLib:CreateWindow(options)
 		end
 	end)
 
-	local RestoreBtn = Instance.new("TextButton")
+	local RestoreBtn = Instance.new("ImageButton")
 	RestoreBtn.Name = "CloudyRestoreBtn"
-	RestoreBtn.Size = UDim2.new(0, 44, 0, 44)
-	RestoreBtn.Position = UDim2.new(0, 20, 0.5, -22)
+	RestoreBtn.Size = UDim2.new(0, 50, 0, 50)
+	RestoreBtn.Position = UDim2.new(0, 20, 0.5, -25)
 	RestoreBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-	RestoreBtn.Text = "C"
-	RestoreBtn.Font = Enum.Font.GothamBold
-	RestoreBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	RestoreBtn.TextSize = 18
+	RestoreBtn.Image = "rbxassetid://88244237473485"
+	RestoreBtn.AutoButtonColor = false
 	RestoreBtn.Visible = false
+	RestoreBtn.ZIndex = 9999
 	RestoreBtn.Parent = ScreenGui
 
 	local RestoreCorner = Instance.new("UICorner")
-	RestoreCorner.CornerRadius = UDim.new(0, 10)
+	RestoreCorner.CornerRadius = UDim.new(1, 0)
 	RestoreCorner.Parent = RestoreBtn
 
 	local RestoreStroke = Instance.new("UIStroke")
-	RestoreStroke.Color = Color3.fromRGB(45, 45, 60)
-	RestoreStroke.Thickness = 1.5
+	RestoreStroke.Color = Color3.fromRGB(50, 50, 68)
+	RestoreStroke.Thickness = 2
 	RestoreStroke.Parent = RestoreBtn
+
+	local floatDragging, floatDragInput, floatDragStart, floatStartPos
+	local floatDragMoved = false
+
+	RestoreBtn.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			floatDragging = true
+			floatDragMoved = false
+			floatDragStart = input.Position
+			floatStartPos = RestoreBtn.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					floatDragging = false
+				end
+			end)
+		end
+	end)
+
+	RestoreBtn.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			floatDragInput = input
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if input == floatDragInput and floatDragging then
+			local delta = input.Position - floatDragStart
+			if math.abs(delta.X) > 3 or math.abs(delta.Y) > 3 then
+				floatDragMoved = true
+			end
+			RestoreBtn.Position = UDim2.new(floatStartPos.X.Scale, floatStartPos.X.Offset + delta.X, floatStartPos.Y.Scale, floatStartPos.Y.Offset + delta.Y)
+		end
+	end)
 
 	local isMinimized = false
 	local function toggleMinimize()
@@ -485,7 +551,11 @@ function CloudyLib:CreateWindow(options)
 	end
 
 	MinimizeBtn.MouseButton1Click:Connect(toggleMinimize)
-	RestoreBtn.MouseButton1Click:Connect(toggleMinimize)
+	RestoreBtn.MouseButton1Up:Connect(function()
+		if not floatDragMoved then
+			toggleMinimize()
+		end
+	end)
 
 	local isExpanded = false
 	ResizeBtn.MouseButton1Click:Connect(function()
@@ -1434,45 +1504,121 @@ local Window = CloudyLib:CreateWindow({
 	Logo = "cloud"
 })
 
-local TabPengaturan = Window:CreateTab("Pengaturan", "settings")
-local TabFitur = Window:CreateTab("Fitur Utama", "user")
-local TabPengguna = Window:CreateTab("Pengguna", "bell")
-local TabLaporan = Window:CreateTab("Laporkan", "shield")
+local TabUtama = Window:CreateTab("Utama", "home-2")
+local TabVisual = Window:CreateTab("Visual & ESP", "eye")
+local TabTeleport = Window:CreateTab("Teleport", "compass")
+local TabMisc = Window:CreateTab("Misc & Server", "server")
+local TabPengaturan = Window:CreateTab("Pengaturan UI", "settings")
 
-local AudioSec = TabPengaturan:AddSection("Audio & Suara", true)
-AudioSec:AddSlider("Volume Master", 0, 100, 80, function(val)
-	print("Volume set to:", val)
+local PlayerSec = TabUtama:AddSection("Modifikasi Player", true)
+PlayerSec:AddToggle("Godmode (Infinite Health)", false, function(state)
+	print("[Cloudy] Godmode set to:", state)
 end)
-AudioSec:AddDropdown("Perangkat Output", {"Default (Android audio output)", "Speaker Built-In", "Headset Bluetooth"}, "Default (Android audio output)", function(selected)
-	print("Audio Output:", selected)
-end)
-
-local ChatSec = TabPengaturan:AddSection("Chat & Bahasa", true)
-ChatSec:AddToggle("Terjemahan Otomatis", true, function(state)
-	print("Terjemahan Otomatis:", state)
-end)
-ChatSec:AddDropdown("Bahasa Pengalaman Virtual", {"Bahasa Indonesia", "English (US)", "Español", "Tiếng Việt"}, "Bahasa Indonesia", function(selected)
-	print("Bahasa Virtual:", selected)
-end)
-
-local MainSec = TabFitur:AddSection("Modifikasi Player", true)
-MainSec:AddToggle("Auto Farm", false, function(state)
-	print("Auto Farm:", state)
-end)
-MainSec:AddSlider("WalkSpeed", 16, 200, 50, function(val)
+PlayerSec:AddSlider("WalkSpeed (Kecepatan)", 16, 250, 50, function(val)
 	if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
 		LocalPlayer.Character.Humanoid.WalkSpeed = val
 	end
 end)
+PlayerSec:AddSlider("JumpPower (Lompatan)", 50, 300, 100, function(val)
+	if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+		LocalPlayer.Character.Humanoid.JumpPower = val
+	end
+end)
+PlayerSec:AddToggle("Noclip (Tembus Tembok)", false, function(state)
+	print("[Cloudy] Noclip:", state)
+end)
+PlayerSec:AddToggle("Fly Mode (Terbang)", false, function(state)
+	print("[Cloudy] Fly Mode:", state)
+end)
 
-TabFitur:AddMultiDropdown("Target Mob", {"Bandit", "Boss Skeleton", "Dragon Lord", "Shadow Knight"}, {"Bandit"}, function(selectedList)
-	print("Target Mobs:", table.concat(selectedList, ", "))
+local FarmSec = TabUtama:AddSection("Automasi Game", true)
+FarmSec:AddToggle("Auto Farm Level", false, function(state)
+	print("[Cloudy] Auto Farm Level:", state)
 end)
-TabFitur:AddTextBox("Custom Key", "Masukan key...", function(text)
-	print("Input Key:", text)
+FarmSec:AddDropdown("Metode Farm", {"Fast Attack", "Behind Enemy", "Safe Distance"}, "Fast Attack", function(selected)
+	print("[Cloudy] Metode Farm:", selected)
 end)
-TabFitur:AddButton("Execute Command", function()
-	print("Command Executed!")
+FarmSec:AddMultiDropdown("Pilih Target Mob", {"Bandit Level 1", "Pirate Boss", "Marine Admiral", "Dragon King"}, {"Bandit Level 1"}, function(selectedList)
+	print("[Cloudy] Target Mobs:", table.concat(selectedList, ", "))
+end)
+
+local EspSec = TabVisual:AddSection("ESP Player", true)
+EspSec:AddToggle("ESP Boxes", true, function(state)
+	print("[Cloudy] ESP Boxes:", state)
+end)
+EspSec:AddToggle("ESP Tracers", false, function(state)
+	print("[Cloudy] ESP Tracers:", state)
+end)
+EspSec:AddToggle("ESP Names & Distance", true, function(state)
+	print("[Cloudy] ESP Names:", state)
+end)
+EspSec:AddSlider("ESP Distance Limit", 100, 5000, 1000, function(val)
+	print("[Cloudy] ESP Limit:", val)
+end)
+
+local WorldSec = TabVisual:AddSection("World Visuals", true)
+WorldSec:AddToggle("Fullbright (Terang Malam)", true, function(state)
+	print("[Cloudy] Fullbright:", state)
+end)
+WorldSec:AddToggle("Remove Fog (Hapus Kabut)", true, function(state)
+	print("[Cloudy] Remove Fog:", state)
+end)
+WorldSec:AddSlider("Field of View (FOV)", 70, 120, 90, function(val)
+	if workspace.CurrentCamera then
+		workspace.CurrentCamera.FieldOfView = val
+	end
+end)
+
+local LocationSec = TabTeleport:AddSection("Teleport Lokasi", true)
+LocationSec:AddDropdown("Pilih Pulau / Zone", {"Starter Island", "Pirate Village", "Desert Kingdom", "Sky Castle", "Marine HQ"}, "Starter Island", function(selected)
+	print("[Cloudy] Selected Island:", selected)
+end)
+LocationSec:AddButton("Teleport ke Lokasi", function()
+	print("[Cloudy] Teleporting to selected location...")
+end)
+
+local PlayerTpSec = TabTeleport:AddSection("Teleport Player", true)
+PlayerTpSec:AddTextBox("Nama Player", "Ketik username...", function(text)
+	print("[Cloudy] Target Player Username:", text)
+end)
+PlayerTpSec:AddButton("Teleport ke Player", function()
+	print("[Cloudy] Teleporting to target player...")
+end)
+
+local ServerSec = TabMisc:AddSection("Server Utility", true)
+ServerSec:AddButton("Rejoin Server", function()
+	game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
+end)
+ServerSec:AddButton("Server Hop (Pindah Server)", function()
+	print("[Cloudy] Hopping server...")
+end)
+ServerSec:AddButton("Copy Job ID", function()
+	if setclipboard then
+		setclipboard(game.JobId)
+		print("[Cloudy] JobId copied!")
+	end
+end)
+
+local FpsSec = TabMisc:AddSection("FPS & Optimization", true)
+FpsSec:AddToggle("Unlock FPS (FPS Booster)", true, function(state)
+	if setfpscap then setfpscap(state and 240 or 60) end
+end)
+FpsSec:AddToggle("Low Graphics Mode", false, function(state)
+	print("[Cloudy] Low Graphics:", state)
+end)
+FpsSec:AddSlider("Max FPS Target", 30, 240, 120, function(val)
+	if setfpscap then setfpscap(val) end
+end)
+
+local UiSec = TabPengaturan:AddSection("Konfigurasi UI", true)
+UiSec:AddToggle("Notifikasi Execution", true, function(state)
+	print("[Cloudy] Notifications:", state)
+end)
+UiSec:AddButton("Simpan Config", function()
+	print("[Cloudy] Config saved!")
+end)
+UiSec:AddButton("Reset Default Config", function()
+	print("[Cloudy] Config reset to default!")
 end)
 
 return CloudyLib
