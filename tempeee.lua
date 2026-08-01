@@ -287,7 +287,7 @@ function Cloudy.new(options)
     local logoIcon = options.Logo or options.LogoIcon or options.Icon or "cloud-bold"
     local bgImage = options.BackgroundImage or options.Background or options.Image or 132540552885841
     -- Make background image brighter (transparency 0.25 default instead of dark 0.85)
-    local bgTransparency = options.BackgroundTransparency or options.ImageTransparency or 0.25
+    local bgTransparency = options.BackgroundTransparency or options.ImageTransparency or 0.45
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CloudyUI_" .. math.random(1000, 9999)
@@ -303,7 +303,7 @@ function Cloudy.new(options)
         ScreenGui.Parent = CoreGui
     end
 
-    -- Floating UI Toggle Button (Dark modern theme matching main window, NO blue border box!)
+    -- Floating UI Toggle Button
     local ToggleBtn = Instance.new("TextButton")
     ToggleBtn.Name = "FloatingToggle"
     ToggleBtn.Size = UDim2.new(0, 44, 0, 44)
@@ -338,32 +338,11 @@ function Cloudy.new(options)
     ToggleIconImg.ScaleType = Enum.ScaleType.Fit
     ToggleIconImg.Parent = ToggleBtn
 
-    ToggleBtn.MouseEnter:Connect(function()
-        TweenService:Create(ToggleBtn, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 47, 0, 47),
-            BackgroundColor3 = Color3.fromRGB(30, 32, 42)
-        }):Play()
-        TweenService:Create(ToggleIconImg, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 26, 0, 26)
-        }):Play()
-    end)
-
-    ToggleBtn.MouseLeave:Connect(function()
-        TweenService:Create(ToggleBtn, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 44, 0, 44),
-            BackgroundColor3 = Color3.fromRGB(22, 23, 30)
-        }):Play()
-        TweenService:Create(ToggleIconImg, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 24, 0, 24)
-        }):Play()
-    end)
-
     MakeDraggable(ToggleBtn)
 
     local defaultSize = UDim2.new(0, 560, 0, 380)
     local expandedSize = UDim2.new(0, 720, 0, 480)
     local isMaximized = false
-    local isMinimized = false
 
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
@@ -382,50 +361,22 @@ function Cloudy.new(options)
     MainStroke.Thickness = 1.5
     MainStroke.Parent = MainFrame
 
-    -- Background Image Holder with UICorner so image is NOT harsh rectangular box cut off
-    local MainBgHolder = Instance.new("Frame")
-    MainBgHolder.Name = "MainBgHolder"
-    MainBgHolder.Size = UDim2.new(1, 0, 1, 0)
-    MainBgHolder.Position = UDim2.new(0, 0, 0, 0)
-    MainBgHolder.BackgroundTransparency = 1
-    MainBgHolder.ClipsDescendants = true
-    MainBgHolder.ZIndex = 0
-    MainBgHolder.Parent = MainFrame
-
-    local MainBgCorner = Instance.new("UICorner")
-    MainBgCorner.CornerRadius = UDim.new(0, 12)
-    MainBgCorner.Parent = MainBgHolder
-
-    local MainBgImg = Instance.new("ImageLabel")
-    MainBgImg.Name = "MainBgImage"
-    MainBgImg.Size = UDim2.new(1, 0, 1, 0)
-    MainBgImg.Position = UDim2.new(0, 0, 0, 0)
-    MainBgImg.BackgroundTransparency = 1
-    MainBgImg.Image = GetIcon(bgImage)
-    MainBgImg.ImageTransparency = bgTransparency
-    MainBgImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
-    MainBgImg.ScaleType = Enum.ScaleType.Crop
-    MainBgImg.ZIndex = 0
-    MainBgImg.Visible = (bgImage ~= nil and bgImage ~= "" and bgImage ~= 0)
-    MainBgImg.Parent = MainBgHolder
-
-    local MainBgGrad = Instance.new("UIGradient")
-    MainBgGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.0, Color3.fromRGB(18, 19, 24)),
-        ColorSequenceKeypoint.new(0.35, Color3.fromRGB(120, 125, 140)),
-        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(255, 255, 255))
-    })
-    MainBgGrad.Rotation = 0
-    MainBgGrad.Parent = MainBgImg
-
-    -- Sidebar (Background TRANSPARENT so it seamlessly blends with UI!)
     local Sidebar = Instance.new("Frame")
     Sidebar.Name = "Sidebar"
     Sidebar.Size = UDim2.new(0, 155, 1, -16)
     Sidebar.Position = UDim2.new(0, 8, 0, 8)
-    Sidebar.BackgroundTransparency = 1
+    Sidebar.BackgroundColor3 = Color3.fromRGB(22, 23, 30)
     Sidebar.BorderSizePixel = 0
     Sidebar.Parent = MainFrame
+
+    local SidebarCorner = Instance.new("UICorner")
+    SidebarCorner.CornerRadius = UDim.new(0, 12)
+    SidebarCorner.Parent = Sidebar
+
+    local SidebarStroke = Instance.new("UIStroke")
+    SidebarStroke.Color = Color3.fromRGB(36, 39, 48)
+    SidebarStroke.Thickness = 1
+    SidebarStroke.Parent = Sidebar
 
     local BrandContainer = Instance.new("Frame")
     BrandContainer.Size = UDim2.new(1, 0, 0, 58)
@@ -456,9 +407,10 @@ function Cloudy.new(options)
     local TitleGrad = Instance.new("UIGradient")
     TitleGrad.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
-        ColorSequenceKeypoint.new(0.35, Color3.fromRGB(210, 214, 222)),
-        ColorSequenceKeypoint.new(0.7, Color3.fromRGB(115, 120, 132)),
-        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(42, 45, 54))
+        ColorSequenceKeypoint.new(0.2, Color3.fromRGB(210, 215, 225)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(140, 145, 160)),
+        ColorSequenceKeypoint.new(0.85, Color3.fromRGB(90, 95, 110)),
+        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(60, 65, 78))
     })
     TitleGrad.Rotation = 0
     TitleGrad.Parent = TitleLabel
@@ -473,6 +425,15 @@ function Cloudy.new(options)
     SubLabel.TextSize = 11
     SubLabel.TextXAlignment = Enum.TextXAlignment.Left
     SubLabel.Parent = BrandContainer
+
+    -- Horizontal divider line inside Sidebar
+    local SidebarDivider = Instance.new("Frame")
+    SidebarDivider.Name = "SidebarDivider"
+    SidebarDivider.Size = UDim2.new(1, -16, 0, 1)
+    SidebarDivider.Position = UDim2.new(0, 8, 0, 58)
+    SidebarDivider.BackgroundColor3 = Color3.fromRGB(36, 39, 50)
+    SidebarDivider.BorderSizePixel = 0
+    SidebarDivider.Parent = Sidebar
 
     local TabContainer = Instance.new("ScrollingFrame")
     TabContainer.Size = UDim2.new(1, -16, 1, -74)
@@ -492,14 +453,31 @@ function Cloudy.new(options)
         TabContainer.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y)
     end)
 
-    -- TopBar (Background TRANSPARENT so it seamlessly blends with UI!)
+    -- Vertical divider line between Sidebar and Content Frame
+    local VerticalDivider = Instance.new("Frame")
+    VerticalDivider.Name = "VerticalDivider"
+    VerticalDivider.Size = UDim2.new(0, 1, 1, -16)
+    VerticalDivider.Position = UDim2.new(0, 166, 0, 8)
+    VerticalDivider.BackgroundColor3 = Color3.fromRGB(36, 39, 48)
+    VerticalDivider.BorderSizePixel = 0
+    VerticalDivider.Parent = MainFrame
+
     local TopBar = Instance.new("Frame")
     TopBar.Name = "TopBar"
     TopBar.Size = UDim2.new(1, -179, 0, 42)
     TopBar.Position = UDim2.new(0, 171, 0, 8)
-    TopBar.BackgroundTransparency = 1
+    TopBar.BackgroundColor3 = Color3.fromRGB(22, 23, 30)
     TopBar.BorderSizePixel = 0
     TopBar.Parent = MainFrame
+
+    local TopBarCorner = Instance.new("UICorner")
+    TopBarCorner.CornerRadius = UDim.new(0, 12)
+    TopBarCorner.Parent = TopBar
+
+    local TopBarStroke = Instance.new("UIStroke")
+    TopBarStroke.Color = Color3.fromRGB(36, 39, 48)
+    TopBarStroke.Thickness = 1
+    TopBarStroke.Parent = TopBar
 
     MakeDraggable(MainFrame, TopBar)
 
@@ -514,7 +492,7 @@ function Cloudy.new(options)
     PageTitle.TextXAlignment = Enum.TextXAlignment.Left
     PageTitle.Parent = TopBar
 
-    -- Control Container for Window Buttons (Minimize, Maximize/Resize, Close) matching Photo 1
+    -- TopBar Window Controls Container (Minimize, Maximize/Resize, Close)
     local ControlHolder = Instance.new("Frame")
     ControlHolder.Name = "ControlHolder"
     ControlHolder.Size = UDim2.new(0, 110, 1, 0)
@@ -575,77 +553,73 @@ function Cloudy.new(options)
         return btn, icon
     end
 
-    -- 1. Minimize Button (Corner brackets pointing in / shrink - Photo 1 left icon)
+    -- Solar Icon Assets for TopBar Controls (matching exact screenshot design)
     local MinimizeBtn = CreateTopBarButton("MinimizeBtn", "rbxassetid://10747383819", 1)
-    -- 2. Maximize / Resize Button (Corner brackets pointing out / expand - Photo 1 center icon)
     local MaximizeBtn = CreateTopBarButton("MaximizeBtn", "rbxassetid://10747383961", 2)
-    -- 3. Close Button (Clean X Icon - Photo 1 right icon)
     local CloseBtn = CreateTopBarButton("CloseBtn", "rbxassetid://10747384394", 3, Color3.fromRGB(180, 45, 55))
 
+    -- Main Content Area (Background Image ONLY inside Content Area, NOT on Sidebar!)
     local ContentArea = Instance.new("Frame")
     ContentArea.Name = "ContentArea"
     ContentArea.Size = UDim2.new(1, -179, 1, -64)
     ContentArea.Position = UDim2.new(0, 171, 0, 56)
     ContentArea.BackgroundTransparency = 1
+    ContentArea.ClipsDescendants = true
     ContentArea.Parent = MainFrame
 
-    local isOpen = true
+    local MainBgHolder = Instance.new("Frame")
+    MainBgHolder.Name = "MainBgHolder"
+    MainBgHolder.Size = UDim2.new(1, 0, 1, 0)
+    MainBgHolder.Position = UDim2.new(0, 0, 0, 0)
+    MainBgHolder.BackgroundTransparency = 1
+    MainBgHolder.ClipsDescendants = true
+    MainBgHolder.ZIndex = 0
+    MainBgHolder.Parent = ContentArea
+
+    local MainBgCorner = Instance.new("UICorner")
+    MainBgCorner.CornerRadius = UDim.new(0, 10)
+    MainBgCorner.Parent = MainBgHolder
+
+    local MainBgImg = Instance.new("ImageLabel")
+    MainBgImg.Name = "MainBgImage"
+    MainBgImg.Size = UDim2.new(1, 0, 1, 0)
+    MainBgImg.Position = UDim2.new(0, 0, 0, 0)
+    MainBgImg.BackgroundTransparency = 1
+    MainBgImg.Image = GetIcon(bgImage)
+    MainBgImg.ImageTransparency = bgTransparency
+    MainBgImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    MainBgImg.ScaleType = Enum.ScaleType.Crop
+    MainBgImg.ZIndex = 0
+    MainBgImg.Visible = (bgImage ~= nil and bgImage ~= "" and bgImage ~= 0)
+    MainBgImg.Parent = MainBgHolder
+
+    -- Clean, instant UI toggle (NO over-the-top/lebay bounce or shrink animation)
     local function ToggleUI()
-        isOpen = not isOpen
-        if isOpen then
-            MainFrame.Visible = true
-            TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = isMaximized and expandedSize or defaultSize
-            }):Play()
-        else
-            TweenService:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                Size = UDim2.new(0, 0, 0, 0)
-            }):Play()
-            task.delay(0.2, function()
-                if not isOpen then
-                    MainFrame.Visible = false
-                end
-            end)
-        end
+        MainFrame.Visible = not MainFrame.Visible
+        ToggleBtn.Visible = not MainFrame.Visible
     end
 
-    -- Minimize Button Event
+    ToggleBtn.MouseButton1Click:Connect(ToggleUI)
+
+    -- Minimize button: instantly hides main window (completely disappears, not half visible!)
     MinimizeBtn.MouseButton1Click:Connect(function()
-        isMinimized = not isMinimized
-        if isMinimized then
-            TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, isMaximized and 720 or 560, 0, 50)
-            }):Play()
-            ContentArea.Visible = false
-            Sidebar.Visible = false
-        else
-            ContentArea.Visible = true
-            Sidebar.Visible = true
-            TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = isMaximized and expandedSize or defaultSize
-            }):Play()
-        end
+        MainFrame.Visible = false
+        ToggleBtn.Visible = true
     end)
 
-    -- Maximize / Resize Button Event
+    -- Maximize / Resize button: toggles UI scale between standard (560x380) and expanded (720x480)
     MaximizeBtn.MouseButton1Click:Connect(function()
-        if isMinimized then
-            isMinimized = false
-            ContentArea.Visible = true
-            Sidebar.Visible = true
-        end
         isMaximized = not isMaximized
         local targetSize = isMaximized and expandedSize or defaultSize
         local targetPos = isMaximized and UDim2.new(0.5, -360, 0.5, -240) or UDim2.new(0.5, -280, 0.5, -190)
-
-        TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Size = targetSize,
-            Position = targetPos
-        }):Play()
+        MainFrame.Size = targetSize
+        MainFrame.Position = targetPos
     end)
 
-    ToggleBtn.MouseButton1Click:Connect(ToggleUI)
-    CloseBtn.MouseButton1Click:Connect(ToggleUI)
+    -- Close button: completely DESTROYS the UI ScreenGui
+    CloseBtn.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
+    end)
 
     local showIntro = options.Intro
     if showIntro == nil then showIntro = true end
@@ -782,10 +756,15 @@ function Cloudy:CreateTab(tabName, iconName)
 
     local TabMethods = {}
 
-    function TabMethods:CreateSection(sectionTitle)
+    function TabMethods:CreateSection(sectionTitle, defaultOpen)
+        if defaultOpen == nil then defaultOpen = true end
+        local isCollapsed = not defaultOpen
+
         local SecFrame = Instance.new("Frame")
-        SecFrame.Size = UDim2.new(1, 0, 0, 30)
+        SecFrame.Name = "Section_" .. tostring(sectionTitle)
+        SecFrame.Size = UDim2.new(1, 0, 0, 34)
         SecFrame.BackgroundColor3 = Color3.fromRGB(24, 25, 32)
+        SecFrame.ClipsDescendants = true
         SecFrame.Parent = TabPage
 
         local SecCorner = Instance.new("UICorner")
@@ -797,21 +776,40 @@ function Cloudy:CreateTab(tabName, iconName)
         SecStroke.Thickness = 1
         SecStroke.Parent = SecFrame
 
+        local SecHeader = Instance.new("TextButton")
+        SecHeader.Name = "SecHeader"
+        SecHeader.Size = UDim2.new(1, 0, 0, 34)
+        SecHeader.BackgroundTransparency = 1
+        SecHeader.Text = ""
+        SecHeader.AutoButtonColor = false
+        SecHeader.Parent = SecFrame
+
         local SecTitle = Instance.new("TextLabel")
-        SecTitle.Size = UDim2.new(1, -20, 0, 24)
-        SecTitle.Position = UDim2.new(0, 12, 0, 6)
+        SecTitle.Size = UDim2.new(1, -40, 1, 0)
+        SecTitle.Position = UDim2.new(0, 12, 0, 0)
         SecTitle.BackgroundTransparency = 1
         SecTitle.Text = sectionTitle
-        SecTitle.TextColor3 = Color3.fromRGB(200, 204, 215)
+        SecTitle.TextColor3 = Color3.fromRGB(215, 220, 230)
         SecTitle.Font = Enum.Font.GothamBold
         SecTitle.TextSize = 12
         SecTitle.TextXAlignment = Enum.TextXAlignment.Left
-        SecTitle.Parent = SecFrame
+        SecTitle.Parent = SecHeader
+
+        local CollapseIcon = Instance.new("ImageLabel")
+        CollapseIcon.Size = UDim2.new(0, 16, 0, 16)
+        CollapseIcon.Position = UDim2.new(1, -26, 0.5, -8)
+        CollapseIcon.BackgroundTransparency = 1
+        CollapseIcon.Image = GetIcon("alt-arrow-down-linear")
+        CollapseIcon.ImageColor3 = Color3.fromRGB(160, 165, 178)
+        CollapseIcon.Rotation = isCollapsed and -90 or 0
+        CollapseIcon.Parent = SecHeader
 
         local SecContent = Instance.new("Frame")
-        SecContent.Size = UDim2.new(1, -16, 1, -34)
-        SecContent.Position = UDim2.new(0, 8, 0, 30)
+        SecContent.Name = "SecContent"
+        SecContent.Size = UDim2.new(1, -16, 0, 0)
+        SecContent.Position = UDim2.new(0, 8, 0, 34)
         SecContent.BackgroundTransparency = 1
+        SecContent.Visible = not isCollapsed
         SecContent.Parent = SecFrame
 
         local SecLayout = Instance.new("UIListLayout")
@@ -819,8 +817,23 @@ function Cloudy:CreateTab(tabName, iconName)
         SecLayout.Padding = UDim.new(0, 6)
         SecLayout.Parent = SecContent
 
-        SecLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            SecFrame.Size = UDim2.new(1, 0, 0, SecLayout.AbsoluteContentSize.Y + 38)
+        local function UpdateSectionSize()
+            if isCollapsed then
+                SecContent.Visible = false
+                SecFrame.Size = UDim2.new(1, 0, 0, 34)
+                CollapseIcon.Rotation = -90
+            else
+                SecContent.Visible = true
+                SecFrame.Size = UDim2.new(1, 0, 0, SecLayout.AbsoluteContentSize.Y + 42)
+                CollapseIcon.Rotation = 0
+            end
+        end
+
+        SecLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateSectionSize)
+
+        SecHeader.MouseButton1Click:Connect(function()
+            isCollapsed = not isCollapsed
+            UpdateSectionSize()
         end)
 
         local SecMethods = {}
