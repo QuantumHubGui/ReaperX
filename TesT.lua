@@ -595,19 +595,15 @@ function CloudyLib:CreateWindow(options)
 
 	local MinimizeBtn = Instance.new("TextButton")
 	MinimizeBtn.Size = UDim2.new(0, 26, 0, 26)
-	MinimizeBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+	MinimizeBtn.BackgroundTransparency = 1
 	MinimizeBtn.Text = ""
 	MinimizeBtn.AutoButtonColor = false
 	MinimizeBtn.LayoutOrder = 1
 	MinimizeBtn.Parent = RightContainer
 
-	local MinCorner = Instance.new("UICorner")
-	MinCorner.CornerRadius = UDim.new(0, 6)
-	MinCorner.Parent = MinimizeBtn
-
 	local MinimizeIcon = Instance.new("ImageLabel")
-	MinimizeIcon.Size = UDim2.new(0, 14, 0, 14)
-	MinimizeIcon.Position = UDim2.new(0.5, -7, 0.5, -7)
+	MinimizeIcon.Size = UDim2.new(0, 16, 0, 16)
+	MinimizeIcon.Position = UDim2.new(0.5, -8, 0.5, -8)
 	MinimizeIcon.BackgroundTransparency = 1
 	MinimizeIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
 	MinimizeIcon.Parent = MinimizeBtn
@@ -615,19 +611,15 @@ function CloudyLib:CreateWindow(options)
 
 	local ResizeBtn = Instance.new("TextButton")
 	ResizeBtn.Size = UDim2.new(0, 26, 0, 26)
-	ResizeBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+	ResizeBtn.BackgroundTransparency = 1
 	ResizeBtn.Text = ""
 	ResizeBtn.AutoButtonColor = false
 	ResizeBtn.LayoutOrder = 2
 	ResizeBtn.Parent = RightContainer
 
-	local ResizeCorner = Instance.new("UICorner")
-	ResizeCorner.CornerRadius = UDim.new(0, 6)
-	ResizeCorner.Parent = ResizeBtn
-
 	local ResizeIcon = Instance.new("ImageLabel")
-	ResizeIcon.Size = UDim2.new(0, 14, 0, 14)
-	ResizeIcon.Position = UDim2.new(0.5, -7, 0.5, -7)
+	ResizeIcon.Size = UDim2.new(0, 16, 0, 16)
+	ResizeIcon.Position = UDim2.new(0.5, -8, 0.5, -8)
 	ResizeIcon.BackgroundTransparency = 1
 	ResizeIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
 	ResizeIcon.Parent = ResizeBtn
@@ -635,19 +627,15 @@ function CloudyLib:CreateWindow(options)
 
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 26, 0, 26)
-	CloseBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+	CloseBtn.BackgroundTransparency = 1
 	CloseBtn.Text = ""
 	CloseBtn.AutoButtonColor = false
 	CloseBtn.LayoutOrder = 3
 	CloseBtn.Parent = RightContainer
 
-	local CloseCorner = Instance.new("UICorner")
-	CloseCorner.CornerRadius = UDim.new(0, 6)
-	CloseCorner.Parent = CloseBtn
-
 	local CloseIcon = Instance.new("ImageLabel")
-	CloseIcon.Size = UDim2.new(0, 14, 0, 14)
-	CloseIcon.Position = UDim2.new(0.5, -7, 0.5, -7)
+	CloseIcon.Size = UDim2.new(0, 16, 0, 16)
+	CloseIcon.Position = UDim2.new(0.5, -8, 0.5, -8)
 	CloseIcon.BackgroundTransparency = 1
 	CloseIcon.ImageColor3 = Color3.fromRGB(200, 200, 215)
 	CloseIcon.Parent = CloseBtn
@@ -691,12 +679,12 @@ function CloudyLib:CreateWindow(options)
 
 	local RestoreBtn = Instance.new("ImageButton")
 	RestoreBtn.Name = "CloudyRestoreBtn"
-	RestoreBtn.Size = UDim2.new(0, 60, 0, 60)
-	RestoreBtn.Position = UDim2.new(0, 20, 0.5, -30)
+	RestoreBtn.Size = UDim2.new(0, 80, 0, 80)
+	RestoreBtn.Position = UDim2.new(0, 20, 0.5, -40)
 	RestoreBtn.BackgroundTransparency = 1
 	RestoreBtn.Image = "rbxassetid://88244237473485"
 	RestoreBtn.AutoButtonColor = false
-	RestoreBtn.Visible = false
+	RestoreBtn.Visible = true
 	RestoreBtn.ZIndex = 9999
 	RestoreBtn.Parent = ScreenGui
 
@@ -733,11 +721,8 @@ function CloudyLib:CreateWindow(options)
 		end
 	end)
 
-	local isMinimized = false
 	local function toggleMinimize()
-		isMinimized = not isMinimized
-		MainFrame.Visible = not isMinimized
-		RestoreBtn.Visible = isMinimized
+		MainFrame.Visible = not MainFrame.Visible
 	end
 
 	MinimizeBtn.MouseButton1Click:Connect(toggleMinimize)
@@ -764,29 +749,23 @@ function CloudyLib:CreateWindow(options)
 	end)
 
 	CloseBtn.MouseEnter:Connect(function()
-		TweenService:Create(CloseBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(220, 50, 50)}):Play()
-		TweenService:Create(CloseIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+		TweenService:Create(CloseIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(255, 75, 75)}):Play()
 	end)
 	CloseBtn.MouseLeave:Connect(function()
-		TweenService:Create(CloseBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(28, 28, 36)}):Play()
 		TweenService:Create(CloseIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(200, 200, 215)}):Play()
 	end)
 
 	MinimizeBtn.MouseEnter:Connect(function()
-		TweenService:Create(MinimizeBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(40, 40, 52)}):Play()
 		TweenService:Create(MinimizeIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 	end)
 	MinimizeBtn.MouseLeave:Connect(function()
-		TweenService:Create(MinimizeBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(28, 28, 36)}):Play()
 		TweenService:Create(MinimizeIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(200, 200, 215)}):Play()
 	end)
 
 	ResizeBtn.MouseEnter:Connect(function()
-		TweenService:Create(ResizeBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(40, 40, 52)}):Play()
 		TweenService:Create(ResizeIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 	end)
 	ResizeBtn.MouseLeave:Connect(function()
-		TweenService:Create(ResizeBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(28, 28, 36)}):Play()
 		TweenService:Create(ResizeIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(200, 200, 215)}):Play()
 	end)
 
