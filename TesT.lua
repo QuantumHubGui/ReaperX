@@ -1,74 +1,178 @@
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local CoreGui = game:GetService("CoreGui")
-local Players = game:GetService("Players")
-local HttpService = game:GetService("HttpService")
+local cloneref = (cloneref or clonereference or function(instance)
+	return instance
+end)
+
+local UserInputService = cloneref(game:GetService("UserInputService"))
+local TweenService = cloneref(game:GetService("TweenService"))
+local CoreGui = cloneref(game:GetService("CoreGui"))
+local Players = cloneref(game:GetService("Players"))
+local RunService = cloneref(game:GetService("RunService"))
+local HttpService = cloneref(game:GetService("HttpService"))
+local ReplicatedStorage = cloneref(game:GetService("ReplicatedStorage"))
 
 local LocalPlayer = Players.LocalPlayer
 
+local function IsExploit()
+	return request and true or false
+end
+
+local function Get(url)
+	if IsExploit() then
+		return game:HttpGet(url)
+	else
+		local Success, Result = pcall(function()
+			return HttpService:GetAsync(url)
+		end)
+		if Success then
+			return Result
+		else
+			return ReplicatedStorage:WaitForChild("Request", 9999):InvokeServer({ Url = url })
+		end
+	end
+end
+
+local function Loadstring(src)
+	if not IsExploit() and ReplicatedStorage:FindFirstChild("Loadstring") then
+		return function()
+			return ReplicatedStorage:WaitForChild("Loadstring", 9999):InvokeServer(src)
+		end
+	else
+		return loadstring(src)
+	end
+end
+
 local IconModule = {
 	IconsType = "solar",
-	Icons = {},
+
+	New = nil,
+	IconThemeTag = nil,
+
+	Icons = {
+		solar = (function()
+			local success, result = pcall(function()
+				return Get("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua")
+			end)
+			if success and result and type(result) == "string" then
+				local ok, loaded = pcall(Loadstring(result))
+				if ok and type(loaded) == "function" then
+					local ok2, pack = pcall(loaded)
+					if ok2 and type(pack) == "table" then
+						return pack
+					end
+				end
+			end
+			return nil
+		end)(),
+	},
 }
 
-local function FetchIconPack(url)
-	local success, result = pcall(function()
-		if typeof(game.HttpGet) == "function" then
-			return game:HttpGet(url)
-		elseif typeof(syn) == "table" and typeof(syn.request) == "function" then
-			local response = syn.request({Url = url, Method = "GET"})
-			return response and response.Body
-		elseif typeof(http_request) == "function" then
-			local response = http_request({Url = url, Method = "GET"})
-			return response and response.Body
-		else
-			return HttpService:GetAsync(url)
+local function parseIconString(iconString)
+	if type(iconString) == "string" then
+		local splitIndex = iconString:find(":")
+		if splitIndex then
+			local iconType = iconString:sub(1, splitIndex - 1)
+			local iconName = iconString:sub(splitIndex + 1)
+			return iconType, iconName
 		end
-	end)
-	if success and result and type(result) == "string" and result ~= "" then
-		local ok, loaded = pcall(loadstring, result)
-		if ok and type(loaded) == "function" then
-			local ok2, pack = pcall(loaded)
-			if ok2 and type(pack) == "table" then
-				return pack
+	end
+	return nil, iconString
+end
+
+function IconModule.AddIcons(packName, iconsData)
+	if type(packName) ~= "string" or type(iconsData) ~= "table" then
+		error("AddIcons: packName must be string, iconsData must be table")
+		return
+	end
+
+	if not IconModule.Icons[packName] then
+		IconModule.Icons[packName] = {
+			Icons = {},
+			Spritesheets = {},
+		}
+	end
+
+	for iconName, iconValue in pairs(iconsData) do
+		if type(iconValue) == "number" or (type(iconValue) == "string" and iconValue:match("^rbxassetid://")) then
+			local imageId = iconValue
+			if type(iconValue) == "number" then
+				imageId = "rbxassetid://" .. tostring(iconValue)
 			end
-		end
-	end
-	return nil
-end
 
-local solarPack = FetchIconPack("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua")
-if solarPack and type(solarPack) == "table" then
-	IconModule.Icons["solar"] = solarPack
-end
-
-local function GetIcon(name)
-	if not name then return nil end
-
-	local iconSet = IconModule.Icons["solar"]
-	if iconSet then
-		if iconSet.Icons and iconSet.Icons[name] then
-			local iconData = iconSet.Icons[name]
-			local spriteSheet = iconSet.Spritesheets and iconSet.Spritesheets[tostring(iconData.Image)] or iconData.Image
-			return {
-				Image = spriteSheet,
-				ImageRectSize = iconData.ImageRectSize or Vector2.new(0, 0),
-				ImageRectOffset = iconData.ImageRectPosition or iconData.ImageRectOffset or Vector2.new(0, 0)
-			}
-		elseif iconSet[name] and type(iconSet[name]) == "string" then
-			return {
-				Image = iconSet[name],
+			IconModule.Icons[packName].Icons[iconName] = {
+				Image = imageId,
 				ImageRectSize = Vector2.new(0, 0),
-				ImageRectOffset = Vector2.new(0, 0)
+				ImageRectPosition = Vector2.new(0, 0),
+				Parts = nil,
 			}
+			IconModule.Icons[packName].Spritesheets[imageId] = imageId
+		elseif type(iconValue) == "table" then
+			if iconValue.Image and iconValue.ImageRectSize and iconValue.ImageRectPosition then
+				local imageId = iconValue.Image
+				if type(imageId) == "number" then
+					imageId = "rbxassetid://" .. tostring(imageId)
+				end
+
+				IconModule.Icons[packName].Icons[iconName] = {
+					Image = imageId,
+					ImageRectSize = iconValue.ImageRectSize,
+					ImageRectPosition = iconValue.ImageRectPosition,
+					Parts = iconValue.Parts,
+				}
+
+				if not IconModule.Icons[packName].Spritesheets[imageId] then
+					IconModule.Icons[packName].Spritesheets[imageId] = imageId
+				end
+			else
+				warn("AddIcons: Invalid spritesheet data format for icon '" .. iconName .. "'")
+			end
+		else
+			warn("AddIcons: Unsupported data type for icon '" .. iconName .. "': " .. type(iconValue))
 		end
 	end
+end
 
-	if type(name) == "string" and (name:sub(1, 13) == "rbxassetid://" or name:sub(1, 4) == "http") then
-		return {Image = name}
+function IconModule.SetIconsType(iconType)
+	IconModule.IconsType = iconType
+end
+
+function IconModule.Init(New, IconThemeTag)
+	IconModule.New = New
+	IconModule.IconThemeTag = IconThemeTag
+
+	return IconModule
+end
+
+function IconModule.Icon(Icon, Type, DefaultFormat)
+	DefaultFormat = DefaultFormat ~= false
+	local iconType, iconName = parseIconString(Icon)
+
+	local targetType = iconType or Type or IconModule.IconsType
+	local targetName = iconName
+
+	local iconSet = IconModule.Icons[targetType]
+
+	if iconSet and iconSet.Icons and iconSet.Icons[targetName] then
+		return {
+			iconSet.Spritesheets[tostring(iconSet.Icons[targetName].Image)],
+			iconSet.Icons[targetName],
+		}
+	elseif iconSet and iconSet[targetName] and string.find(iconSet[targetName], "rbxassetid://") then
+		return DefaultFormat
+				and {
+					iconSet[targetName],
+					{ ImageRectSize = Vector2.new(0, 0), ImageRectPosition = Vector2.new(0, 0) },
+				}
+			or iconSet[targetName]
 	end
-
 	return nil
+end
+
+function IconModule.GetIcon(Icon, Type)
+	return IconModule.Icon(Icon, Type, false)
+end
+
+function IconModule.Icon2(Icon, Type, DefaultFormat)
+	return IconModule.Icon(Icon, Type, true)
 end
 
 local function applyIcon(imageLabel, iconName)
@@ -77,11 +181,42 @@ local function applyIcon(imageLabel, iconName)
 		return
 	end
 
-	local iconData = GetIcon(iconName)
+	for _, child in pairs(imageLabel:GetChildren()) do
+		if child:IsA("ImageLabel") then child:Destroy() end
+	end
+
+	local iconData = IconModule.Icon2(iconName, "solar")
 	if iconData then
-		imageLabel.Image = iconData.Image or ""
-		imageLabel.ImageRectSize = iconData.ImageRectSize or Vector2.new(0, 0)
-		imageLabel.ImageRectOffset = iconData.ImageRectOffset or Vector2.new(0, 0)
+		if typeof(iconData) == "string" then
+			imageLabel.Image = iconData
+			imageLabel.ImageRectSize = Vector2.new(0, 0)
+			imageLabel.ImageRectOffset = Vector2.new(0, 0)
+			imageLabel.Visible = true
+		elseif type(iconData) == "table" and iconData[1] and iconData[2] then
+			imageLabel.Image = iconData[1]
+			imageLabel.ImageRectSize = iconData[2].ImageRectSize or Vector2.new(0, 0)
+			imageLabel.ImageRectOffset = iconData[2].ImageRectPosition or iconData[2].ImageRectOffset or Vector2.new(0, 0)
+			imageLabel.Visible = true
+
+			if iconData[2].Parts then
+				for idx, part in ipairs(iconData[2].Parts) do
+					local partData = IconModule.Icon(part, "solar")
+					if partData and partData[1] and partData[2] then
+						local partLabel = Instance.new("ImageLabel")
+						partLabel.Size = UDim2.new(1, 0, 1, 0)
+						partLabel.BackgroundTransparency = 1
+						partLabel.Image = partData[1]
+						partLabel.ImageRectSize = partData[2].ImageRectSize
+						partLabel.ImageRectOffset = partData[2].ImageRectPosition or partData[2].ImageRectOffset
+						partLabel.Parent = imageLabel
+					end
+				end
+			end
+		end
+	elseif type(iconName) == "string" and (iconName:sub(1, 13) == "rbxassetid://" or iconName:sub(1, 4) == "http") then
+		imageLabel.Image = iconName
+		imageLabel.ImageRectSize = Vector2.new(0, 0)
+		imageLabel.ImageRectOffset = Vector2.new(0, 0)
 		imageLabel.Visible = true
 	else
 		imageLabel.Visible = false
