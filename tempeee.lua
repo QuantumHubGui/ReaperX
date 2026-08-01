@@ -364,9 +364,9 @@ function Cloudy.new(options)
     options = options or {}
     local windowTitle = options.Title or "Cloudy"
     local windowSub = options.SubTitle or "UI Framework"
-    local toggleIcon = options.ToggleIcon or "cloud-bold"
+    local toggleIcon = options.ToggleIcon or options.ToggleImage or 88244237473485
     local logoIcon = options.Logo or options.LogoIcon or options.Icon or "cloud-bold"
-    local bgImage = options.BackgroundImage or options.Background or options.Image
+    local bgImage = options.BackgroundImage or options.Background or options.Image or 132540552885841
     local bgTransparency = options.BackgroundTransparency or options.ImageTransparency or 0.85
 
     local ScreenGui = Instance.new("ScreenGui")
@@ -383,47 +383,40 @@ function Cloudy.new(options)
         ScreenGui.Parent = CoreGui
     end
 
-    local ToggleBtn = Instance.new("TextButton")
+    local ToggleBtn = Instance.new("ImageButton")
     ToggleBtn.Name = "FloatingToggle"
-    ToggleBtn.Size = UDim2.new(0, 46, 0, 46)
+    ToggleBtn.Size = UDim2.new(0, 48, 0, 48)
     ToggleBtn.Position = UDim2.new(0.02, 0, 0.15, 0)
-    ToggleBtn.BackgroundColor3 = Color3.fromRGB(24, 25, 31)
+    ToggleBtn.BackgroundTransparency = 1
+    ToggleBtn.BorderSizePixel = 0
     ToggleBtn.AutoButtonColor = false
-    ToggleBtn.Text = ""
+    ToggleBtn.Image = ""
     ToggleBtn.Parent = ScreenGui
-
-    local ToggleCorner = Instance.new("UICorner")
-    ToggleCorner.CornerRadius = UDim.new(0, 12)
-    ToggleCorner.Parent = ToggleBtn
-
-    local ToggleStroke = Instance.new("UIStroke")
-    ToggleStroke.Color = Color3.fromRGB(55, 58, 68)
-    ToggleStroke.Thickness = 1.5
-    ToggleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    ToggleStroke.Parent = ToggleBtn
 
     local ToggleIconImg = Instance.new("ImageLabel")
     ToggleIconImg.Name = "Icon"
-    ToggleIconImg.Size = UDim2.new(0, 24, 0, 24)
+    ToggleIconImg.Size = UDim2.new(1, 0, 1, 0)
     ToggleIconImg.AnchorPoint = Vector2.new(0.5, 0.5)
     ToggleIconImg.Position = UDim2.new(0.5, 0, 0.5, 0)
     ToggleIconImg.BackgroundTransparency = 1
+    ToggleIconImg.BorderSizePixel = 0
     ToggleIconImg.Image = GetIcon(toggleIcon)
-    ToggleIconImg.ImageColor3 = Color3.fromRGB(235, 238, 245)
+    ToggleIconImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleIconImg.ScaleType = Enum.ScaleType.Fit
     ToggleIconImg.Parent = ToggleBtn
 
     MakeDraggable(ToggleBtn)
 
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
-    MainFrame.Size = UDim2.new(0, 640, 0, 440)
-    MainFrame.Position = UDim2.new(0.5, -320, 0.5, -220)
+    MainFrame.Size = UDim2.new(0, 560, 0, 380)
+    MainFrame.Position = UDim2.new(0.5, -280, 0.5, -190)
     MainFrame.BackgroundColor3 = Color3.fromRGB(18, 19, 24)
     MainFrame.ClipsDescendants = true
     MainFrame.Parent = ScreenGui
 
     local MainCorner = Instance.new("UICorner")
-    MainCorner.CornerRadius = UDim.new(0, 14)
+    MainCorner.CornerRadius = UDim.new(0, 12)
     MainCorner.Parent = MainFrame
 
     local MainStroke = Instance.new("UIStroke")
@@ -445,7 +438,7 @@ function Cloudy.new(options)
 
     local Sidebar = Instance.new("Frame")
     Sidebar.Name = "Sidebar"
-    Sidebar.Size = UDim2.new(0, 174, 1, -16)
+    Sidebar.Size = UDim2.new(0, 155, 1, -16)
     Sidebar.Position = UDim2.new(0, 8, 0, 8)
     Sidebar.BackgroundColor3 = Color3.fromRGB(22, 23, 30)
     Sidebar.BorderSizePixel = 0
@@ -527,8 +520,8 @@ function Cloudy.new(options)
 
     local TopBar = Instance.new("Frame")
     TopBar.Name = "TopBar"
-    TopBar.Size = UDim2.new(1, -198, 0, 45)
-    TopBar.Position = UDim2.new(0, 190, 0, 8)
+    TopBar.Size = UDim2.new(1, -179, 0, 42)
+    TopBar.Position = UDim2.new(0, 171, 0, 8)
     TopBar.BackgroundColor3 = Color3.fromRGB(22, 23, 30)
     TopBar.BorderSizePixel = 0
     TopBar.Parent = MainFrame
@@ -556,8 +549,8 @@ function Cloudy.new(options)
     PageTitle.Parent = TopBar
 
     local CloseBtn = Instance.new("TextButton")
-    CloseBtn.Size = UDim2.new(0, 28, 0, 28)
-    CloseBtn.Position = UDim2.new(1, -36, 0.5, -14)
+    CloseBtn.Size = UDim2.new(0, 26, 0, 26)
+    CloseBtn.Position = UDim2.new(1, -34, 0.5, -13)
     CloseBtn.BackgroundColor3 = Color3.fromRGB(28, 30, 38)
     CloseBtn.AutoButtonColor = false
     CloseBtn.Text = ""
@@ -577,8 +570,8 @@ function Cloudy.new(options)
     CloseIcon.Parent = CloseBtn
 
     local ContentArea = Instance.new("Frame")
-    ContentArea.Size = UDim2.new(1, -198, 1, -69)
-    ContentArea.Position = UDim2.new(0, 190, 0, 61)
+    ContentArea.Size = UDim2.new(1, -179, 1, -64)
+    ContentArea.Position = UDim2.new(0, 171, 0, 56)
     ContentArea.BackgroundTransparency = 1
     ContentArea.Parent = MainFrame
 
