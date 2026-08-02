@@ -95,26 +95,37 @@ local function ListConfigNames()
 	return names
 end
 
-local function GetUrlContent(url)
-	local content = nil
-	pcall(function()
-		if typeof(game) == "Instance" and typeof(game.HttpGet) == "function" then
-			content = game:HttpGet(url)
-		elseif type(request) == "function" then
-			local resp = request({Url = url, Method = "GET"})
-			if resp and resp.Body then content = resp.Body end
-		elseif type(http_request) == "function" then
-			local resp = http_request({Url = url, Method = "GET"})
-			if resp and resp.Body then content = resp.Body end
-		elseif type(syn) == "table" and type(syn.request) == "function" then
-			local resp = syn.request({Url = url, Method = "GET"})
-			if resp and resp.Body then content = resp.Body end
-		else
-			local ok, res = pcall(function() return HttpService:GetAsync(url) end)
-			if ok then content = res end
+local function GetUrlContent(url, mirrors)
+	mirrors = mirrors or {}
+	local urls = {url}
+	for _, m in ipairs(mirrors) do table.insert(urls, m) end
+
+	for _, targetUrl in ipairs(urls) do
+		for attempt = 1, 3 do
+			local content = nil
+			pcall(function()
+				if type(request) == "function" then
+					local resp = request({Url = targetUrl, Method = "GET"})
+					if resp and resp.Body and #resp.Body > 10 then content = resp.Body end
+				elseif type(http_request) == "function" then
+					local resp = http_request({Url = targetUrl, Method = "GET"})
+					if resp and resp.Body and #resp.Body > 10 then content = resp.Body end
+				elseif type(syn) == "table" and type(syn.request) == "function" then
+					local resp = syn.request({Url = targetUrl, Method = "GET"})
+					if resp and resp.Body and #resp.Body > 10 then content = resp.Body end
+				elseif typeof(game) == "Instance" and typeof(game.HttpGet) == "function" then
+					local ok, res = pcall(function() return game:HttpGet(targetUrl) end)
+					if ok and res and #res > 10 then content = res end
+				else
+					local ok, res = pcall(function() return HttpService:GetAsync(targetUrl) end)
+					if ok and res and #res > 10 then content = res end
+				end
+			end)
+			if content then return content end
+			task.wait(0.2)
 		end
-	end)
-	return content
+	end
+	return nil
 end
 
 local function CompileString(src)
@@ -136,8 +147,8 @@ local function CompileString(src)
 	return compiledFn
 end
 
-local function FetchIconPack(url)
-	local rawSrc = GetUrlContent(url)
+local function FetchIconPack(url, mirrors)
+	local rawSrc = GetUrlContent(url, mirrors)
 	if rawSrc then
 		local fn = CompileString(rawSrc)
 		if type(fn) == "function" then
@@ -147,7 +158,7 @@ local function FetchIconPack(url)
 			end
 		end
 	end
-	return nil
+	return {}
 end
 
 local IconModule = {
@@ -156,8 +167,14 @@ local IconModule = {
 	IconThemeTag = nil,
 
 	Icons = {
-		solar = FetchIconPack("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua") or {},
-		gravity = FetchIconPack("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/gravity/dist/Icons.lua") or {},
+		solar = FetchIconPack(
+			"https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua",
+			{"https://cdn.jsdelivr.net/gh/Footagesus/Icons@main/solar/dist/Icons.lua"}
+		) or {},
+		gravity = FetchIconPack(
+			"https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/gravity/dist/Icons.lua",
+			{"https://cdn.jsdelivr.net/gh/Footagesus/Icons@main/gravity/dist/Icons.lua"}
+		) or {},
 	},
 }
 
