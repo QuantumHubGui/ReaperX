@@ -922,16 +922,27 @@ function CloudyLib:CreateWindow(options)
 		TweenService:Create(ResizeIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(200, 200, 215)}):Play()
 	end)
 
+	local TabScroll = Instance.new("ScrollingFrame")
+	TabScroll.Size = UDim2.new(1, 0, 1, -104)
+	TabScroll.Position = UDim2.new(0, 0, 0, 44)
+	TabScroll.BackgroundTransparency = 1
+	TabScroll.BorderSizePixel = 0
+	TabScroll.ScrollBarThickness = 2
+	TabScroll.ScrollBarImageColor3 = Color3.fromRGB(45, 45, 58)
+	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+	TabScroll.ZIndex = 2
+	TabScroll.Parent = Sidebar
+
 	local TabIndicator = Instance.new("Frame")
 	TabIndicator.Name = "TabIndicator"
-	TabIndicator.Size = UDim2.new(0, 144, 0, 36)
-	TabIndicator.Position = UDim2.new(0, 8, 0, 52)
+	TabIndicator.Size = UDim2.new(1, -16, 0, 38)
+	TabIndicator.Position = UDim2.new(0, 8, 0, 6)
 	TabIndicator.BackgroundColor3 = Color3.fromRGB(30, 30, 42)
 	TabIndicator.BackgroundTransparency = 0.2
 	TabIndicator.BorderSizePixel = 0
 	TabIndicator.Visible = false
 	TabIndicator.ZIndex = 1
-	TabIndicator.Parent = Sidebar
+	TabIndicator.Parent = TabScroll
 
 	local IndCorner = Instance.new("UICorner")
 	IndCorner.CornerRadius = UDim.new(0, 8)
@@ -948,17 +959,6 @@ function CloudyLib:CreateWindow(options)
 	local LineCorner = Instance.new("UICorner")
 	LineCorner.CornerRadius = UDim.new(1, 0)
 	LineCorner.Parent = IndLine
-
-	local TabScroll = Instance.new("ScrollingFrame")
-	TabScroll.Size = UDim2.new(1, 0, 1, -104)
-	TabScroll.Position = UDim2.new(0, 0, 0, 44)
-	TabScroll.BackgroundTransparency = 1
-	TabScroll.BorderSizePixel = 0
-	TabScroll.ScrollBarThickness = 2
-	TabScroll.ScrollBarImageColor3 = Color3.fromRGB(45, 45, 58)
-	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-	TabScroll.ZIndex = 2
-	TabScroll.Parent = Sidebar
 
 	local TabListLayout = Instance.new("UIListLayout")
 	TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1214,10 +1214,6 @@ function CloudyLib:CreateWindow(options)
 		closeDrawer()
 	end)
 
-	playIntroAnimation(ScreenGui, titleText, function()
-		MainFrame.Visible = true
-	end)
-
 	local WindowObj = {
 		Tabs = {},
 		ActiveTab = nil,
@@ -1225,6 +1221,13 @@ function CloudyLib:CreateWindow(options)
 		Flags = {},
 		Elements = {},
 	}
+
+	playIntroAnimation(ScreenGui, titleText, function()
+		MainFrame.Visible = true
+		if WindowObj.ActiveTab and WindowObj.ActiveTab.Select then
+			WindowObj.ActiveTab.Select(false)
+		end
+	end)
 
 	function WindowObj:SaveConfig(configName)
 		if not configName or configName == "" then configName = "Default" end
@@ -1338,6 +1341,7 @@ function CloudyLib:CreateWindow(options)
 		local TabObj = {
 			Button = TabBtn,
 			Page = TabPage,
+			LayoutOrder = WindowObj.TabCount,
 			ElementCount = 0
 		}
 
@@ -1347,7 +1351,7 @@ function CloudyLib:CreateWindow(options)
 
 			closeDrawer()
 
-			local targetY = TabBtn.AbsolutePosition.Y - Sidebar.AbsolutePosition.Y
+			local targetY = 6 + (TabObj.LayoutOrder - 1) * 42
 			local targetPos = UDim2.new(0, 8, 0, targetY)
 
 			TabIndicator.Visible = true
@@ -1387,14 +1391,14 @@ function CloudyLib:CreateWindow(options)
 			}):Play()
 		end
 
+		TabObj.Select = selectTab
+
 		TabBtn.MouseButton1Click:Connect(function()
 			selectTab(true)
 		end)
 
 		if WindowObj.TabCount == 1 then
-			task.delay(0.1, function()
-				selectTab(false)
-			end)
+			selectTab(false)
 		end
 
 		table.insert(WindowObj.Tabs, TabObj)
