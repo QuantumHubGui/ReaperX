@@ -727,84 +727,6 @@ function CloudyLib:CreateWindow(options)
 	TopbarCorner.CornerRadius = UDim.new(0, 10)
 	TopbarCorner.Parent = Topbar
 
-	-- Real-time Sensor Pill Widget in Topbar
-	local SensorPill = Instance.new("Frame")
-	SensorPill.Name = "SensorPill"
-	SensorPill.Size = UDim2.new(0, 185, 0, 24)
-	SensorPill.Position = UDim2.new(0, 10, 0.5, -12)
-	SensorPill.BackgroundColor3 = Color3.fromRGB(24, 24, 34)
-	SensorPill.BorderSizePixel = 0
-	SensorPill.Parent = Topbar
-
-	local SensorPillCorner = Instance.new("UICorner")
-	SensorPillCorner.CornerRadius = UDim.new(0, 6)
-	SensorPillCorner.Parent = SensorPill
-
-	local SensorPillStroke = Instance.new("UIStroke")
-	SensorPillStroke.Color = Color3.fromRGB(40, 40, 56)
-	SensorPillStroke.Thickness = 1
-	SensorPillStroke.Parent = SensorPill
-
-	local SensorDot = Instance.new("Frame")
-	SensorDot.Size = UDim2.new(0, 6, 0, 6)
-	SensorDot.Position = UDim2.new(0, 8, 0.5, -3)
-	SensorDot.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-	SensorDot.BorderSizePixel = 0
-	SensorDot.Parent = SensorPill
-
-	local SensorDotCorner = Instance.new("UICorner")
-	SensorDotCorner.CornerRadius = UDim.new(1, 0)
-	SensorDotCorner.Parent = SensorDot
-
-	local SensorText = Instance.new("TextLabel")
-	SensorText.Size = UDim2.new(1, -20, 1, 0)
-	SensorText.Position = UDim2.new(0, 18, 0, 0)
-	SensorText.BackgroundTransparency = 1
-	SensorText.Text = "FPS: 60 | Ping: 0ms | 0MB"
-	SensorText.Font = Enum.Font.GothamMedium
-	SensorText.TextSize = 10
-	SensorText.TextColor3 = Color3.fromRGB(200, 200, 220)
-	SensorText.TextXAlignment = Enum.TextXAlignment.Left
-	SensorText.Parent = SensorPill
-
-	local currentFPS = 60
-	local currentPing = 0
-	local currentMemory = 0
-	local frameCount = 0
-	local lastTime = tick()
-
-	local sensorConn = RunService.RenderStepped:Connect(function()
-		frameCount = frameCount + 1
-		local now = tick()
-		if now - lastTime >= 1 then
-			currentFPS = math.floor(frameCount / (now - lastTime))
-			frameCount = 0
-			lastTime = now
-
-			pcall(function()
-				local stats = game:GetService("Stats")
-				currentPing = math.floor(stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-				currentMemory = math.floor(stats:GetTotalMemoryUsageMb())
-			end)
-
-			SensorText.Text = string.format("FPS: %d | Ping: %dms | %dMB", currentFPS, currentPing, currentMemory)
-
-			if currentFPS >= 50 and currentPing <= 120 then
-				SensorDot.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-			elseif currentFPS >= 30 and currentPing <= 200 then
-				SensorDot.BackgroundColor3 = Color3.fromRGB(241, 196, 15)
-			else
-				SensorDot.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
-			end
-		end
-	end)
-
-	ScreenGui.AncestryChanged:Connect(function(_, parent)
-		if not parent and sensorConn then
-			sensorConn:Disconnect()
-		end
-	end)
-
 	local TopbarCorner = Instance.new("UICorner")
 	TopbarCorner.CornerRadius = UDim.new(0, 10)
 	TopbarCorner.Parent = Topbar
@@ -1054,7 +976,20 @@ function CloudyLib:CreateWindow(options)
 		TabScroll.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y + 12)
 	end)
 
-	-- User Profile Section at bottom of Sidebar
+	local realDisplayName = LocalPlayer and LocalPlayer.DisplayName or "User Profile"
+	local realUsername = LocalPlayer and LocalPlayer.Name or "Guest"
+
+	local function maskText(str)
+		if not str or str == "" then return "••••" end
+		if #str <= 3 then
+			return string.rep("•", #str)
+		else
+			return str:sub(1, 2) .. string.rep("•", math.min(#str - 2, 7))
+		end
+	end
+
+	local isCensored = true
+
 	local UserProfileFrame = Instance.new("Frame")
 	UserProfileFrame.Name = "UserProfileFrame"
 	UserProfileFrame.Size = UDim2.new(1, -12, 0, 50)
@@ -1100,10 +1035,9 @@ function CloudyLib:CreateWindow(options)
 	ProfileInfo.Parent = UserProfileFrame
 
 	local DisplayNameLabel = Instance.new("TextLabel")
-	DisplayNameLabel.Size = UDim2.new(1, -16, 0, 16)
+	DisplayNameLabel.Size = UDim2.new(1, -22, 0, 16)
 	DisplayNameLabel.Position = UDim2.new(0, 0, 0.5, -15)
 	DisplayNameLabel.BackgroundTransparency = 1
-	DisplayNameLabel.Text = LocalPlayer and LocalPlayer.DisplayName or "User Profile"
 	DisplayNameLabel.Font = Enum.Font.GothamBold
 	DisplayNameLabel.TextSize = 11
 	DisplayNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1113,10 +1047,9 @@ function CloudyLib:CreateWindow(options)
 	DisplayNameLabel.Parent = ProfileInfo
 
 	local UsernameLabel = Instance.new("TextLabel")
-	UsernameLabel.Size = UDim2.new(1, -16, 0, 14)
+	UsernameLabel.Size = UDim2.new(1, -22, 0, 14)
 	UsernameLabel.Position = UDim2.new(0, 0, 0.5, 1)
 	UsernameLabel.BackgroundTransparency = 1
-	UsernameLabel.Text = "@" .. (LocalPlayer and LocalPlayer.Name or "Guest")
 	UsernameLabel.Font = Enum.Font.Gotham
 	UsernameLabel.TextSize = 9
 	UsernameLabel.TextColor3 = Color3.fromRGB(140, 140, 165)
@@ -1125,17 +1058,41 @@ function CloudyLib:CreateWindow(options)
 	UsernameLabel.ZIndex = 6
 	UsernameLabel.Parent = ProfileInfo
 
-	local StatusDot = Instance.new("Frame")
-	StatusDot.Size = UDim2.new(0, 8, 0, 8)
-	StatusDot.Position = UDim2.new(1, -14, 0.5, -4)
-	StatusDot.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-	StatusDot.BorderSizePixel = 0
-	StatusDot.ZIndex = 6
-	StatusDot.Parent = UserProfileFrame
+	local CensorBadge = Instance.new("ImageLabel")
+	CensorBadge.Name = "CensorBadge"
+	CensorBadge.Size = UDim2.new(0, 14, 0, 14)
+	CensorBadge.Position = UDim2.new(1, -18, 0.5, -7)
+	CensorBadge.BackgroundTransparency = 1
+	CensorBadge.ZIndex = 6
+	CensorBadge.Parent = UserProfileFrame
 
-	local StatusDotCorner = Instance.new("UICorner")
-	StatusDotCorner.CornerRadius = UDim.new(1, 0)
-	StatusDotCorner.Parent = StatusDot
+	local ProfileClickBtn = Instance.new("TextButton")
+	ProfileClickBtn.Size = UDim2.new(1, 0, 1, 0)
+	ProfileClickBtn.BackgroundTransparency = 1
+	ProfileClickBtn.Text = ""
+	ProfileClickBtn.ZIndex = 7
+	ProfileClickBtn.Parent = UserProfileFrame
+
+	local function updateCensorState()
+		if isCensored then
+			DisplayNameLabel.Text = maskText(realDisplayName)
+			UsernameLabel.Text = "@" .. maskText(realUsername)
+			applyIcon(CensorBadge, "eye-bold")
+			CensorBadge.ImageColor3 = Color3.fromRGB(255, 120, 120)
+		else
+			DisplayNameLabel.Text = realDisplayName
+			UsernameLabel.Text = "@" .. realUsername
+			applyIcon(CensorBadge, "eye-bold")
+			CensorBadge.ImageColor3 = Color3.fromRGB(46, 204, 113)
+		end
+	end
+
+	updateCensorState()
+
+	ProfileClickBtn.MouseButton1Click:Connect(function()
+		isCensored = not isCensored
+		updateCensorState()
+	end)
 
 	local ContentContainer = Instance.new("Frame")
 	ContentContainer.Name = "ContentContainer"
@@ -1444,11 +1401,13 @@ function CloudyLib:CreateWindow(options)
 
 		function TabObj:AddSection(text, defaultOpen)
 			TabObj.ElementCount = TabObj.ElementCount + 1
-			local isOpen = (defaultOpen == nil) and true or defaultOpen
+			local isOpen = (defaultOpen == nil) and false or defaultOpen
 
 			local SectionHolder = Instance.new("Frame")
+			SectionHolder.Name = "Section_" .. text
 			SectionHolder.Size = UDim2.new(1, 0, 0, 32)
 			SectionHolder.BackgroundTransparency = 1
+			SectionHolder.ClipsDescendants = true
 			SectionHolder.LayoutOrder = TabObj.ElementCount
 			SectionHolder.Parent = TabPage
 
@@ -1480,16 +1439,18 @@ function CloudyLib:CreateWindow(options)
 
 			local Underline = Instance.new("Frame")
 			Underline.Size = UDim2.new(1, 0, 0, 1)
-			Underline.Position = UDim2.new(0, 0, 1, -1)
+			Underline.Position = UDim2.new(0, 0, 0, 31)
 			Underline.BackgroundColor3 = Color3.fromRGB(38, 38, 50)
 			Underline.BorderSizePixel = 0
 			Underline.Parent = SectionHolder
 
 			local ItemsContainer = Instance.new("Frame")
+			ItemsContainer.Name = "ItemsContainer"
 			ItemsContainer.Size = UDim2.new(1, 0, 0, 0)
 			ItemsContainer.Position = UDim2.new(0, 0, 0, 32)
 			ItemsContainer.BackgroundTransparency = 1
-			ItemsContainer.Visible = isOpen
+			ItemsContainer.ClipsDescendants = true
+			ItemsContainer.Visible = true
 			ItemsContainer.Parent = SectionHolder
 
 			local ItemsLayout = Instance.new("UIListLayout")
@@ -1497,26 +1458,30 @@ function CloudyLib:CreateWindow(options)
 			ItemsLayout.Padding = UDim.new(0, 8)
 			ItemsLayout.Parent = ItemsContainer
 
-			ItemsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-				if isOpen then
-					ItemsContainer.Size = UDim2.new(1, 0, 0, ItemsLayout.AbsoluteContentSize.Y)
-					SectionHolder.Size = UDim2.new(1, 0, 0, 32 + ItemsLayout.AbsoluteContentSize.Y + 6)
+			local function updateSectionState(animated)
+				local contentHeight = ItemsLayout.AbsoluteContentSize.Y
+				local targetHolderHeight = isOpen and (32 + contentHeight + 6) or 32
+				local targetItemsHeight = isOpen and contentHeight or 0
+
+				if animated ~= false then
+					local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+					TweenService:Create(SectionHolder, tweenInfo, {Size = UDim2.new(1, 0, 0, targetHolderHeight)}):Play()
+					TweenService:Create(ItemsContainer, tweenInfo, {Size = UDim2.new(1, 0, 0, targetItemsHeight)}):Play()
+					TweenService:Create(ArrowIcon, tweenInfo, {Rotation = isOpen and 0 or -90}):Play()
+				else
+					SectionHolder.Size = UDim2.new(1, 0, 0, targetHolderHeight)
+					ItemsContainer.Size = UDim2.new(1, 0, 0, targetItemsHeight)
+					ArrowIcon.Rotation = isOpen and 0 or -90
 				end
+			end
+
+			ItemsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				updateSectionState(false)
 			end)
 
 			HeaderBtn.MouseButton1Click:Connect(function()
 				isOpen = not isOpen
-				ItemsContainer.Visible = isOpen
-				TweenService:Create(ArrowIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-					Rotation = isOpen and 0 or -90
-				}):Play()
-
-				if isOpen then
-					ItemsContainer.Size = UDim2.new(1, 0, 0, ItemsLayout.AbsoluteContentSize.Y)
-					SectionHolder.Size = UDim2.new(1, 0, 0, 32 + ItemsLayout.AbsoluteContentSize.Y + 6)
-				else
-					SectionHolder.Size = UDim2.new(1, 0, 0, 32)
-				end
+				updateSectionState(true)
 			end)
 
 			local SectionObj = {}
@@ -1524,8 +1489,7 @@ function CloudyLib:CreateWindow(options)
 			local function addToSection(elementFrame)
 				elementFrame.Parent = ItemsContainer
 				if isOpen then
-					ItemsContainer.Size = UDim2.new(1, 0, 0, ItemsLayout.AbsoluteContentSize.Y)
-					SectionHolder.Size = UDim2.new(1, 0, 0, 32 + ItemsLayout.AbsoluteContentSize.Y + 6)
+					updateSectionState(false)
 				end
 			end
 
@@ -1570,151 +1534,7 @@ function CloudyLib:CreateWindow(options)
 				end
 			end
 
-			function SectionObj:AddSensorCard(cardTitle)
-				TabObj:AddSensorCard(cardTitle, ItemsContainer)
-				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
-				if lastChild and lastChild:IsA("Frame") then
-					addToSection(lastChild)
-				end
-			end
-
 			return SectionObj
-		end
-
-		function TabObj:AddSensorCard(cardTitle, targetParent)
-			TabObj.ElementCount = TabObj.ElementCount + 1
-			cardTitle = cardTitle or "Telemetry Performance Sensor"
-			targetParent = targetParent or TabPage
-
-			local SensorCard = Instance.new("Frame")
-			SensorCard.Size = UDim2.new(1, 0, 0, 105)
-			SensorCard.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
-			SensorCard.LayoutOrder = TabObj.ElementCount
-			SensorCard.Parent = targetParent
-
-			local Corner = Instance.new("UICorner")
-			Corner.CornerRadius = UDim.new(0, 8)
-			Corner.Parent = SensorCard
-
-			local Stroke = Instance.new("UIStroke")
-			Stroke.Color = Color3.fromRGB(42, 42, 58)
-			Stroke.Thickness = 1
-			Stroke.Parent = SensorCard
-
-			local HeaderLabel = Instance.new("TextLabel")
-			HeaderLabel.Size = UDim2.new(1, -20, 0, 22)
-			HeaderLabel.Position = UDim2.new(0, 12, 0, 6)
-			HeaderLabel.BackgroundTransparency = 1
-			HeaderLabel.Text = "⚡ " .. cardTitle
-			HeaderLabel.Font = Enum.Font.GothamBold
-			HeaderLabel.TextSize = 12
-			HeaderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-			HeaderLabel.TextXAlignment = Enum.TextXAlignment.Left
-			HeaderLabel.Parent = SensorCard
-
-			local GridFrame = Instance.new("Frame")
-			GridFrame.Size = UDim2.new(1, -24, 0, 65)
-			GridFrame.Position = UDim2.new(0, 12, 0, 30)
-			GridFrame.BackgroundTransparency = 1
-			GridFrame.Parent = SensorCard
-
-			local function createMetricBox(titleText, defaultVal, posScale)
-				local box = Instance.new("Frame")
-				box.Size = UDim2.new(0.31, 0, 1, 0)
-				box.Position = UDim2.new(posScale, 0, 0, 0)
-				box.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
-				box.Parent = GridFrame
-
-				local bCorner = Instance.new("UICorner")
-				bCorner.CornerRadius = UDim.new(0, 6)
-				bCorner.Parent = box
-
-				local bStroke = Instance.new("UIStroke")
-				bStroke.Color = Color3.fromRGB(35, 35, 48)
-				bStroke.Thickness = 1
-				bStroke.Parent = box
-
-				local tLbl = Instance.new("TextLabel")
-				tLbl.Size = UDim2.new(1, 0, 0, 14)
-				tLbl.Position = UDim2.new(0, 0, 0, 6)
-				tLbl.BackgroundTransparency = 1
-				tLbl.Text = titleText
-				tLbl.Font = Enum.Font.GothamMedium
-				tLbl.TextSize = 9
-				tLbl.TextColor3 = Color3.fromRGB(150, 150, 170)
-				tLbl.Parent = box
-
-				local vLbl = Instance.new("TextLabel")
-				vLbl.Size = UDim2.new(1, 0, 0, 22)
-				vLbl.Position = UDim2.new(0, 0, 0, 22)
-				vLbl.BackgroundTransparency = 1
-				vLbl.Text = defaultVal
-				vLbl.Font = Enum.Font.GothamBold
-				vLbl.TextSize = 14
-				vLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-				vLbl.Parent = box
-
-				local sLbl = Instance.new("TextLabel")
-				sLbl.Size = UDim2.new(1, 0, 0, 14)
-				sLbl.Position = UDim2.new(0, 0, 0, 44)
-				sLbl.BackgroundTransparency = 1
-				sLbl.Text = "Optimal"
-				sLbl.Font = Enum.Font.Gotham
-				sLbl.TextSize = 9
-				sLbl.TextColor3 = Color3.fromRGB(46, 204, 113)
-				sLbl.Parent = box
-
-				return vLbl, sLbl
-			end
-
-			local fpsValLbl, fpsStatLbl = createMetricBox("FPS SENSOR", "60", 0)
-			local pingValLbl, pingStatLbl = createMetricBox("PING SENSOR", "0 ms", 0.345)
-			local memValLbl, memStatLbl = createMetricBox("MEMORY", "0 MB", 0.69)
-
-			local cardConn
-			cardConn = RunService.RenderStepped:Connect(function()
-				if SensorCard and SensorCard.Parent then
-					fpsValLbl.Text = tostring(currentFPS or 60)
-					pingValLbl.Text = tostring(currentPing or 0) .. " ms"
-					memValLbl.Text = tostring(currentMemory or 0) .. " MB"
-
-					local cFPS = currentFPS or 60
-					local cPing = currentPing or 0
-					local cMem = currentMemory or 0
-
-					if cFPS >= 50 then
-						fpsStatLbl.Text = "Optimal"
-						fpsStatLbl.TextColor3 = Color3.fromRGB(46, 204, 113)
-					elseif cFPS >= 30 then
-						fpsStatLbl.Text = "Moderate"
-						fpsStatLbl.TextColor3 = Color3.fromRGB(241, 196, 15)
-					else
-						fpsStatLbl.Text = "Low FPS"
-						fpsStatLbl.TextColor3 = Color3.fromRGB(231, 76, 60)
-					end
-
-					if cPing <= 100 then
-						pingStatLbl.Text = "Good"
-						pingStatLbl.TextColor3 = Color3.fromRGB(46, 204, 113)
-					elseif cPing <= 200 then
-						pingStatLbl.Text = "Medium"
-						pingStatLbl.TextColor3 = Color3.fromRGB(241, 196, 15)
-					else
-						pingStatLbl.Text = "High Latency"
-						pingStatLbl.TextColor3 = Color3.fromRGB(231, 76, 60)
-					end
-
-					if cMem <= 500 then
-						memStatLbl.Text = "Normal"
-						memStatLbl.TextColor3 = Color3.fromRGB(46, 204, 113)
-					else
-						memStatLbl.Text = "High Usage"
-						memStatLbl.TextColor3 = Color3.fromRGB(241, 196, 15)
-					end
-				else
-					if cardConn then cardConn:Disconnect() end
-				end
-			end)
 		end
 
 		function TabObj:AddButton(text, callback, targetParent)
