@@ -474,25 +474,7 @@ local function playIntroAnimation(screenGui, titleText, onComplete)
 	local cloud2 = createCustomCloud(IntroFrame, UDim2.new(0, 110, 0, 70), UDim2.new(0, -100, 1, 100), 1)
 	local cloud3 = createCustomCloud(IntroFrame, UDim2.new(0, 110, 0, 70), UDim2.new(0, -100, 0, -100), 1)
 
-	local canUseCanvasGroup = pcall(function() local g = Instance.new("CanvasGroup") g:Destroy() end)
-	local CenterGroup
-	if canUseCanvasGroup then
-		CenterGroup = Instance.new("CanvasGroup")
-		CenterGroup.GroupTransparency = 0
-	else
-		CenterGroup = Instance.new("Frame")
-	end
-	CenterGroup.Name = "CenterGroup"
-	CenterGroup.Size = UDim2.new(0, 460, 0, 140)
-	CenterGroup.Position = UDim2.new(0.5, -230, 0.5, -70)
-	CenterGroup.BackgroundTransparency = 1
-	if not CenterGroup:IsA("CanvasGroup") then
-		CenterGroup.ClipsDescendants = false
-	end
-	CenterGroup.ZIndex = 1000
-	CenterGroup.Parent = IntroFrame
-
-	local centerCloud = createCustomCloud(CenterGroup, UDim2.new(0, 30, 0, 20), UDim2.new(0.5, 0, 0.5, 0), 1.5)
+	local centerCloud = createCustomCloud(IntroFrame, UDim2.new(0, 30, 0, 20), UDim2.new(0.5, 0, 0.5, 0), 1.5)
 	centerCloud.Visible = false
 
 	local splashText = Instance.new("TextLabel")
@@ -501,17 +483,17 @@ local function playIntroAnimation(screenGui, titleText, onComplete)
 	splashText.BackgroundTransparency = 1
 	splashText.Text = titleText
 	splashText.Font = Enum.Font.GothamBold
-	splashText.TextSize = 44
+	splashText.TextSize = 48
 	splashText.TextColor3 = Color3.fromRGB(255, 255, 255)
 	splashText.TextTransparency = 1
 	splashText.TextXAlignment = Enum.TextXAlignment.Left
-	splashText.Parent = CenterGroup
+	splashText.Parent = IntroFrame
 
 	local textGradient = Instance.new("UIGradient")
 	textGradient.Rotation = 45
 	textGradient.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(160, 160, 190))
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 60, 72))
 	})
 	textGradient.Parent = splashText
 
@@ -520,48 +502,32 @@ local function playIntroAnimation(screenGui, titleText, onComplete)
 	TweenService:Create(cloud2, tweenInfoMerge, {Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
 	TweenService:Create(cloud3, tweenInfoMerge, {Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
 
-	task.delay(0.65, function()
-		local fadeMerge = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-		for _, cloud in ipairs({cloud1, cloud2, cloud3}) do
-			for _, desc in pairs(cloud:GetDescendants()) do
-				if desc:IsA("Frame") then
-					TweenService:Create(desc, fadeMerge, {BackgroundTransparency = 1}):Play()
-				end
-			end
-		end
+	task.delay(0.7, function()
+		cloud1:Destroy()
+		cloud2:Destroy()
+		cloud3:Destroy()
 
 		centerCloud.Visible = true
 		centerCloud.Size = UDim2.new(0, 30, 0, 20)
 
-		local tweenInfoGrow = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-		TweenService:Create(centerCloud, tweenInfoGrow, {Size = UDim2.new(0, 170, 0, 110)}):Play()
+		local tweenInfoGrow = TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+		TweenService:Create(centerCloud, tweenInfoGrow, {Size = UDim2.new(0, 180, 0, 115)}):Play()
 
-		task.delay(0.25, function()
-			cloud1:Destroy()
-			cloud2:Destroy()
-			cloud3:Destroy()
-		end)
-
-		task.delay(0.55, function()
+		task.delay(0.5, function()
 			local tweenInfoMoveLeft = TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-			TweenService:Create(centerCloud, tweenInfoMoveLeft, {Position = UDim2.new(0.5, -130, 0.5, 0)}):Play()
-			TweenService:Create(splashText, tweenInfoMoveLeft, {TextTransparency = 0, Position = UDim2.new(0.5, -20, 0.5, -35)}):Play()
+			TweenService:Create(centerCloud, tweenInfoMoveLeft, {Position = UDim2.new(0.5, -140, 0.5, 0)}):Play()
+			TweenService:Create(splashText, tweenInfoMoveLeft, {TextTransparency = 0, Position = UDim2.new(0.5, -30, 0.5, -35)}):Play()
 
-			task.delay(1.0, function()
-				local tweenInfoFadeOut = TweenInfo.new(0.55, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-				if canUseCanvasGroup and CenterGroup:IsA("CanvasGroup") then
-					TweenService:Create(CenterGroup, tweenInfoFadeOut, {GroupTransparency = 1}):Play()
-				else
-					for _, desc in pairs(CenterGroup:GetDescendants()) do
-						if desc:IsA("Frame") then
-							TweenService:Create(desc, tweenInfoFadeOut, {BackgroundTransparency = 1}):Play()
-						elseif desc:IsA("TextLabel") then
-							TweenService:Create(desc, tweenInfoFadeOut, {TextTransparency = 1}):Play()
-						end
+			task.delay(0.9, function()
+				local tweenInfoFadeOut = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+				for _, child in pairs(centerCloud:GetDescendants()) do
+					if child:IsA("Frame") then
+						TweenService:Create(child, tweenInfoFadeOut, {BackgroundTransparency = 1}):Play()
 					end
 				end
+				TweenService:Create(splashText, tweenInfoFadeOut, {TextTransparency = 1}):Play()
 
-				task.delay(0.55, function()
+				task.delay(0.5, function()
 					IntroFrame:Destroy()
 					if onComplete then
 						onComplete()
@@ -591,8 +557,8 @@ function CloudyLib:CreateWindow(options)
 
 	local MainFrame = Instance.new("Frame")
 	MainFrame.Name = "MainFrame"
-	MainFrame.Size = UDim2.new(0, 540, 0, 340)
-	MainFrame.Position = UDim2.new(0.5, -270, 0.5, -170)
+	MainFrame.Size = UDim2.new(0, 600, 0, 380)
+	MainFrame.Position = UDim2.new(0.5, -300, 0.5, -190)
 	MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
 	MainFrame.BorderSizePixel = 0
 	MainFrame.ClipsDescendants = true
@@ -610,7 +576,7 @@ function CloudyLib:CreateWindow(options)
 
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Name = "Sidebar"
-	Sidebar.Size = UDim2.new(0, 160, 1, 0)
+	Sidebar.Size = UDim2.new(0, 170, 1, 0)
 	Sidebar.Position = UDim2.new(0, 0, 0, 0)
 	Sidebar.BackgroundColor3 = Color3.fromRGB(16, 16, 22)
 	Sidebar.BorderSizePixel = 0
@@ -623,7 +589,7 @@ function CloudyLib:CreateWindow(options)
 
 	local SidebarHeader = Instance.new("Frame")
 	SidebarHeader.Name = "SidebarHeader"
-	SidebarHeader.Size = UDim2.new(1, 0, 0, 44)
+	SidebarHeader.Size = UDim2.new(1, 0, 0, 48)
 	SidebarHeader.Position = UDim2.new(0, 0, 0, 0)
 	SidebarHeader.BackgroundTransparency = 1
 	SidebarHeader.Parent = Sidebar
@@ -642,7 +608,7 @@ function CloudyLib:CreateWindow(options)
 	HeaderLayout.Parent = HeaderContainer
 
 	local LogoImage = Instance.new("ImageLabel")
-	LogoImage.Size = UDim2.new(0, 24, 0, 24)
+	LogoImage.Size = UDim2.new(0, 26, 0, 26)
 	LogoImage.BackgroundTransparency = 1
 	LogoImage.ImageColor3 = Color3.fromRGB(255, 255, 255)
 	LogoImage.LayoutOrder = 1
@@ -650,7 +616,7 @@ function CloudyLib:CreateWindow(options)
 	applyIcon(LogoImage, logoIcon)
 
 	local TitleContainer = Instance.new("Frame")
-	TitleContainer.Size = UDim2.new(1, -34, 1, 0)
+	TitleContainer.Size = UDim2.new(1, -38, 1, 0)
 	TitleContainer.BackgroundTransparency = 1
 	TitleContainer.LayoutOrder = 2
 	TitleContainer.Parent = HeaderContainer
@@ -663,11 +629,11 @@ function CloudyLib:CreateWindow(options)
 	TitleVLayout.Parent = TitleContainer
 
 	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(1, 0, 0, 16)
+	TitleLabel.Size = UDim2.new(1, 0, 0, 18)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Text = titleText
 	TitleLabel.Font = Enum.Font.GothamBold
-	TitleLabel.TextSize = 15
+	TitleLabel.TextSize = 17
 	TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	TitleLabel.LayoutOrder = 1
@@ -686,7 +652,7 @@ function CloudyLib:CreateWindow(options)
 	VersionLabel.BackgroundTransparency = 1
 	VersionLabel.Text = versionText
 	VersionLabel.Font = Enum.Font.GothamBold
-	VersionLabel.TextSize = 9
+	VersionLabel.TextSize = 10
 	VersionLabel.TextColor3 = Color3.fromRGB(140, 140, 175)
 	VersionLabel.TextXAlignment = Enum.TextXAlignment.Left
 	VersionLabel.LayoutOrder = 2
@@ -703,7 +669,7 @@ function CloudyLib:CreateWindow(options)
 	local SidebarDivider = Instance.new("Frame")
 	SidebarDivider.Name = "SidebarDivider"
 	SidebarDivider.Size = UDim2.new(0, 1, 1, 0)
-	SidebarDivider.Position = UDim2.new(0, 160, 0, 0)
+	SidebarDivider.Position = UDim2.new(0, 170, 0, 0)
 	SidebarDivider.BackgroundColor3 = Color3.fromRGB(38, 38, 50)
 	SidebarDivider.BorderSizePixel = 0
 	SidebarDivider.ZIndex = 3
@@ -711,23 +677,19 @@ function CloudyLib:CreateWindow(options)
 
 	local MainContent = Instance.new("Frame")
 	MainContent.Name = "MainContent"
-	MainContent.Size = UDim2.new(1, -161, 1, 0)
-	MainContent.Position = UDim2.new(0, 161, 0, 0)
+	MainContent.Size = UDim2.new(1, -171, 1, 0)
+	MainContent.Position = UDim2.new(0, 171, 0, 0)
 	MainContent.BackgroundTransparency = 1
 	MainContent.ClipsDescendants = true
 	MainContent.Parent = MainFrame
 
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
-	Topbar.Size = UDim2.new(1, 0, 0, 44)
+	Topbar.Size = UDim2.new(1, 0, 0, 48)
 	Topbar.Position = UDim2.new(0, 0, 0, 0)
 	Topbar.BackgroundColor3 = Color3.fromRGB(16, 16, 22)
 	Topbar.BorderSizePixel = 0
 	Topbar.Parent = MainContent
-
-	local TopbarCorner = Instance.new("UICorner")
-	TopbarCorner.CornerRadius = UDim.new(0, 10)
-	TopbarCorner.Parent = Topbar
 
 	local TopbarCorner = Instance.new("UICorner")
 	TopbarCorner.CornerRadius = UDim.new(0, 10)
@@ -889,8 +851,8 @@ function CloudyLib:CreateWindow(options)
 	local isExpanded = false
 	ResizeBtn.MouseButton1Click:Connect(function()
 		isExpanded = not isExpanded
-		local targetSize = isExpanded and UDim2.new(0, 700, 0, 430) or UDim2.new(0, 540, 0, 340)
-		local targetPos = isExpanded and UDim2.new(0.5, -350, 0.5, -215) or UDim2.new(0.5, -270, 0.5, -170)
+		local targetSize = isExpanded and UDim2.new(0, 780, 0, 480) or UDim2.new(0, 600, 0, 380)
+		local targetPos = isExpanded and UDim2.new(0.5, -390, 0.5, -240) or UDim2.new(0.5, -300, 0.5, -190)
 
 		local tweenInfo = TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 		TweenService:Create(MainFrame, tweenInfo, {
@@ -924,27 +886,16 @@ function CloudyLib:CreateWindow(options)
 		TweenService:Create(ResizeIcon, TweenInfo.new(0.15), {ImageColor3 = Color3.fromRGB(200, 200, 215)}):Play()
 	end)
 
-	local TabScroll = Instance.new("ScrollingFrame")
-	TabScroll.Size = UDim2.new(1, 0, 1, -104)
-	TabScroll.Position = UDim2.new(0, 0, 0, 44)
-	TabScroll.BackgroundTransparency = 1
-	TabScroll.BorderSizePixel = 0
-	TabScroll.ScrollBarThickness = 2
-	TabScroll.ScrollBarImageColor3 = Color3.fromRGB(45, 45, 58)
-	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-	TabScroll.ZIndex = 2
-	TabScroll.Parent = Sidebar
-
 	local TabIndicator = Instance.new("Frame")
 	TabIndicator.Name = "TabIndicator"
-	TabIndicator.Size = UDim2.new(1, -16, 0, 38)
-	TabIndicator.Position = UDim2.new(0, 8, 0, 6)
+	TabIndicator.Size = UDim2.new(0, 154, 0, 38)
+	TabIndicator.Position = UDim2.new(0, 8, 0, 56)
 	TabIndicator.BackgroundColor3 = Color3.fromRGB(30, 30, 42)
 	TabIndicator.BackgroundTransparency = 0.2
 	TabIndicator.BorderSizePixel = 0
 	TabIndicator.Visible = false
 	TabIndicator.ZIndex = 1
-	TabIndicator.Parent = TabScroll
+	TabIndicator.Parent = Sidebar
 
 	local IndCorner = Instance.new("UICorner")
 	IndCorner.CornerRadius = UDim.new(0, 8)
@@ -952,8 +903,8 @@ function CloudyLib:CreateWindow(options)
 
 	local IndLine = Instance.new("Frame")
 	IndLine.Name = "WhiteIndicatorLine"
-	IndLine.Size = UDim2.new(0, 3, 0, 18)
-	IndLine.Position = UDim2.new(0, 2, 0.5, -9)
+	IndLine.Size = UDim2.new(0, 3, 0, 20)
+	IndLine.Position = UDim2.new(0, 2, 0.5, -10)
 	IndLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	IndLine.BorderSizePixel = 0
 	IndLine.Parent = TabIndicator
@@ -962,152 +913,45 @@ function CloudyLib:CreateWindow(options)
 	LineCorner.CornerRadius = UDim.new(1, 0)
 	LineCorner.Parent = IndLine
 
+	local TabScroll = Instance.new("ScrollingFrame")
+	TabScroll.Size = UDim2.new(1, 0, 1, -48)
+	TabScroll.Position = UDim2.new(0, 0, 0, 48)
+	TabScroll.BackgroundTransparency = 1
+	TabScroll.BorderSizePixel = 0
+	TabScroll.ScrollBarThickness = 2
+	TabScroll.ScrollBarImageColor3 = Color3.fromRGB(45, 45, 58)
+	TabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+	TabScroll.ZIndex = 2
+	TabScroll.Parent = Sidebar
+
 	local TabListLayout = Instance.new("UIListLayout")
 	TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	TabListLayout.Padding = UDim.new(0, 4)
 	TabListLayout.Parent = TabScroll
 
 	local TabPadding = Instance.new("UIPadding")
-	TabPadding.PaddingTop = UDim.new(0, 6)
+	TabPadding.PaddingTop = UDim.new(0, 8)
 	TabPadding.PaddingLeft = UDim.new(0, 8)
 	TabPadding.PaddingRight = UDim.new(0, 8)
-	TabPadding.PaddingBottom = UDim.new(0, 6)
+	TabPadding.PaddingBottom = UDim.new(0, 8)
 	TabPadding.Parent = TabScroll
 
 	TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		TabScroll.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y + 12)
-	end)
-
-	local realDisplayName = LocalPlayer and LocalPlayer.DisplayName or "User Profile"
-	local realUsername = LocalPlayer and LocalPlayer.Name or "Guest"
-
-	local function maskText(str)
-		if not str or str == "" then return "••••" end
-		if #str <= 3 then
-			return string.rep("•", #str)
-		else
-			return str:sub(1, 2) .. string.rep("•", math.min(#str - 2, 7))
-		end
-	end
-
-	local isCensored = true
-
-	local UserProfileFrame = Instance.new("Frame")
-	UserProfileFrame.Name = "UserProfileFrame"
-	UserProfileFrame.Size = UDim2.new(1, -12, 0, 50)
-	UserProfileFrame.Position = UDim2.new(0, 6, 1, -56)
-	UserProfileFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
-	UserProfileFrame.BorderSizePixel = 0
-	UserProfileFrame.ZIndex = 5
-	UserProfileFrame.Parent = Sidebar
-
-	local ProfileCorner = Instance.new("UICorner")
-	ProfileCorner.CornerRadius = UDim.new(0, 8)
-	ProfileCorner.Parent = UserProfileFrame
-
-	local ProfileStroke = Instance.new("UIStroke")
-	ProfileStroke.Color = Color3.fromRGB(38, 38, 52)
-	ProfileStroke.Thickness = 1
-	ProfileStroke.Parent = UserProfileFrame
-
-	local AvatarImage = Instance.new("ImageLabel")
-	AvatarImage.Name = "AvatarImage"
-	AvatarImage.Size = UDim2.new(0, 32, 0, 32)
-	AvatarImage.Position = UDim2.new(0, 8, 0.5, -16)
-	AvatarImage.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
-	AvatarImage.BorderSizePixel = 0
-	AvatarImage.Image = "rbxthumb://type=AvatarHeadShot&id=" .. tostring(LocalPlayer and LocalPlayer.UserId or 1) .. "&w=150&h=150"
-	AvatarImage.ZIndex = 6
-	AvatarImage.Parent = UserProfileFrame
-
-	local AvatarCorner = Instance.new("UICorner")
-	AvatarCorner.CornerRadius = UDim.new(1, 0)
-	AvatarCorner.Parent = AvatarImage
-
-	local AvatarStroke = Instance.new("UIStroke")
-	AvatarStroke.Color = Color3.fromRGB(60, 60, 85)
-	AvatarStroke.Thickness = 1
-	AvatarStroke.Parent = AvatarImage
-
-	local ProfileInfo = Instance.new("Frame")
-	ProfileInfo.Size = UDim2.new(1, -54, 1, 0)
-	ProfileInfo.Position = UDim2.new(0, 46, 0, 0)
-	ProfileInfo.BackgroundTransparency = 1
-	ProfileInfo.ZIndex = 6
-	ProfileInfo.Parent = UserProfileFrame
-
-	local DisplayNameLabel = Instance.new("TextLabel")
-	DisplayNameLabel.Size = UDim2.new(1, -22, 0, 16)
-	DisplayNameLabel.Position = UDim2.new(0, 0, 0.5, -15)
-	DisplayNameLabel.BackgroundTransparency = 1
-	DisplayNameLabel.Font = Enum.Font.GothamBold
-	DisplayNameLabel.TextSize = 11
-	DisplayNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	DisplayNameLabel.TextXAlignment = Enum.TextXAlignment.Left
-	DisplayNameLabel.TextTruncate = Enum.TextTruncate.AtEnd
-	DisplayNameLabel.ZIndex = 6
-	DisplayNameLabel.Parent = ProfileInfo
-
-	local UsernameLabel = Instance.new("TextLabel")
-	UsernameLabel.Size = UDim2.new(1, -22, 0, 14)
-	UsernameLabel.Position = UDim2.new(0, 0, 0.5, 1)
-	UsernameLabel.BackgroundTransparency = 1
-	UsernameLabel.Font = Enum.Font.Gotham
-	UsernameLabel.TextSize = 9
-	UsernameLabel.TextColor3 = Color3.fromRGB(140, 140, 165)
-	UsernameLabel.TextXAlignment = Enum.TextXAlignment.Left
-	UsernameLabel.TextTruncate = Enum.TextTruncate.AtEnd
-	UsernameLabel.ZIndex = 6
-	UsernameLabel.Parent = ProfileInfo
-
-	local CensorBadge = Instance.new("ImageLabel")
-	CensorBadge.Name = "CensorBadge"
-	CensorBadge.Size = UDim2.new(0, 14, 0, 14)
-	CensorBadge.Position = UDim2.new(1, -18, 0.5, -7)
-	CensorBadge.BackgroundTransparency = 1
-	CensorBadge.ZIndex = 6
-	CensorBadge.Parent = UserProfileFrame
-
-	local ProfileClickBtn = Instance.new("TextButton")
-	ProfileClickBtn.Size = UDim2.new(1, 0, 1, 0)
-	ProfileClickBtn.BackgroundTransparency = 1
-	ProfileClickBtn.Text = ""
-	ProfileClickBtn.ZIndex = 7
-	ProfileClickBtn.Parent = UserProfileFrame
-
-	local function updateCensorState()
-		if isCensored then
-			DisplayNameLabel.Text = maskText(realDisplayName)
-			UsernameLabel.Text = "@" .. maskText(realUsername)
-			applyIcon(CensorBadge, "eye-bold")
-			CensorBadge.ImageColor3 = Color3.fromRGB(255, 120, 120)
-		else
-			DisplayNameLabel.Text = realDisplayName
-			UsernameLabel.Text = "@" .. realUsername
-			applyIcon(CensorBadge, "eye-bold")
-			CensorBadge.ImageColor3 = Color3.fromRGB(46, 204, 113)
-		end
-	end
-
-	updateCensorState()
-
-	ProfileClickBtn.MouseButton1Click:Connect(function()
-		isCensored = not isCensored
-		updateCensorState()
+		TabScroll.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y + 16)
 	end)
 
 	local ContentContainer = Instance.new("Frame")
 	ContentContainer.Name = "ContentContainer"
-	ContentContainer.Size = UDim2.new(1, -161, 1, -44)
-	ContentContainer.Position = UDim2.new(0, 161, 0, 44)
+	ContentContainer.Size = UDim2.new(1, -171, 1, -48)
+	ContentContainer.Position = UDim2.new(0, 171, 0, 48)
 	ContentContainer.BackgroundTransparency = 1
 	ContentContainer.Parent = MainFrame
 
 	-- Dropdown Side Drawer Frame
 	local DropdownDrawer = Instance.new("Frame")
 	DropdownDrawer.Name = "DropdownDrawer"
-	DropdownDrawer.Size = UDim2.new(0, 220, 1, -44)
-	DropdownDrawer.Position = UDim2.new(1, 0, 0, 44)
+	DropdownDrawer.Size = UDim2.new(0, 230, 1, -48)
+	DropdownDrawer.Position = UDim2.new(1, 0, 0, 48)
 	DropdownDrawer.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
 	DropdownDrawer.BorderSizePixel = 0
 	DropdownDrawer.ZIndex = 50
@@ -1216,6 +1060,10 @@ function CloudyLib:CreateWindow(options)
 		closeDrawer()
 	end)
 
+	playIntroAnimation(ScreenGui, titleText, function()
+		MainFrame.Visible = true
+	end)
+
 	local WindowObj = {
 		Tabs = {},
 		ActiveTab = nil,
@@ -1223,13 +1071,6 @@ function CloudyLib:CreateWindow(options)
 		Flags = {},
 		Elements = {},
 	}
-
-	playIntroAnimation(ScreenGui, titleText, function()
-		MainFrame.Visible = true
-		if WindowObj.ActiveTab and WindowObj.ActiveTab.Select then
-			WindowObj.ActiveTab.Select(false)
-		end
-	end)
 
 	function WindowObj:SaveConfig(configName)
 		if not configName or configName == "" then configName = "Default" end
@@ -1343,7 +1184,6 @@ function CloudyLib:CreateWindow(options)
 		local TabObj = {
 			Button = TabBtn,
 			Page = TabPage,
-			LayoutOrder = WindowObj.TabCount,
 			ElementCount = 0
 		}
 
@@ -1353,7 +1193,7 @@ function CloudyLib:CreateWindow(options)
 
 			closeDrawer()
 
-			local targetY = 6 + (TabObj.LayoutOrder - 1) * 42
+			local targetY = TabBtn.AbsolutePosition.Y - Sidebar.AbsolutePosition.Y
 			local targetPos = UDim2.new(0, 8, 0, targetY)
 
 			TabIndicator.Visible = true
@@ -1393,27 +1233,25 @@ function CloudyLib:CreateWindow(options)
 			}):Play()
 		end
 
-		TabObj.Select = selectTab
-
 		TabBtn.MouseButton1Click:Connect(function()
 			selectTab(true)
 		end)
 
 		if WindowObj.TabCount == 1 then
-			selectTab(false)
+			task.delay(0.1, function()
+				selectTab(false)
+			end)
 		end
 
 		table.insert(WindowObj.Tabs, TabObj)
 
 		function TabObj:AddSection(text, defaultOpen)
 			TabObj.ElementCount = TabObj.ElementCount + 1
-			local isOpen = (defaultOpen == nil) and false or defaultOpen
+			local isOpen = (defaultOpen == nil) and true or defaultOpen
 
 			local SectionHolder = Instance.new("Frame")
-			SectionHolder.Name = "Section_" .. text
 			SectionHolder.Size = UDim2.new(1, 0, 0, 32)
 			SectionHolder.BackgroundTransparency = 1
-			SectionHolder.ClipsDescendants = true
 			SectionHolder.LayoutOrder = TabObj.ElementCount
 			SectionHolder.Parent = TabPage
 
@@ -1445,18 +1283,16 @@ function CloudyLib:CreateWindow(options)
 
 			local Underline = Instance.new("Frame")
 			Underline.Size = UDim2.new(1, 0, 0, 1)
-			Underline.Position = UDim2.new(0, 0, 0, 31)
+			Underline.Position = UDim2.new(0, 0, 1, -1)
 			Underline.BackgroundColor3 = Color3.fromRGB(38, 38, 50)
 			Underline.BorderSizePixel = 0
 			Underline.Parent = SectionHolder
 
 			local ItemsContainer = Instance.new("Frame")
-			ItemsContainer.Name = "ItemsContainer"
 			ItemsContainer.Size = UDim2.new(1, 0, 0, 0)
 			ItemsContainer.Position = UDim2.new(0, 0, 0, 32)
 			ItemsContainer.BackgroundTransparency = 1
-			ItemsContainer.ClipsDescendants = true
-			ItemsContainer.Visible = true
+			ItemsContainer.Visible = isOpen
 			ItemsContainer.Parent = SectionHolder
 
 			local ItemsLayout = Instance.new("UIListLayout")
@@ -1464,30 +1300,26 @@ function CloudyLib:CreateWindow(options)
 			ItemsLayout.Padding = UDim.new(0, 8)
 			ItemsLayout.Parent = ItemsContainer
 
-			local function updateSectionState(animated)
-				local contentHeight = ItemsLayout.AbsoluteContentSize.Y
-				local targetHolderHeight = isOpen and (32 + contentHeight + 6) or 32
-				local targetItemsHeight = isOpen and contentHeight or 0
-
-				if animated ~= false then
-					local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-					TweenService:Create(SectionHolder, tweenInfo, {Size = UDim2.new(1, 0, 0, targetHolderHeight)}):Play()
-					TweenService:Create(ItemsContainer, tweenInfo, {Size = UDim2.new(1, 0, 0, targetItemsHeight)}):Play()
-					TweenService:Create(ArrowIcon, tweenInfo, {Rotation = isOpen and 0 or -90}):Play()
-				else
-					SectionHolder.Size = UDim2.new(1, 0, 0, targetHolderHeight)
-					ItemsContainer.Size = UDim2.new(1, 0, 0, targetItemsHeight)
-					ArrowIcon.Rotation = isOpen and 0 or -90
-				end
-			end
-
 			ItemsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-				updateSectionState(false)
+				if isOpen then
+					ItemsContainer.Size = UDim2.new(1, 0, 0, ItemsLayout.AbsoluteContentSize.Y)
+					SectionHolder.Size = UDim2.new(1, 0, 0, 32 + ItemsLayout.AbsoluteContentSize.Y + 6)
+				end
 			end)
 
 			HeaderBtn.MouseButton1Click:Connect(function()
 				isOpen = not isOpen
-				updateSectionState(true)
+				ItemsContainer.Visible = isOpen
+				TweenService:Create(ArrowIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+					Rotation = isOpen and 0 or -90
+				}):Play()
+
+				if isOpen then
+					ItemsContainer.Size = UDim2.new(1, 0, 0, ItemsLayout.AbsoluteContentSize.Y)
+					SectionHolder.Size = UDim2.new(1, 0, 0, 32 + ItemsLayout.AbsoluteContentSize.Y + 6)
+				else
+					SectionHolder.Size = UDim2.new(1, 0, 0, 32)
+				end
 			end)
 
 			local SectionObj = {}
@@ -1495,7 +1327,8 @@ function CloudyLib:CreateWindow(options)
 			local function addToSection(elementFrame)
 				elementFrame.Parent = ItemsContainer
 				if isOpen then
-					updateSectionState(false)
+					ItemsContainer.Size = UDim2.new(1, 0, 0, ItemsLayout.AbsoluteContentSize.Y)
+					SectionHolder.Size = UDim2.new(1, 0, 0, 32 + ItemsLayout.AbsoluteContentSize.Y + 6)
 				end
 			end
 
@@ -1538,24 +1371,6 @@ function CloudyLib:CreateWindow(options)
 				if lastChild and lastChild:IsA("Frame") then
 					addToSection(lastChild)
 				end
-			end
-
-			function SectionObj:AddMultiDropdown(dropText, optList, defOpt, callback, flagName)
-				local res = TabObj:AddMultiDropdown(dropText, optList, defOpt, callback, flagName, ItemsContainer)
-				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
-				if lastChild and lastChild:IsA("Frame") then
-					addToSection(lastChild)
-				end
-				return res
-			end
-
-			function SectionObj:AddTextBox(text, placeholder, callback, flagName)
-				local res = TabObj:AddTextBox(text, placeholder, callback, flagName, ItemsContainer)
-				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
-				if lastChild and lastChild:IsA("Frame") then
-					addToSection(lastChild)
-				end
-				return res
 			end
 
 			return SectionObj
