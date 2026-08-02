@@ -167,16 +167,22 @@ local IconModule = {
 	IconThemeTag = nil,
 
 	Icons = {
-		solar = FetchIconPack(
-			"https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua",
-			{"https://cdn.jsdelivr.net/gh/Footagesus/Icons@main/solar/dist/Icons.lua"}
-		) or {},
-		gravity = FetchIconPack(
-			"https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/gravity/dist/Icons.lua",
-			{"https://cdn.jsdelivr.net/gh/Footagesus/Icons@main/gravity/dist/Icons.lua"}
-		) or {},
+		solar = {},
+		gravity = {},
 	},
 }
+
+task.spawn(function()
+	IconModule.Icons.solar = FetchIconPack(
+		"https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua",
+		{"https://cdn.jsdelivr.net/gh/Footagesus/Icons@main/solar/dist/Icons.lua"}
+	) or {}
+
+	IconModule.Icons.gravity = FetchIconPack(
+		"https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/gravity/dist/Icons.lua",
+		{"https://cdn.jsdelivr.net/gh/Footagesus/Icons@main/gravity/dist/Icons.lua"}
+	) or {}
+end)
 
 local function parseIconString(iconString)
 	if type(iconString) == "string" then
@@ -910,8 +916,207 @@ function CloudyLib:CreateWindow(options)
 		}):Play()
 	end)
 
-	CloseBtn.MouseButton1Click:Connect(function()
+	local ConfirmOverlay = Instance.new("Frame")
+	ConfirmOverlay.Name = "ExitConfirmOverlay"
+	ConfirmOverlay.Size = UDim2.new(1, 0, 1, 0)
+	ConfirmOverlay.Position = UDim2.new(0, 0, 0, 0)
+	ConfirmOverlay.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
+	ConfirmOverlay.BackgroundTransparency = 1
+	ConfirmOverlay.ZIndex = 9999
+	ConfirmOverlay.Visible = false
+	ConfirmOverlay.Parent = MainFrame
+
+	local OverlayCorner = Instance.new("UICorner")
+	OverlayCorner.CornerRadius = UDim.new(0, 10)
+	OverlayCorner.Parent = ConfirmOverlay
+
+	local ConfirmCard = Instance.new("Frame")
+	ConfirmCard.Name = "ExitConfirmCard"
+	ConfirmCard.Size = UDim2.new(0, 310, 0, 160)
+	ConfirmCard.Position = UDim2.new(0.5, 0, 0.5, 0)
+	ConfirmCard.AnchorPoint = Vector2.new(0.5, 0.5)
+	ConfirmCard.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+	ConfirmCard.BorderSizePixel = 0
+	ConfirmCard.ClipsDescendants = true
+	ConfirmCard.ZIndex = 10000
+	ConfirmCard.Parent = ConfirmOverlay
+
+	local CardCorner = Instance.new("UICorner")
+	CardCorner.CornerRadius = UDim.new(0, 12)
+	CardCorner.Parent = ConfirmCard
+
+	local CardStroke = Instance.new("UIStroke")
+	CardStroke.Color = Color3.fromRGB(55, 55, 75)
+	CardStroke.Thickness = 1.5
+	CardStroke.Parent = ConfirmCard
+
+	local CardTopGlow = Instance.new("Frame")
+	CardTopGlow.Size = UDim2.new(1, 0, 0, 3)
+	CardTopGlow.Position = UDim2.new(0, 0, 0, 0)
+	CardTopGlow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	CardTopGlow.BorderSizePixel = 0
+	CardTopGlow.ZIndex = 10001
+	CardTopGlow.Parent = ConfirmCard
+
+	local GlowGradient = Instance.new("UIGradient")
+	GlowGradient.Rotation = 0
+	GlowGradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(200, 200, 220)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(130, 130, 150))
+	})
+	GlowGradient.Parent = CardTopGlow
+
+	local ConfirmTitle = Instance.new("TextLabel")
+	ConfirmTitle.Size = UDim2.new(1, -32, 0, 26)
+	ConfirmTitle.Position = UDim2.new(0, 16, 0, 18)
+	ConfirmTitle.BackgroundTransparency = 1
+	ConfirmTitle.Text = "Konfirmasi Keluar"
+	ConfirmTitle.Font = Enum.Font.GothamBold
+	ConfirmTitle.TextSize = 16
+	ConfirmTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+	ConfirmTitle.TextXAlignment = Enum.TextXAlignment.Center
+	ConfirmTitle.ZIndex = 10001
+	ConfirmTitle.Parent = ConfirmCard
+
+	local TitleGradient = Instance.new("UIGradient")
+	TitleGradient.Rotation = 45
+	TitleGradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(160, 160, 180))
+	})
+	TitleGradient.Parent = ConfirmTitle
+
+	local ConfirmDesc = Instance.new("TextLabel")
+	ConfirmDesc.Size = UDim2.new(1, -32, 0, 36)
+	ConfirmDesc.Position = UDim2.new(0, 16, 0, 48)
+	ConfirmDesc.BackgroundTransparency = 1
+	ConfirmDesc.Text = "Apakah kamu yakin ingin menutup CloudyUI?"
+	ConfirmDesc.Font = Enum.Font.GothamMedium
+	ConfirmDesc.TextSize = 12
+	ConfirmDesc.TextColor3 = Color3.fromRGB(170, 170, 195)
+	ConfirmDesc.TextWrapped = true
+	ConfirmDesc.TextXAlignment = Enum.TextXAlignment.Center
+	ConfirmDesc.ZIndex = 10001
+	ConfirmDesc.Parent = ConfirmCard
+
+	local BtnContainer = Instance.new("Frame")
+	BtnContainer.Size = UDim2.new(1, -24, 0, 38)
+	BtnContainer.Position = UDim2.new(0, 12, 1, -50)
+	BtnContainer.BackgroundTransparency = 1
+	BtnContainer.ZIndex = 10001
+	BtnContainer.Parent = ConfirmCard
+
+	local CancelBtn = Instance.new("TextButton")
+	CancelBtn.Size = UDim2.new(0.5, -6, 1, 0)
+	CancelBtn.Position = UDim2.new(0, 0, 0, 0)
+	CancelBtn.BackgroundColor3 = Color3.fromRGB(32, 32, 44)
+	CancelBtn.Text = "Batal"
+	CancelBtn.Font = Enum.Font.GothamBold
+	CancelBtn.TextSize = 12
+	CancelBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+	CancelBtn.AutoButtonColor = false
+	CancelBtn.ZIndex = 10002
+	CancelBtn.Parent = BtnContainer
+
+	local CancelCorner = Instance.new("UICorner")
+	CancelCorner.CornerRadius = UDim.new(0, 8)
+	CancelCorner.Parent = CancelBtn
+
+	local CancelStroke = Instance.new("UIStroke")
+	CancelStroke.Color = Color3.fromRGB(50, 50, 65)
+	CancelStroke.Thickness = 1
+	CancelStroke.Parent = CancelBtn
+
+	local ExitBtn = Instance.new("Frame")
+	ExitBtn.Size = UDim2.new(0.5, -6, 1, 0)
+	ExitBtn.Position = UDim2.new(0.5, 6, 0, 0)
+	ExitBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	ExitBtn.ZIndex = 10002
+	ExitBtn.Parent = BtnContainer
+
+	local ExitCorner = Instance.new("UICorner")
+	ExitCorner.CornerRadius = UDim.new(0, 8)
+	ExitCorner.Parent = ExitBtn
+
+	local ExitGradient = Instance.new("UIGradient")
+	ExitGradient.Rotation = 45
+	ExitGradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(160, 160, 180))
+	})
+	ExitGradient.Parent = ExitBtn
+
+	local ExitActionBtn = Instance.new("TextButton")
+	ExitActionBtn.Size = UDim2.new(1, 0, 1, 0)
+	ExitActionBtn.BackgroundTransparency = 1
+	ExitActionBtn.Text = "Ya, Keluar"
+	ExitActionBtn.Font = Enum.Font.GothamBold
+	ExitActionBtn.TextSize = 12
+	ExitActionBtn.TextColor3 = Color3.fromRGB(20, 20, 26)
+	ExitActionBtn.ZIndex = 10003
+	ExitActionBtn.Parent = ExitBtn
+
+	local isModalAnimating = false
+
+	local function openExitModal()
+		if isModalAnimating then return end
+		isModalAnimating = true
+
+		ConfirmOverlay.Visible = true
+		ConfirmOverlay.BackgroundTransparency = 1
+		ConfirmCard.Size = UDim2.new(0, 260, 0, 135)
+
+		TweenService:Create(ConfirmOverlay, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+			BackgroundTransparency = 0.55
+		}):Play()
+
+		local tweenGrow = TweenService:Create(ConfirmCard, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, 310, 0, 160)
+		})
+		tweenGrow:Play()
+		tweenGrow.Completed:Connect(function()
+			isModalAnimating = false
+		end)
+	end
+
+	local function closeExitModal()
+		if isModalAnimating then return end
+		isModalAnimating = true
+
+		TweenService:Create(ConfirmOverlay, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+			BackgroundTransparency = 1
+		}):Play()
+
+		local tweenShrink = TweenService:Create(ConfirmCard, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 260, 0, 135)
+		})
+		tweenShrink:Play()
+		tweenShrink.Completed:Connect(function()
+			ConfirmOverlay.Visible = false
+			isModalAnimating = false
+		end)
+	end
+
+	CloseBtn.MouseButton1Click:Connect(openExitModal)
+	CancelBtn.MouseButton1Click:Connect(closeExitModal)
+
+	ExitActionBtn.MouseButton1Click:Connect(function()
 		ScreenGui:Destroy()
+	end)
+
+	CancelBtn.MouseEnter:Connect(function()
+		TweenService:Create(CancelBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(42, 42, 58)}):Play()
+	end)
+	CancelBtn.MouseLeave:Connect(function()
+		TweenService:Create(CancelBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(32, 32, 44)}):Play()
+	end)
+
+	ExitActionBtn.MouseEnter:Connect(function()
+		TweenService:Create(ExitGradient, TweenInfo.new(0.15), {Rotation = 90}):Play()
+	end)
+	ExitActionBtn.MouseLeave:Connect(function()
+		TweenService:Create(ExitGradient, TweenInfo.new(0.15), {Rotation = 45}):Play()
 	end)
 
 	CloseBtn.MouseEnter:Connect(function()
