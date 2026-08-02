@@ -486,7 +486,9 @@ local function playIntroAnimation(screenGui, titleText, onComplete)
 	CenterGroup.Size = UDim2.new(0, 460, 0, 140)
 	CenterGroup.Position = UDim2.new(0.5, -230, 0.5, -70)
 	CenterGroup.BackgroundTransparency = 1
-	CenterGroup.ClipsDescendants = false
+	if not CenterGroup:IsA("CanvasGroup") then
+		CenterGroup.ClipsDescendants = false
+	end
 	CenterGroup.ZIndex = 1000
 	CenterGroup.Parent = IntroFrame
 
@@ -1536,6 +1538,24 @@ function CloudyLib:CreateWindow(options)
 				if lastChild and lastChild:IsA("Frame") then
 					addToSection(lastChild)
 				end
+			end
+
+			function SectionObj:AddMultiDropdown(dropText, optList, defOpt, callback, flagName)
+				local res = TabObj:AddMultiDropdown(dropText, optList, defOpt, callback, flagName, ItemsContainer)
+				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
+				if lastChild and lastChild:IsA("Frame") then
+					addToSection(lastChild)
+				end
+				return res
+			end
+
+			function SectionObj:AddTextBox(text, placeholder, callback, flagName)
+				local res = TabObj:AddTextBox(text, placeholder, callback, flagName, ItemsContainer)
+				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
+				if lastChild and lastChild:IsA("Frame") then
+					addToSection(lastChild)
+				end
+				return res
 			end
 
 			return SectionObj
