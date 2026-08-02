@@ -972,7 +972,6 @@ function CloudyLib:CreateWindow(options)
 		TabScroll.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y + 12)
 	end)
 
-	-- Sidebar Bottom User Profile Component
 	local SidebarProfile = Instance.new("Frame")
 	SidebarProfile.Name = "SidebarProfile"
 	SidebarProfile.Size = UDim2.new(1, 0, 0, 52)
@@ -2306,6 +2305,10 @@ function CloudyLib:CreateWindow(options)
 	end
 
 	return WindowObj
+end
+
+if type(getgenv) == "function" then
+	getgenv().CloudyLib = CloudyLib
 end
 
 return CloudyLib
