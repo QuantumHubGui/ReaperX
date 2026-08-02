@@ -1500,53 +1500,46 @@ function CloudyLib:CreateWindow(options)
 
 			local SectionObj = {}
 
-			local function addToSection(elementFrame)
-				elementFrame.Parent = ItemsContainer
-				if isOpen then
-					ItemsContainer.Size = UDim2.new(1, 0, 0, ItemsLayout.AbsoluteContentSize.Y)
-					SectionHolder.Size = UDim2.new(1, 0, 0, 32 + ItemsLayout.AbsoluteContentSize.Y + 6)
-				end
-			end
-
 			function SectionObj:AddButton(btnText, callback)
-				TabObj:AddButton(btnText, callback, ItemsContainer)
-				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
-				if lastChild and lastChild:IsA("Frame") then
-					addToSection(lastChild)
-				end
-			end
-
-			function SectionObj:AddToggle(toggleText, defaultVal, callback, flagName)
-				TabObj:AddToggle(toggleText, defaultVal, callback, flagName, ItemsContainer)
-				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
-				if lastChild and lastChild:IsA("Frame") then
-					addToSection(lastChild)
-				end
-			end
-
-			function SectionObj:AddSlider(sliderText, minV, maxV, defV, callback, flagName)
-				TabObj:AddSlider(sliderText, minV, maxV, defV, callback, flagName, ItemsContainer)
-				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
-				if lastChild and lastChild:IsA("Frame") then
-					addToSection(lastChild)
-				end
-			end
-
-			function SectionObj:AddDropdown(dropText, optList, defOpt, callback, flagName)
-				local res = TabObj:AddDropdown(dropText, optList, defOpt, callback, flagName, ItemsContainer)
-				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
-				if lastChild and lastChild:IsA("Frame") then
-					addToSection(lastChild)
-				end
+				local res = TabObj:AddButton(btnText, callback, ItemsContainer)
+				if isOpen then updateSectionState(false) end
 				return res
 			end
 
 			function SectionObj:AddButtonGroup2x2(buttonsData)
-				TabObj:AddButtonGroup2x2(buttonsData, ItemsContainer)
-				local lastChild = ItemsContainer:GetChildren()[#ItemsContainer:GetChildren()]
-				if lastChild and lastChild:IsA("Frame") then
-					addToSection(lastChild)
-				end
+				local res = TabObj:AddButtonGroup2x2(buttonsData, ItemsContainer)
+				if isOpen then updateSectionState(false) end
+				return res
+			end
+
+			function SectionObj:AddToggle(toggleText, defaultVal, callback, flagName)
+				local res = TabObj:AddToggle(toggleText, defaultVal, callback, flagName, ItemsContainer)
+				if isOpen then updateSectionState(false) end
+				return res
+			end
+
+			function SectionObj:AddSlider(sliderText, minV, maxV, defV, callback, flagName)
+				local res = TabObj:AddSlider(sliderText, minV, maxV, defV, callback, flagName, ItemsContainer)
+				if isOpen then updateSectionState(false) end
+				return res
+			end
+
+			function SectionObj:AddDropdown(dropText, optList, defOpt, callback, flagName)
+				local res = TabObj:AddDropdown(dropText, optList, defOpt, callback, flagName, ItemsContainer)
+				if isOpen then updateSectionState(false) end
+				return res
+			end
+
+			function SectionObj:AddMultiDropdown(text, optionsList, defaultSelected, callback, flagName)
+				local res = TabObj:AddMultiDropdown(text, optionsList, defaultSelected, callback, flagName, ItemsContainer)
+				if isOpen then updateSectionState(false) end
+				return res
+			end
+
+			function SectionObj:AddTextBox(text, placeholder, callback, flagName)
+				local res = TabObj:AddTextBox(text, placeholder, callback, flagName, ItemsContainer)
+				if isOpen then updateSectionState(false) end
+				return res
 			end
 
 			return SectionObj
@@ -1768,6 +1761,7 @@ function CloudyLib:CreateWindow(options)
 			end
 
 			WindowObj.Elements[flagName] = toggleElement
+			return toggleElement
 		end
 
 		function TabObj:AddSlider(text, minVal, maxVal, defaultVal, callback, flagName, targetParent)
@@ -1898,6 +1892,7 @@ function CloudyLib:CreateWindow(options)
 			end
 
 			WindowObj.Elements[flagName] = sliderElement
+			return sliderElement
 		end
 
 		function TabObj:AddDropdown(text, optionsList, defaultOpt, callback, flagName, targetParent)
@@ -2230,6 +2225,7 @@ function CloudyLib:CreateWindow(options)
 			end
 
 			WindowObj.Elements[flagName] = multiElement
+			return multiElement
 		end
 
 		function TabObj:AddTextBox(text, placeholder, callback, flagName, targetParent)
@@ -2299,6 +2295,7 @@ function CloudyLib:CreateWindow(options)
 			end
 
 			WindowObj.Elements[flagName] = boxElement
+			return boxElement
 		end
 
 		return TabObj
